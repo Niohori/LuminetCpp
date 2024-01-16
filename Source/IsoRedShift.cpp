@@ -189,12 +189,12 @@ void IsoRedShift::update() {
 void IsoRedShift::add_solutions(const std::vector<double>& angles, const std::vector<double>& impact_parameters, double radius_ir) {
 	// Implement the add_solutions function
 }
-/*
-std::unordered_map<std::pair<double, double>, double> IsoRedShift::init_co_to_radii_dict() {
+
+/*std::unordered_map<std::pair<double, double>, double> IsoRedShift::init_co_to_radii_dict() {
 	// Implement the init_co_to_radii_dict function
 	std::unordered_map<std::pair<double, double>, double> a;
 	return a;
-}*
+}*/
 
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::extract_co_from_solutions_dict() {
 	// Implement the extract_co_from_solutions_dict function
@@ -244,7 +244,7 @@ return a;
 }
 
 void IsoRedShift::order_coordinates(const std::string& plot_title , bool plot_inbetween ) {
-	/*std::vector<std::pair<double, double>> co;
+	std::vector<std::pair<double, double>> co;
 	for (size_t i = 0; i < angles.size(); ++i) {
 		co.emplace_back(angles[i], radii[i]);
 	}
@@ -256,8 +256,10 @@ void IsoRedShift::order_coordinates(const std::string& plot_title , bool plot_in
 	std::vector<double> order_around = { 0.3 * cx, 0.8 * cy };
 
 	std::sort(co.begin(), co.end(), [&](const auto& p1, const auto& p2) {
-		return OperatorsOrder2::get_angle_around(order_around, OperatorsOrder2::polar_to_cartesian_single(p1.first, p1.second,0.0)) <
-			OperatorsOrder2::get_angle_around(order_around, OperatorsOrder2::polar_to_cartesian_single(p2.first, p2.second,0.0));
+		std::vector<double> theta_1 = { OperatorsOrder2::polar_to_cartesian_single(p1.first, p1.second, 0.0).first,OperatorsOrder2::polar_to_cartesian_single(p1.first, p1.second, 0.0).second };
+		std::vector<double> theta_2 = { OperatorsOrder2::polar_to_cartesian_single(p2.first, p2.second, 0.0).first,OperatorsOrder2::polar_to_cartesian_single(p2.first, p2.second, 0.0).second };
+		return OperatorsOrder2::get_angle_around(order_around, theta_1) <
+			OperatorsOrder2::get_angle_around(order_around, theta_2);
 		});
 
 	if (plot_inbetween) {
@@ -274,5 +276,5 @@ void IsoRedShift::order_coordinates(const std::string& plot_title , bool plot_in
 	}
 	a = OperatorsOrder2::polar_to_cartesian_lists(radii, angles, 0.0);
 	x = std::get<0>(a);
-	y = std::get<1>(a);*/
+	y = std::get<1>(a);
 }

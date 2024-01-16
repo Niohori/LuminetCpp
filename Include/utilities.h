@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <utility>
 #include <unordered_map>
+#include <algorithm>
 
 const double M_PI = 3.14159265358979323846;
 //INI settings are wrapped in struct

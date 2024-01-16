@@ -11,11 +11,13 @@
 #include <cmath>
 #include <functional>
 #include <map>
+#include <numeric>
 
 #include "TensorCalculus.h"
 #include "BlackHolePhysics.h"
 #include "IsoRadials.h"
 #include "utilities.h"
+
 
 class IsoRedShift {
 private://variables
@@ -65,9 +67,9 @@ public://methods
 	void update();
 
 	void add_solutions(const std::vector<double>& angles, const std::vector<double>& impact_parameters, double radius_ir);
-	std::unordered_map<std::pair<double, double>, double> init_co_to_radii_dict();
+	//std::unordered_map<std::pair<double, double>, double> init_co_to_radii_dict();
 	std::pair<std::vector<double>, std::vector<double>> extract_co_from_solutions_dict();
-	//void calc_from_isoradials(const std::vector<Isoradial>& isoradials, bool cartesian = false);
+	void calc_from_isoradials(const std::vector<Isoradial>& isoradials, bool cartesian = false);
 
 	std::pair<std::vector<double>, std::vector<double>> calc_core_coordinates();
 	void order_coordinates(const std::string& plot_title = "", bool plot_inbetween = false);
