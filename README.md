@@ -1,2 +1,2 @@
 # LuminetCpp
-Unofficial C++ version of Luminet project of bgmeulem //https://github.com/bgmeulem/Luminet/
+Unoffial C++ version of Luminet project of bgmeulem //https://github.com/bgmeulem/Luminet/
