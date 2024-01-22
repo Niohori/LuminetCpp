@@ -390,7 +390,6 @@ MigrationBackup/
 .ionide/
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,visualstudio
-**/documentation/
 **/documentation/latex/
 **/documentation/html/
 **/x64/

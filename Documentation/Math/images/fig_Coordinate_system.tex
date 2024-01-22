@@ -1,0 +1,224 @@
+
+\tikzset{>=latex} % for LaTeX arrow head
+\tikzstyle{proj}=[projcol!80,line width=0.08] %very thin
+\tikzstyle{area}=[draw=veccol,fill=veccol!80,fill opacity=0.6]
+\tikzstyle{vector}=[-stealth,myblue,thick,line cap=round]
+\tikzstyle{unit vector}=[->,veccol,thick,line cap=round]
+\tikzstyle{dark unit vector}=[unit vector,veccol!70!black]
+\usetikzlibrary{angles,quotes} % for pic (angle labels)
+\contourlength{1.3pt}
+\tikzset{ra/.style={red,draw,angle radius=0.5cm}} % right angle style
+
+\def\tdplotdefinepoints(#1,#2,#3)(#4,#5,#6)(#7,#8,#9){%
+  \pgfmathsetmacro{\tdplotvertexx}{#1}
+  \pgfmathsetmacro{\tdplotvertexy}{#2}
+  \pgfmathsetmacro{\tdplotvertexz}{#3}  \pgfmathsetmacro{\tdplotax}{#4}
+  \pgfmathsetmacro{\tdplotay}{#5}  \pgfmathsetmacro{\tdplotaz}{#6}
+  \pgfmathsetmacro{\tdplotbx}{#7}  \pgfmathsetmacro{\tdplotby}{#8}
+  \pgfmathsetmacro{\tdplotbz}{#9}
+}
+
+% Style to set camera angle, like PGFPlots `view` style
+\tikzset{viewport/.style 2 args={
+    x={({cos(-#1)*1cm},{sin(-#1)*sin(#2)*1cm})},
+    y={({-sin(-#1)*1cm},{cos(-#1)*sin(#2)*1cm})},
+    z={(0,{cos(#2)*1cm})}
+}}
+
+% Convert from spherical to cartesian coordinates
+\newcommand{\ToXYZ}[2]{
+    {\R*sin(#1)*cos(#2)}, % X coordinate
+    {\R*cos(#1)*cos(#2)}, % Y coordinate
+    {\R*sin(#2)}          % Z (vertical) coordinate
+}
+% Style to set camera angle, like PGFPlots `view` style
+\tikzset{viewport/.style 2 args={
+    x={({cos(-#1)*1cm},{sin(-#1)*sin(#2)*1cm})},
+    y={({-sin(-#1)*1cm},{cos(-#1)*sin(#2)*1cm})},
+    z={(0,{cos(#2)*1cm})}
+}}
+\tikzstyle{point}=[inner sep=0pt, outer sep=0pt,%
+    minimum size=2pt,fill=black,shape=circle]
+ \def\aofv{103}
+\begin{document}
+\def\RotationX{-30}
+\def\RotationY{-20}
+%\edef\mylist{\poissonpointslist{8}{4}{0.1}{20}}
+   
+% 3D AXIS with spherical coordinates, dA
+\tdplotsetmaincoords{60}{\aofv}
+\begin{tikzpicture}[scale=3,tdplot_main_coords]
+  
+  % VARIABLE
+  \def\R{4.0}
+  \def\thetavec{35}
+  \def\phivec{45}
+  \def\dtheta{10}
+  \def\dphi{16}
+  \def\sphere#1#2#3{plot[domain=#1]({\R*sin(#2)*cos(#3)},{\R*sin(#2)*sin(#3)},{\R*cos(#2)})}
+  \def\dist{12}
+  \def\angle{60}
+  \def\plate{2}
+  \def\pie{3.1415}
+  \def\k{5}
+  \def\r{\R}
+  \def\beta{atan(\plate/2/\dist)}
+  \def\teta{atan(2*\plate/2/sqrt(2)/\k/\dist)}
+    \def\fie{acos(1/sqrt(2))}
+ \def\done{sqrt(\dist*\dist +\plate*\plate/4)}
+  \def\dtwo{sqrt(\dist*\dist +\plate*\plate/2/\k/\k)}
+   \def\modulus#1#2{sqrt(\dist*\dist+#1*#1+#2*#2)}
+    \def\teeta#1#2{atan(sqrt(#1*#1+#2*#2)/\dist)}
+    \def\fee#1#2{acos(#1/sqrt(#1*#1+#2*#2))}
+	\def\feepart{acos(sin(\angle))}
+    \def\RotationX{\angle}
+\def\RotationY{-\angle}
+\def\factor{1.4}
+ \def\az{74}%point of emmited photon
+  
+  \contourlength{0.8pt}
+  % Draw sphere
+   \draw[tdplot_screen_coords,thin,black!30] (0,0,0) circle (\r);
+    \foreach \a in {-75,-60,...,75}
+      {\tdplotCsDrawLatCircle[thin,black!30]{\r}{\a}}
+    \foreach \a in {0,15,...,165}
+      {\tdplotCsDrawLonCircle[thin,black!30]{\r}{\a}}
+   %  \begin{scope} 
+%\clip (0,0) circle (\R);
+%\pgfmathsetseed{24122015}
+%\foreach \p in {1,...,500}
+%{ \fill[black,opacity=0.3] (\R*rand,\R*rand) circle (0.01cm);
+%}
+   % \end{scope} 
+      \tdplotCsDrawLonCircle[,black]{\R}{90};
+       \tdplotCsDrawLonCircle[black]{\R}{180};
+    	\tdplotCsDrawLatCircle  []{\r}{0};
+       
+  % AXES
+  \tdplotsetrotatedcoords{0}{0}{0};
+ \tdplotsetcoord{O}{0}{0}{0};
+  \tdplotsetcoord{Y1}{\factor*\R}{90}{90};
+   \tdplotsetcoord{Y2}{-\factor*\R}{90}{90};
+     \tdplotsetcoord{X1}{1.4*\factor*\R}{90}{0};
+   \tdplotsetcoord{X2}{-\factor*\R}{90}{0};
+        \tdplotsetcoord{Z1}{\factor*\R}{0}{90};
+   \tdplotsetcoord{Z2}{-\factor*\R}{0}{-90};
+   \tdplotsetcoord{Z}{\factor*\R}{0}{0};
+  \draw[tdplot_rotated_coords,dashed,-{Latex[length=5mm, width=2mm]}] (X2) -- (X1) node[left=2,below]{$x$};;
+  \draw[tdplot_rotated_coords,dashed,-{Latex[length=5mm, width=2mm]}] (Y2) -- (Y1) node[left=2,right]{$y$};;
+   \draw[tdplot_rotated_coords,dashed,-{Latex[length=5mm, width=2mm]}] (Z2) -- (Z1)node[left=2,above]{$z$};;
+   % theta_0 angle
+   \tdplotsetrotatedcoords{0}{90}{90} % set the rotated coordinate system
+\tdplotdrawarc[tdplot_rotated_coords,very thick,,->]{(O)}{0.8}{90}{90-\angle}{anchor=north}{\huge$\theta_0$} 
+               \coordinate(M2) at ({\factor*\R*cos(\az)}, {\factor*\R*sin(\az)},0) ;
+         \draw[ tdplot_main_coords,dashed] (O)--(M2);
+  %OBSERVER
+\tdplotsetrotatedcoords{90}{\angle}{270} % set the rotated coordinate system
+  \begin{scope}[tdplot_rotated_coords] % use the rotated coordinate system
+   \tdplotsetcoord{Obs}{\dist}{0}{0)};
+
+  
+   %Let's travel to the observer
+  \tdplotsetrotatedcoordsorigin{(Obs)};
+
+  %Photographic Plate
+ \draw[tdplot_rotated_coords,decoration={markings, 
+mark= at position 0.60 with {\arrowreversed{stealth}},
+	mark= at position 0.5 with {\arrowreversed{stealth}},
+	mark= at position 0.4 with {\arrowreversed{stealth}}},postaction={decorate}](\plate/2,\plate/2,0)--(\plate/2,\plate/2,-1)node[below] {photon emitted from $M$ };;%\draw[tdplot_rotated_coords] (0,0,0) + (30:.5) node {\tiny$m$ };
+
+ \draw[tdplot_rotated_coords,dashed] (O)--(Obs);
+\draw[fill= gray!20,opacity=.5,tdplot_rotated_coords](\plate,\plate,0)-- (\plate,-\plate,0)--(-\plate,-\plate,0)-- (-\plate,\plate,0)--cycle;
+
+
+\draw[tdplot_rotated_coords,dashed](0,\plate,0)-- (0,-\plate,0);
+\draw[tdplot_rotated_coords,dashed](\plate,0,0)-- (-\plate,0,0);
+\node[right=2,right] at (Obs) {\tiny$O^{'}$};
+
+%Let's go back to the black hole
+\tdplotresetrotatedcoordsorigin
+\tdplotsetcoord {Xaccc}{\modulus{\plate}{0}}{\teeta{\plate}{0}}{\fee{\plate}{0}};
+\tdplotsetcoord  {Yaccc} {\modulus{0}{\plate}}{\teeta{0}{\plate}}{\fee{0}{\plate}};
+\node[below] at (Xaccc) {\tiny$X^{"}$};
+\node[right] at (Yaccc) {\tiny$Y^{"}$};
+ \tdplotsetcoord{m}{\modulus{\plate/2}{\plate/2}}{\teeta{\plate/2}{\plate/2}}{\fee{\plate/2}{\plate/2}};
+%\node[tdplot_rotated_coords,right] at(m) {$m$ };
+\draw[tdplot_rotated_coords,](0,0,0)-- (\plate/2,\plate/2,0)node[below] {$m$ };;
+\tdplotdrawarc[tdplot_rotated_coords]{(Obs)}{\plate/4}{45}{90}{anchor=north}{$\alpha$}
+\draw[tdplot_rotated_coords,](0,0,0)+(\plate/4,\plate/4,0)node[left] {$d$ };;
+\draw[tdplot_rotated_coords,](0,0,0)+(\plate/1,\plate/1,0)node[left] {Observers' frame };;
+\draw[fill = lightgray!50] (Obs) circle (0.5pt);
+\draw[fill = lightgray!50] (m) circle (0.5pt);
+\end{scope}
+
+ %draw perpendicular slice  to observer
+      \tdplotsetrotatedcoords{270}{-\angle}{0};
+      %\begin{scope}[canvas is xz plane at y=0]
+      \begin{scope}[tdplot_rotated_coords]
+      \draw[tdplot_rotated_coords,dashed,](\R,0*\R,0) arc [start angle=0,end angle=180,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+     %Z\draw[tdplot_rotated_coords,thick](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90+\angle,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+
+%\path[tdplot_rotated_coords, thin , gray!10,pattern={Lines[angle=45,distance=8pt]},opacity=.11](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90+\angle,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+%\path[tdplot_rotated_coords, thin ,pattern={Lines[angle=45,distance=8pt]},opacity=.31](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+\path[tdplot_rotated_coords, thin , fill=gray!50,opacity=.21](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90+\angle,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+\path[tdplot_rotated_coords, thin ,fill=gray!50,opacity=.11](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+
+% pi/2-alpha  angle
+ \draw[tdplot_rotated_coords,thick,->,ultra thick](0*\R,1*\R,0) arc [start angle=90,end angle=90+\angle,x radius=\R,y radius=\R]node[midway,anchor = north east]{\huge$\frac{\pi}{2}-\alpha$};
+\end{scope}
+
+%draw slice  along to observer
+\tdplotsetrotatedcoords{270}{270-\angle}{0};
+\begin{scope}[tdplot_rotated_coords]
+\draw[tdplot_rotated_coords,thin](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+\path[tdplot_rotated_coords,thin,fill=gray!20,opacity=0.8](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]--(0,0,0)--cycle;
+\draw[tdplot_rotated_coords,ultra thick] (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]node[midway,below=0.5cm]{\huge$\gamma$};;
+
+\end{scope}
+
+
+
+  % draw geodesic
+\begin{scope}[tdplot_main_coords]
+        \tdplotdefinepoints(0,0,0)(0,\R*sin(\angle),\R*cos(\angle))(\R*0.5,\R*0.433,-0.75*\R)
+        \tdplotdrawpolytopearc[ultra thick]{\R}{}{}
+    \end{scope}
+    
+   %Point of emmitted photon
+  
+\coordinate(M) at ({\R*cos(\az)}, {\R*sin(\az)},0) ;
+
+    
+
+%Final decorations
+\tdplotsetcoord{Xb}{\R}{90}{0};
+   \draw[fill = white, tdplot_rotated_coords] (Xb) circle (1.5pt)node[{anchor=north east}]{\huge$X$};;
+   \tdplotsetcoord{Yb}{\R}{90}{90};
+   \draw[fill = white, tdplot_rotated_coords] (Yb) circle (1.5pt)node[right=0.5cm]{\huge$Y$};;
+   \tdplotsetcoord{Zb}{\R}{0}{0};
+   \draw[fill = white, tdplot_rotated_coords] (Zb) circle (1.5pt) node[{anchor=south east}]{\huge$Z$};;
+   \tdplotsetcoord{Yacc}{\R}{\angle}{90};
+   \draw[fill = white, tdplot_rotated_coords] (Yacc) circle (1.5pt)node[above=0.5cm]{\huge$Y’$};
+
+    \draw[fill = white, tdplot_rotated_coords] (M) circle (1.5pt)node[{anchor = north west}]{\huge$M$};
+
+    \draw[fill = white, tdplot_main_coords] (\R*0.5,\R*0.433,-0.75*\R) circle (1.5pt)node[below=0.5cm]{\huge$X'$};;
+    \draw[fill = white, tdplot_main_coords] (O)--(\R*0.5,\R*0.433,-0.75*\R) ;
+    \coordinate(Zacc) at (0,{-\R*cos(\angle)},{\R*sin(\angle)} );
+    \draw[fill = white,  tdplot_main_coords] (Zacc) circle (1.5pt)node[above=0.5cm]{\huge$Z'$};
+    \pic[draw = black,angle radius =0.5cm, ultra thick]{right angle= Yacc--O--Zacc};
+     \coordinate(Nu) at ({1.16*\R*cos(\az*0.7}, {1.16*\R*sin(\az*0.75)},0) ;
+
+     \draw[ tdplot_main_coords] (Nu)--(Nu)node[above=0.5cm]{\huge$\eta$};
+ 
+
+%\coordinate(X) at (\R,0,0) ;
+
+
+\tdplotsetrotatedcoords{\az}{90}{270} % set the rotated coordinate system
+  \begin{scope}[tdplot_rotated_coords] % use the rotated coordinate system
+   \tdplotsetcoord{M1}{\R}{0}{0)};
+  \tdplotsetrotatedcoordsorigin{(M1)};
+\tdplotdrawarc[tdplot_rotated_coords,thick]{(M1)}{0.7}{-5}{49}{midway, left}{};
+ \end{scope}
+\end{tikzpicture}

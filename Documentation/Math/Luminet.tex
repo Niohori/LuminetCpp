@@ -1,0 +1,134 @@
+%\documentclass{ut-thesis}
+\documentclass{thesis}
+
+%**************************** General libraries *******************************
+\usepackage{mathtools,mathrsfs}
+\usepackage{cancel}
+\usepackage[utf8]{inputenc} 
+\usepackage{amssymb}
+\usepackage{ntheorem}
+\usepackage{tensor}
+%\usepackage{physics}
+\usepackage[italicdiff]{physics}
+\usepackage{calc}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{tcolorbox}
+\usepackage{chngcntr}
+\usepackage{titlesec}
+\usepackage {graphicx,float} 
+\usepackage{subfig}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{etoolbox} %ifthen
+\usepackage[outline]{contour} % glow around text
+\usepackage{boondox-cal}
+
+%**************************** Bibliography management *******************************
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{sample.bib} %Import the bibliography file
+
+
+
+%**************************** Tikz libraries *******************************
+\usepackage{tikz}
+\usetikzlibrary{external}
+\tikzexternalize[prefix=./Externalized_figures/]
+%\tikzset{external/mode=graphics if exists}
+%\tikzexternalize
+
+\usepackage{tikz,pgfplots}
+\usetikzlibrary{shapes,arrows,arrows.meta,spy}
+\usetikzlibrary{calc}% needed for BB
+\usepackage{pgfplots}
+\usetikzlibrary{math} % for \tikzmath
+\usetikzlibrary{angles,quotes} % for pic (angle labels)
+\usetikzlibrary{decorations.pathmorphing,decorations.markings}
+\usetikzlibrary{decorations.pathreplacing} % for curly braces
+\usetikzlibrary {decorations.markings,shapes.arrows}
+\usetikzlibrary{patterns}
+\usepackage{tkz-euclide}
+\usepackage{tikz-3dplot}
+\usetikzlibrary{patterns,patterns.meta}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{patterns.meta}
+\usepackage{physics}
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usepackage[outline]{contour} % glow around text
+\usepackage{xcolor}
+\usetikzlibrary{calc}
+\usetikzlibrary{ decorations.markings}
+\usetikzlibrary{patterns.meta}
+\usetikzlibrary{arrows.meta}
+%\usepackage{poisson}
+
+\usepackage{tikz-3dplot-circleofsphere}
+\usetikzlibrary{3d,angles,quotes,calc}
+
+%**************************** custom macro's *******************************
+\newsavebox\CBox
+\newcommand\hcancel[2][0.5pt]{%
+  \ifmmode\sbox\CBox{$#2$}\else\sbox\CBox{#2}\fi%
+  \makebox[0pt][l]{\usebox\CBox}%  
+  \rule[0.5\ht\CBox-#1/2]{\wd\CBox}{#1}}
+%\newcommand{\edal}{\end{align}}
+%\newcommand{\bgal}{\begin{align}\end{align}}
+\newcommand{\Lagr}{\mathcal{L}}
+\newcommand{\questeq}{\overset{?}{=}}
+%\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\renewcommand\thelemma{\unskip}
+\newcommand{\christ}[3]{\ensuremath{\Gamma^{#1}_{#2#3}}}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+\newcommand{\kwart}{\ensuremath{\frac{1}{4}}}
+\newcommand\del{\overline{\boldsymbol{{\triangledown}}}}
+\newcommand\maal{\boldsymbol{\times}}
+\newcommand\spatie{\quad\quad\quad\quad}
+\newcommand\Breal{\mathbb{R}}
+\newcommand\Qiuu{\mathbb{Q}}
+\newcommand\Bint{\mathbb{Z}}
+\newcommand\Bnat{\mathbb{N}}
+\newcommand\Bcomp{\mathbb{C}}
+\newcommand\Zed{\mathbb{Z}}
+\newcommand\En{\mathbb{N}}
+\newcommand\Pee{\mathbb{P}}
+\newcommand\RZO{\mathbb{R}_{[0,1]}}
+\newcommand\Et{\text{ and }}
+\newcommand\Ou{\text{ or }}
+\newcommand\Ieoi{\Leftrightarrow }
+\newcommand\Iff{\Leftrightarrow }
+\newcommand{\Brealn}[1]{\Breal^{{#1}}}
+
+
+\newcommand{\mysection}[2]{\setcounter{section}{#1}\addtocounter{section}{-1}\section{#2}}
+
+
+
+\renewcommand\implies{\Rightarrow}
+\newcommand\RAr{\quad\Rightarrow\quad}
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+%\newcommand{\myabsdv}[3]{{\frac{\delta^2 \ensuremath{{#1}}}{{\delta %%\ensuremath{{#2}}}{\delta\ensuremath{{#3}}}}}}
+\newcommand\myabsdv[3][1]{{\frac{{\delta^{2}}{#1}}{\delta {#2} \delta {#3}}}}
+
+%**************************** layout setings *******************************
+\counterwithin*{equation}{chapter}
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+\renewcommand{\theequation}{\arabic{equation}}
+\titleformat{\chapter}{\normalfont\huge}{\thechapter.}{20pt}{\huge\it}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}{}{0pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{50pt}{*2}
+\newcommand{\RomanNumeralCaps}[1]{\MakeUppercase{\romannumeral #1}}
+
+
+%**************************** Where to find images *****************************
+%\graphicspath{ {./images/} }
+
+
+%**************************** Document itself *******************************
+\title{The maths behind the code V1.2}
+\begin{document}
+\include{chapter1}
+\end{document}
