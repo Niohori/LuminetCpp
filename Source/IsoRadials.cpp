@@ -46,6 +46,19 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 	calculate();
 }
 
+std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradials() {
+	//convert polar to xy
+	//std::pair<std::vector<double>, std::vector<double>> bare_isoradials_;
+	std::vector<double>IRx;
+	std::vector<double> IRy;
+	for (unsigned i = 0; i < std::get<0>(bare_isoradials).size(); i++){
+		IRx.push_back(std::get<1>(bare_isoradials)[i]*cos(std::get<0>(bare_isoradials)[i]));
+		IRy.push_back(std::get<1>(bare_isoradials)[i] * sin(std::get<0>(bare_isoradials)[i]));
+}
+
+	return std::make_pair(IRx, IRy);
+}
+
 /*
 * **************Necessary?
 Isoradial::Isoradial(const std::vector<double>& angles, const std::vector<double>& radius_b)
@@ -76,7 +89,9 @@ Isoradial::Isoradial(const std::vector<double>& angles, const std::vector<double
 	return a;
 }*/
 
-/*
+
+std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates() {
+	/*
 ----------------------------------------------------------------------------------------------------------------
  Calculates the angles (alpha) and radii (b) of the photons emitted at radius self.radius as they would appear
 		on the observer's photographic plate. Also saves the corresponding values for the impact parameters (P).
@@ -87,7 +102,6 @@ Isoradial::Isoradial(const std::vector<double>& angles, const std::vector<double
 			tuple: Tuple containing the angles (alpha) and radii (b) for the image on the observer's photographic plate
 ----------------------------------------------------------------------------------------------------------------
 */
-std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates() {
 	double start_angle = angular_properties_.start_angle;
 	double end_angle = angular_properties_.end_angle;
 	unsigned angular_precision = angular_properties_.angular_precision;
@@ -126,12 +140,13 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 
 }
 
-/*
+
+std::vector<double> Isoradial::calc_redshift_factors() {
+	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculates the redshift factor (1 + z) over the line of the isoradial
  ----------------------------------------------------------------------------------------------------------------
  */
-std::vector<double> Isoradial::calc_redshift_factors() {
 	/*std::vector<double> redshift_factors_;
 	for (int i = 0; i < radii_b.size(); ++i) {
 		double redshift = BHphysics::redshift_factor(radius, angles[i], t, M, radii_b[i]);
@@ -148,10 +163,14 @@ std::vector<double> Isoradial::calc_redshift_factors() {
 ----------------------------------------------------------------------------------------------------------------
 */
 void Isoradial::calculate() {
-	/*auto result = calculate_coordinates();
+	auto result = calculate_coordinates();
+	bare_isoradials = { std::get<0>(result) ,std::get<1>(result) };
 	angles = std::get<0>(result);
 	radii_b = std::get<1>(result);
-	calc_redshift_factors();*/
+	/*for (int i = 0; i < angles.size(); i++) {
+		std::cout << i << "):  angle and radius = (" << angles[i] << ", " << radii_b[i] << ")" << std::endl;
+	}*/
+	//calc_redshift_factors();
 }
 /*
 ----------------------------------------------------------------------------------------------------------------

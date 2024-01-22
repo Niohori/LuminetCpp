@@ -38,6 +38,11 @@ private://variables
 	std::vector<double> radii;
 	std::vector<double> x;
 	std::vector<double> y;
+
+	//std::map<double, std::vector<double>> radii_w_coordinates_dict;
+	//std::vector<double> ir_radii_w_co;
+	//std::pair<std::vector<double>, std::vector<double>> co;
+	double max_radius;
 	irs_solver_params irs_solver_params_;
 	find_redshift_params find_redshift_params_;
 	angular_properties angular_properties_;
@@ -82,5 +87,7 @@ public://methods
 		bool plot_inbetween, const std::string& title, bool force_solution);
 	std::pair<std::vector<double>, std::vector<double>> recalc_redshift_on_closest_isoradial_wo_z(double angular_margin);
 	std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, std::vector<std::vector<double>>>> split_co_on_solutions();
+
+	std::vector<double> get_ir_radii_w_co();
 public://variables ? make get method?
 };

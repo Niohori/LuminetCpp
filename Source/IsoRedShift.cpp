@@ -194,8 +194,20 @@ void IsoRedShift::add_solutions(const std::vector<double>& angles, const std::ve
 	// Implement the init_co_to_radii_dict function
 	std::unordered_map<std::pair<double, double>, double> a;
 	return a;
+
+	*************************  TO REWRITE as I have a problem with std::pair<std::vector<double>, std::vector<double>>
 }*/
 
+
+std::vector<double> IsoRedShift::get_ir_radii_w_co() {
+	std::vector<double> result;
+	for (const auto& entry : radii_w_coordinates_dict) {
+		if (entry.second[0].size() > 0) {
+			result.push_back(entry.first);
+		}
+	}
+	return result;
+}
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::extract_co_from_solutions_dict() {
 	// Implement the extract_co_from_solutions_dict function
 	std::pair<std::vector<double>, std::vector<double>> a;
@@ -263,7 +275,7 @@ void IsoRedShift::order_coordinates(const std::string& plot_title , bool plot_in
 		});
 
 	if (plot_inbetween) {
-		// Replace this with your actual plotting code in C++
+		// Use Dislin?
 		// or use a suitable third-party library for plotting.
 		//plot_coordinates(co, order_around, plot_title);
 	}

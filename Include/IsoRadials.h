@@ -16,6 +16,7 @@ public:
 	Isoradial(double radius, double incl, double bh_mass, int order = 0);
 	Isoradial(double radius, double incl, double bh_mass, int order, angular_properties);
 	//Isoradial(const std::vector<double>& angles, const std::vector<double>& radius_b);
+	std::pair<std::vector<double>, std::vector<double>> get_bare_isoradials();
 
 private://variables
 	double M;  // mass of the black hole containing this isoradial
@@ -29,6 +30,7 @@ private://variables
 	
 	std::vector<double> redshift_factors;
 	std::tuple<std::vector<double>, std::vector<double>> cartesian_co;
+	std::pair<std::vector<double>, std::vector<double>> bare_isoradials;
 
 private://methods
 

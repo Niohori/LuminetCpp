@@ -1,0 +1,44 @@
+
+\begin{tikzpicture}[scale = 2]
+\coordinate (O) at (0,0);
+\coordinate (L1) at(-4.2,1.8);
+\coordinate (L2) at (-4.2,0);
+\draw [](L1)--(O)--(L2) {};
+\pic[ draw,<->,>=stealth,black, "\tiny$\theta$"{black},inner sep=1pt, circle, angle eccentricity=1.2, angle radius = 10mm] {angle = L1--O--L2};   
+\coordinate (M) at (-2.7606,1.4246) {};
+\draw[fill=gray!50,dashed](M) circle (0.2);
+\node[{anchor=south west }] at (M){\tiny$m$};
+\coordinate (origin) at (-2.8448,1.2092) {};
+\coordinate (Yax)  at (-2.2379,2.6443) {};
+\coordinate (Xax)  at (-1.6146,0.6938) {};
+\draw[thick,->,>=stealth,black, ](origin)--(Xax) {};
+\draw[thick,->,>=stealth,black, ](origin)--(Yax) {};
+\node[{anchor=south west }] at (Xax){\tiny$x$};
+\node[{anchor=south west }] at (Yax){\tiny$y$};
+\draw[fill=black](origin) circle (0.02);
+\coordinate (Xnegax) at (-3.5013,-0.3399) {} {};
+\draw [dashed,black, ](origin)--(Xnegax) {};
+\coordinate (G) at (-2.8037,0.3652) {};
+\draw[thick] [draw,->,>=stealth,black, ](origin)--(G) {};
+\node [below] at (G) {\tiny$\overrightarrow{F}_g=m\overrightarrow{g}$};
+\node at (-1.9591,-0.9994) {};
+\pic[ draw,black, "\tiny$\theta$"{black},inner sep=0.1pt, circle, angle eccentricity=0.52, angle radius = 5mm] {angle =Xnegax--origin--G};   
+
+\coordinate (Fx) at (-2.1477,1.9037) {};
+\draw[dashed] (G)--(Fx){};
+\coordinate (Fy) at (-3.1486,0.4946) {} {};
+\draw[dashed] (G)--(Fy){};
+\coordinate (Fgx) at (-2.4135,1.2614) {} {};
+\draw [thick,draw,->,>=stealth,black, ](M)--(Fgx) {};
+\node [right] at (Fgx) {\tiny$\overrightarrow{F}_{g_{x}}=mg\sin{\theta}\overrightarrow{e}_x$};
+\coordinate (d) at (-4.0016,1.976) {};
+
+\draw[fill=black](d) circle (0.032);
+\draw[fill=black](M) circle (0.032);
+\draw [dashed ](M)--(d) {};
+\node [above] at (d) {\tiny$A$};
+\coordinate (F) at (-3.2698,1.6385) {};
+\draw [thick,draw,->,>=stealth,black, ](M)--(F) {};
+\node [{anchor=south west }] at (F) {\tiny$\overrightarrow{F}_w$};
+
+\end{tikzpicture}

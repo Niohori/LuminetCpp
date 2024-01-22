@@ -57,14 +57,8 @@
 \usepackage{tikz-3dplot}
 \usepackage[outline]{contour} % glow around text
 \usepackage{xcolor}
-\usetikzlibrary{calc}
-\usetikzlibrary{ decorations.markings}
-\usetikzlibrary{patterns.meta}
-\usetikzlibrary{arrows.meta}
-%\usepackage{poisson}
-
-\usepackage{tikz-3dplot-circleofsphere}
-\usetikzlibrary{3d,angles,quotes,calc}
+%\usepackage{tikz-3dplot-circleofsphere}
+%\usetikzlibrary{3d,angles,quotes,calc}
 
 %**************************** custom macro's *******************************
 \newsavebox\CBox
@@ -128,7 +122,36 @@
 
 
 %**************************** Document itself *******************************
-\title{The maths behind the code V1.2}
+%\title{The maths behind the code V1.2}
+%**************************** Document itself *******************************
+\author{Bernard Carrette\\
+Status: DRAFT}
+%\gradyear{1979}
+\title{LuminetCpp: The maths behind the code.\\C++ version of the Python code by bgmeulem\\ //https://github.com/bgmeulem/Luminet/ \\version: draft.}
+
 \begin{document}
-\include{chapter1}
+\maketitle
+\begin{figure}[H]%                 use [hb] only if necceccary!
+  \centering
+  \includegraphics[width=15cm]{./images/coordinatesystem.PNG}
+  %\caption{}
+  \label{fig:test}
+\end{figure}
+\begin{comment}
+\section*{Remarks and warnings}
+You're welcome to use these notes, but they may contain errors, so proceed with caution : I graduated in 1979, went straight in the industry (where I didn't have to use fancy maths), and picked mathematics and physics again after I retired, so my mathematics got rusty  for sure. If you do find an error, typo's , I'd be happy to receive bug reports, suggestions, and the like, through Github.
+\newpage
+\end{comment}
+
+\begin{comment}
+\section*{References: I used following books}
+\textbf{V. Frolov, A. Zelnikov}, \textit{Black Hole Physics}, 2011, Oxford University Press, Oxford\\
+\textbf{J.L. Synge, A. Schild}, \textit{Tensor Calculus}, 1978, Dover Publications. New-York\\
+\textbf{D. Beklémichev}, \textit{Cours de Géométrie analytique et d'Algèbre Linéaire}, 1988, Editions Mir-Moscou\\
+\textbf{S.M. Selby (Ed.)}, \textit{CRC Standard Mathematical Tables $22^{nd}$ edition}, 1974, CRC Press, Cleveland \\
+\end{comment}
+
+\tableofcontents
+\listoffigures
+\include{chapter3}
 \end{document}

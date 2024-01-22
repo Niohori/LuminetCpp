@@ -1,61 +1,19 @@
-
 \tikzset{>=latex} % for LaTeX arrow head
 \tikzstyle{proj}=[projcol!80,line width=0.08] %very thin
 \tikzstyle{area}=[draw=veccol,fill=veccol!80,fill opacity=0.6]
 \tikzstyle{vector}=[-stealth,myblue,thick,line cap=round]
 \tikzstyle{unit vector}=[->,veccol,thick,line cap=round]
 \tikzstyle{dark unit vector}=[unit vector,veccol!70!black]
-\usetikzlibrary{angles,quotes} % for pic (angle labels)
-\contourlength{1.3pt}
 \tikzset{ra/.style={red,draw,angle radius=0.5cm}} % right angle style
 
-\def\tdplotdefinepoints(#1,#2,#3)(#4,#5,#6)(#7,#8,#9){%
-  \pgfmathsetmacro{\tdplotvertexx}{#1}
-  \pgfmathsetmacro{\tdplotvertexy}{#2}
-  \pgfmathsetmacro{\tdplotvertexz}{#3}  \pgfmathsetmacro{\tdplotax}{#4}
-  \pgfmathsetmacro{\tdplotay}{#5}  \pgfmathsetmacro{\tdplotaz}{#6}
-  \pgfmathsetmacro{\tdplotbx}{#7}  \pgfmathsetmacro{\tdplotby}{#8}
-  \pgfmathsetmacro{\tdplotbz}{#9}
-}
-
-% Style to set camera angle, like PGFPlots `view` style
-\tikzset{viewport/.style 2 args={
-    x={({cos(-#1)*1cm},{sin(-#1)*sin(#2)*1cm})},
-    y={({-sin(-#1)*1cm},{cos(-#1)*sin(#2)*1cm})},
-    z={(0,{cos(#2)*1cm})}
-}}
-
-% Convert from spherical to cartesian coordinates
-\newcommand{\ToXYZ}[2]{
-    {\R*sin(#1)*cos(#2)}, % X coordinate
-    {\R*cos(#1)*cos(#2)}, % Y coordinate
-    {\R*sin(#2)}          % Z (vertical) coordinate
-}
-% Style to set camera angle, like PGFPlots `view` style
-\tikzset{viewport/.style 2 args={
-    x={({cos(-#1)*1cm},{sin(-#1)*sin(#2)*1cm})},
-    y={({-sin(-#1)*1cm},{cos(-#1)*sin(#2)*1cm})},
-    z={(0,{cos(#2)*1cm})}
-}}
-\tikzstyle{point}=[inner sep=0pt, outer sep=0pt,%
-    minimum size=2pt,fill=black,shape=circle]
- \def\aofv{103}
-\begin{document}
-\def\RotationX{-30}
-\def\RotationY{-20}
-%\edef\mylist{\poissonpointslist{8}{4}{0.1}{20}}
    
-% 3D AXIS with spherical coordinates, dA
+% 3D AXIS with spherical coordinates
+\def\aofv{103}
 \tdplotsetmaincoords{60}{\aofv}
-\begin{tikzpicture}[scale=3,tdplot_main_coords]
-  
+\begin{tikzpicture}[scale=1,tdplot_main_coords]
+   
   % VARIABLE
   \def\R{4.0}
-  \def\thetavec{35}
-  \def\phivec{45}
-  \def\dtheta{10}
-  \def\dphi{16}
-  \def\sphere#1#2#3{plot[domain=#1]({\R*sin(#2)*cos(#3)},{\R*sin(#2)*sin(#3)},{\R*cos(#2)})}
   \def\dist{12}
   \def\angle{60}
   \def\plate{2}
@@ -70,9 +28,6 @@
    \def\modulus#1#2{sqrt(\dist*\dist+#1*#1+#2*#2)}
     \def\teeta#1#2{atan(sqrt(#1*#1+#2*#2)/\dist)}
     \def\fee#1#2{acos(#1/sqrt(#1*#1+#2*#2))}
-	\def\feepart{acos(sin(\angle))}
-    \def\RotationX{\angle}
-\def\RotationY{-\angle}
 \def\factor{1.4}
  \def\az{74}%point of emmited photon
   
@@ -83,13 +38,6 @@
       {\tdplotCsDrawLatCircle[thin,black!30]{\r}{\a}}
     \foreach \a in {0,15,...,165}
       {\tdplotCsDrawLonCircle[thin,black!30]{\r}{\a}}
-   %  \begin{scope} 
-%\clip (0,0) circle (\R);
-%\pgfmathsetseed{24122015}
-%\foreach \p in {1,...,500}
-%{ \fill[black,opacity=0.3] (\R*rand,\R*rand) circle (0.01cm);
-%}
-   % \end{scope} 
       \tdplotCsDrawLonCircle[,black]{\R}{90};
        \tdplotCsDrawLonCircle[black]{\R}{180};
     	\tdplotCsDrawLatCircle  []{\r}{0};
@@ -153,13 +101,8 @@ mark= at position 0.60 with {\arrowreversed{stealth}},
 
  %draw perpendicular slice  to observer
       \tdplotsetrotatedcoords{270}{-\angle}{0};
-      %\begin{scope}[canvas is xz plane at y=0]
       \begin{scope}[tdplot_rotated_coords]
       \draw[tdplot_rotated_coords,dashed,](\R,0*\R,0) arc [start angle=0,end angle=180,x radius=\R,y radius=\R]--(0,0,0)--cycle;
-     %Z\draw[tdplot_rotated_coords,thick](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90+\angle,x radius=\R,y radius=\R]--(0,0,0)--cycle;
-
-%\path[tdplot_rotated_coords, thin , gray!10,pattern={Lines[angle=45,distance=8pt]},opacity=.11](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90+\angle,x radius=\R,y radius=\R]--(0,0,0)--cycle;
-%\path[tdplot_rotated_coords, thin ,pattern={Lines[angle=45,distance=8pt]},opacity=.31](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]--(0,0,0)--cycle;
 \path[tdplot_rotated_coords, thin , fill=gray!50,opacity=.21](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90+\angle,x radius=\R,y radius=\R]--(0,0,0)--cycle;
 \path[tdplot_rotated_coords, thin ,fill=gray!50,opacity=.11](0,0,0)-- (\R,0*\R,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R]--(0,0,0)--cycle;
 
@@ -212,7 +155,6 @@ mark= at position 0.60 with {\arrowreversed{stealth}},
      \draw[ tdplot_main_coords] (Nu)--(Nu)node[above=0.5cm]{\huge$\eta$};
  
 
-%\coordinate(X) at (\R,0,0) ;
 
 
 \tdplotsetrotatedcoords{\az}{90}{270} % set the rotated coordinate system
