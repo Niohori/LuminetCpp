@@ -397,4 +397,12 @@ MigrationBackup/
 **/.vs/
 **/Points/
 *.cvs
+*.log
+*.md5
+*.aux
+*.bcf
+*.htm
+*.auxlock
+*.synctex
+
 
