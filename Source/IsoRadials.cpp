@@ -49,7 +49,11 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradia
 
 	return OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials),-M_PI/2);
 }
+std::vector<double>  Isoradial::get_redshift_factors() {
 
+	return redshift_factors;
+
+}
 
 /*
 * **************Necessary?
@@ -139,15 +143,17 @@ std::vector<double> Isoradial::calc_redshift_factors() {
 Calculates the redshift factor (1 + z) over the line of the isoradial
  ----------------------------------------------------------------------------------------------------------------
  */
- /*std::vector<double> redshift_factors_;
- for (int i = 0; i < radii_b.size(); ++i) {
-	 double redshift = BHphysics::redshift_factor(radius, angles[i], t, M, radii_b[i]);
+ std::vector<double> redshift_factors_;
+ std::cout << "redshiftfactors " << std::endl;
+ std::cout << "********************************* " << std::endl;
+ for (int i = 0; i < _radii_b.size(); ++i) {
+	 double redshift = BHphysics::redshift_factor(radius, _angles[i], theta_0, M, _radii_b[i]);
+	 //std::cout << i << "i): " << redshift << std::endl;
 	 redshift_factors_.push_back(redshift);
  }
  redshift_factors = redshift_factors_;
- return redshift_factors_;*/
-	std::vector<double> a;
-	return a;
+ return redshift_factors_;
+
 }
 /*
 ----------------------------------------------------------------------------------------------------------------
@@ -162,7 +168,7 @@ void Isoradial::calculate() {
 	/*for (int i = 0; i < angles.size(); i++) {
 		std::cout << i << "):  angle and radius = (" << angles[i] << ", " << radii_b[i] << ")" << std::endl;
 	}*/
-	//calc_redshift_factors();
+	std::vector<double> redshift_factors_=calc_redshift_factors();
 }
 /*
 ----------------------------------------------------------------------------------------------------------------

@@ -33,14 +33,14 @@ struct irs_solver_params {
 struct angular_properties {
 	double start_angle = 0.0;
 	double end_angle = M_PI;
-	unsigned angular_precision = 100;
+	unsigned angular_precision = 500;
 	bool mirror = true;
 };
 
 struct ir_params {
 	double start_angle = 0.0;
 	double	end_angle = M_PI;
-	unsigned angular_precision = 100;
+	unsigned angular_precision = 500;
 	bool	mirror = true;// if True, calculates only half of the isoradial and mirrors it
 	double angular_margin = 0.3;
 };
