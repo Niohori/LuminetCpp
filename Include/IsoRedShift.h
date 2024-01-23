@@ -21,7 +21,7 @@
 
 class IsoRedShift {
 private://variables
-	double t;  // Inclination
+	double theta_0;  // Inclination
 	double redshift;
 	double M;  // Black hole mass
 	std::unordered_map<double, std::vector<std::vector<double>>> radii_w_coordinates_dict;

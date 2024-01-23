@@ -188,23 +188,22 @@ std::vector<double> OperatorsOrder2::linspace(const double& start_in, const doub
 	return linspaced;
 }
 
-std::pair<std::vector<double>, std::vector<double>> OperatorsOrder2::polar_to_cartesian_lists(std::vector<double> radii, std::vector<double> angles, double rotation) {
-	std::vector<double> x;
-	std::vector<double> y;
-
-	for (size_t i = 0; i < radii.size(); ++i) {
-		double x_ = radii[i] * std::cos(angles[i] + rotation);
-		double y_ = radii[i] * std::sin(angles[i] + rotation);
-		x.push_back(x_);
-		y.push_back(y_);
+std::pair<std::vector<double>, std::vector<double>> OperatorsOrder2::polar_to_cartesian_lists(const std::vector<double>& radii, const std::vector<double>& angles, const double& rotation) {
+	std::vector<double>IRx;
+	std::vector<double> IRy;
+	//std::cout << "Values computed in OperatorsOrder2::polar_to_cartesian_lists;" << std::endl;
+	for (unsigned i = 0; i < radii.size(); i++) {
+		IRx.push_back(radii[i] * cos(angles[i]+rotation));
+		IRy.push_back(radii[i] * sin(angles[i]+rotation));
+		//std::cout << i << ") for angle : " << angles[i]*180/M_PI <<" and radius " << radii[i] <<": x = " << IRx[i] << " and y = " << IRy[i] << std::endl;
 	}
 
-	return std::make_pair(x, y);
+	return std::make_pair(IRx, IRy);
 }
 
 std::pair<double, double> OperatorsOrder2::polar_to_cartesian_single(double th, double radius, double rotation) {
-	double x = radius * cos(th + rotation);
-	double y = radius * sin(th + rotation);
+	double x = radius * sin(th + rotation);
+	double y = radius * cos(th + rotation);
 	return std::make_pair(x, y);
 }
 

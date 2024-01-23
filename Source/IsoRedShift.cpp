@@ -96,7 +96,7 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::calc_redshift_o
 	_angular_properties_.angular_precision = angular_precision;
 	_angular_properties_.mirror = mirror;
 
-	Isoradial ir(radius, t, M, 0, _angular_properties_);
+	Isoradial ir(radius, theta_0, M, 0, _angular_properties_);
 
 	ir.find_redshift_params_.force_redshift_solution = force_solution;
 
@@ -249,7 +249,7 @@ std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, s
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::calc_core_coordinates() {
 	// Assuming you have defined Isoradial class and its constructor in your C++ code.
 	
-Isoradial ir(6. * M, t, M, 0);
+Isoradial ir(6. * M, theta_0, M, 0);
 return ir.calc_redshift_location_on_ir(redshift);
 std::pair<std::vector<double>, std::vector<double>>a;
 return a;

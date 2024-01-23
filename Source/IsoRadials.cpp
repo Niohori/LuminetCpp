@@ -8,20 +8,19 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_) 
 	const std::unordered_map<std::string, bool>& plot_params_,
 	const std::unordered_map<std::string, double>& angular_properties_)*/
 	M(bh_mass_),
-	t(incl_),
+	theta_0(incl_),
 	radius(radius_),
 	order(order_)
 	// params(params_),
 	 //plot_params(plot_params_),
 	 //angular_properties(angular_properties_)
 {
-	radii_b = {};
-	angles = {};
+	_radii_b = {};
+	_angles = {};
 	X = {};
 	Y = {};
 	cartesian_co = { X, Y };
 	redshift_factors = {};
-	calculate();
 };
 
 Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, angular_properties  _angular_properties) :
@@ -29,7 +28,7 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 	const std::unordered_map<std::string, bool>& plot_params_,
 	const std::unordered_map<std::string, double>& angular_properties_)*/
 	M(bh_mass_),
-	t(incl_),
+	theta_0(incl_),
 	radius(radius_),
 	order(order_),
 	angular_properties_(_angular_properties)
@@ -37,27 +36,20 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 	 //plot_params(plot_params_),
 	 //angular_properties(angular_properties_)
 {
-	radii_b = {};
-	angles = {};
+	_radii_b = {};
+	_angles = {};
 	X = {};
 	Y = {};
 	cartesian_co = { X, Y };
 	redshift_factors = {};
-	calculate();
 }
 
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradials() {
 	//convert polar to xy
-	//std::pair<std::vector<double>, std::vector<double>> bare_isoradials_;
-	std::vector<double>IRx;
-	std::vector<double> IRy;
-	for (unsigned i = 0; i < std::get<0>(bare_isoradials).size(); i++){
-		IRx.push_back(std::get<1>(bare_isoradials)[i]*cos(std::get<0>(bare_isoradials)[i]));
-		IRy.push_back(std::get<1>(bare_isoradials)[i] * sin(std::get<0>(bare_isoradials)[i]));
+
+	return OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials),-M_PI/2);
 }
 
-	return std::make_pair(IRx, IRy);
-}
 
 /*
 * **************Necessary?
@@ -89,7 +81,6 @@ Isoradial::Isoradial(const std::vector<double>& angles, const std::vector<double
 	return a;
 }*/
 
-
 std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates() {
 	/*
 ----------------------------------------------------------------------------------------------------------------
@@ -105,14 +96,15 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	double start_angle = angular_properties_.start_angle;
 	double end_angle = angular_properties_.end_angle;
 	unsigned angular_precision = angular_properties_.angular_precision;
-
+	//angular_precision =10;
 	std::vector<double > angles = OperatorsOrder2::linspace(start_angle, end_angle, angular_precision);
+	
 	std::vector<double> impact_parameters;
 	for (auto alpha_ : angles) {
-		double b_ = BHphysics::calc_impact_parameter(radius, t, alpha_, M, solver_params_.midpoint_iterations,
+		double b_ = BHphysics::calc_impact_parameter(radius, theta_0, alpha_, M, solver_params_.midpoint_iterations,
 			solver_params_.plot_inbetween, order, M * solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
 		if (b_ < 1e100) {
-			angles.push_back(alpha_);
+			_angles.push_back(alpha_);
 			impact_parameters.push_back(b_);
 		}
 	}
@@ -123,23 +115,23 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	}
 
 	// flip image if necessary
-	if (t > M_PI / 2) {
+	if (theta_0 > M_PI / 2) {
+		std::cout <<"Theta gt than 90 degrees" << std::endl;
 		std::transform(angles.begin(), angles.end(), angles.begin(), [](double a) { return std::fmod((a + M_PI), (2 * M_PI)); });
 	}
 
 	if (angular_properties_.mirror) {
 		// by default True. Halves computation time for calculating the full isoradial
 		// add second half of image (left half if 0° is set at South)
-		std::transform(angles.rbegin(), angles.rend(), std::back_inserter(angles),
-			[](double a) { return std::fmod((2 * M_PI - a), (2 * M_PI)); });
-		std::transform(impact_parameters.rbegin(), impact_parameters.rend(), std::back_inserter(impact_parameters),
-			[](double b) { return b; });
+		size_t s = angles.size();
+		for (size_t i = 0; i < s;i++) {
+			angles.push_back(2*M_PI-angles[s - i - 1]);
+			impact_parameters.push_back(impact_parameters[s-i-1]);
+		}
 	}
 
 	return std::make_pair(angles, impact_parameters);
-
 }
-
 
 std::vector<double> Isoradial::calc_redshift_factors() {
 	/*
@@ -147,13 +139,13 @@ std::vector<double> Isoradial::calc_redshift_factors() {
 Calculates the redshift factor (1 + z) over the line of the isoradial
  ----------------------------------------------------------------------------------------------------------------
  */
-	/*std::vector<double> redshift_factors_;
-	for (int i = 0; i < radii_b.size(); ++i) {
-		double redshift = BHphysics::redshift_factor(radius, angles[i], t, M, radii_b[i]);
-		redshift_factors_.push_back(redshift);
-	}
-	redshift_factors = redshift_factors_;
-	return redshift_factors_;*/
+ /*std::vector<double> redshift_factors_;
+ for (int i = 0; i < radii_b.size(); ++i) {
+	 double redshift = BHphysics::redshift_factor(radius, angles[i], t, M, radii_b[i]);
+	 redshift_factors_.push_back(redshift);
+ }
+ redshift_factors = redshift_factors_;
+ return redshift_factors_;*/
 	std::vector<double> a;
 	return a;
 }
@@ -164,9 +156,9 @@ Calculates the redshift factor (1 + z) over the line of the isoradial
 */
 void Isoradial::calculate() {
 	auto result = calculate_coordinates();
-	bare_isoradials = { std::get<0>(result) ,std::get<1>(result) };
-	angles = std::get<0>(result);
-	radii_b = std::get<1>(result);
+	bare_isoradials = { std::get<0>(result) ,std::get<1>(result) };//angle in [0,pi/2]
+	_angles = std::get<0>(result);
+	_radii_b = std::get<1>(result);
 	/*for (int i = 0; i < angles.size(); i++) {
 		std::cout << i << "):  angle and radius = (" << angles[i] << ", " << radii_b[i] << ")" << std::endl;
 	}*/
@@ -220,29 +212,29 @@ double Isoradial::get_b_from_angle(double angle) {
 	}*/
 	return 0.;
 
-/*
-----------------------------------------------------------------------------------------------------------------
-Calculates the impact parameter and redshift factor at the
-		isoradial angle between place ind and ind + 1
+	/*
+	----------------------------------------------------------------------------------------------------------------
+	Calculates the impact parameter and redshift factor at the
+			isoradial angle between place ind and ind + 1
 
-		Args:
-			ind: the index denoting the location at which the middle point should be calculated. The impact parameter,
-			redshift factor, b (observer plane) and alpha (observer/BH coordinate system) will be calculated on the
-			isoradial between location ind and ind + 1
+			Args:
+				ind: the index denoting the location at which the middle point should be calculated. The impact parameter,
+				redshift factor, b (observer plane) and alpha (observer/BH coordinate system) will be calculated on the
+				isoradial between location ind and ind + 1
 
-		Returns:
-			None: Nothing. Updates the isoradial.
-----------------------------------------------------------------------------------------------------------------
-*/
-//void Isoradial::calc_between(int ind) {
-	/*double mid_angle = 0.5 * (angles[ind] + angles[ind + 1]);
-	double b_ = BHphysics::calc_impact_parameter(radius, t, mid_angle, M, solver_params_.midpoint_iterations, solver_params_.plot_inbetween, order, M*solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
-	double z_ = BHphysics::redshift_factor(radius, mid_angle, t, M, b_);
-
-	radii_b.insert(radii_b.begin() + ind + 1, b_);
-	angles.insert(angles.begin() + ind + 1, mid_angle);
-	redshift_factors.insert(redshift_factors.begin() + ind + 1, z_);
+			Returns:
+				None: Nothing. Updates the isoradial.
+	----------------------------------------------------------------------------------------------------------------
 	*/
+	//void Isoradial::calc_between(int ind) {
+		/*double mid_angle = 0.5 * (angles[ind] + angles[ind + 1]);
+		double b_ = BHphysics::calc_impact_parameter(radius, t, mid_angle, M, solver_params_.midpoint_iterations, solver_params_.plot_inbetween, order, M*solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
+		double z_ = BHphysics::redshift_factor(radius, mid_angle, t, M, b_);
+
+		radii_b.insert(radii_b.begin() + ind + 1, b_);
+		angles.insert(angles.begin() + ind + 1, mid_angle);
+		redshift_factors.insert(redshift_factors.begin() + ind + 1, z_);
+		*/
 }//
 
 /*

@@ -17,10 +17,11 @@ public:
 	Isoradial(double radius, double incl, double bh_mass, int order, angular_properties);
 	//Isoradial(const std::vector<double>& angles, const std::vector<double>& radius_b);
 	std::pair<std::vector<double>, std::vector<double>> get_bare_isoradials();
+	//std::pair<std::vector<double>, std::vector<double>> get_bare_ghost_isoradials();
 
 private://variables
 	double M;  // mass of the black hole containing this isoradial
-	double t;  // inclination of the observer's plane
+	double theta_0;  // inclination of the observer's plane
 	double radius;
 	int order;
 	struct params {
@@ -30,7 +31,8 @@ private://variables
 	
 	std::vector<double> redshift_factors;
 	std::tuple<std::vector<double>, std::vector<double>> cartesian_co;
-	std::pair<std::vector<double>, std::vector<double>> bare_isoradials;
+	std::pair<std::vector<double>, std::vector<double>> bare_isoradials;//TEMPORARY for debugging: holds the polar coordinates (angles, radii) of the projected isoradial
+	//std::pair<std::vector<double>, std::vector<double>> bare_ghost_isoradials;//TEMPORARY for debugging: holds the polar coordinates (angles, radii) of the projected isoradial
 
 private://methods
 
@@ -55,6 +57,6 @@ public://variables ? make get method?
 
 	std::vector<double> X;
 	std::vector<double> Y;
-	std::vector<double> radii_b;
-	std::vector<double> angles;
+	std::vector<double> _radii_b;
+	std::vector<double> _angles;
 };

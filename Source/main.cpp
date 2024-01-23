@@ -6,7 +6,7 @@
 #include "BlackHolePhysics.h"
 #include <discpp.h>
 
-void plot_IR(std::vector<double>&, std::vector<double>&);
+void plot_IR(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);
 int main() {
 	
 	BHphysics BHp;
@@ -46,28 +46,40 @@ int main() {
 	BH.sample_Sources(20000);// , "D:/dev/Cpp/Luminet/Points/points_incl=85b.csv", "D:/dev/Cpp/Luminet/Points/points_secondary_incl=85b.csv");
 	*/
 	//test single isoradial
-	Isoradial IR(30.0*bh_mass,80*M_PI/180, bh_mass,0);
+	double inclination =80.0;//in degrees
+	double distance = 30.0;
+	Isoradial IR(distance *bh_mass, inclination *M_PI/180, bh_mass,0);
 	IR.calculate();
+	Isoradial IRg(distance * bh_mass, inclination * M_PI / 180, bh_mass, 1);//ghost
+	IRg.calculate();
 	std::pair<std::vector<double>, std::vector<double>> bare_isoradials= IR.get_bare_isoradials();//temporary functions for debugging
 	std::vector<double> xx = std::get<0>(bare_isoradials);
 	std::vector<double> yy = std::get<1>(bare_isoradials);
-	/*for (int i = 0; i < xx.size(); i++) {
+	std::pair<std::vector<double>, std::vector<double>> bare_ghost_isoradials = IRg.get_bare_isoradials();//temporary functions for debugging
+	std::vector<double> xx_ghost = std::get<0>(bare_ghost_isoradials);
+	std::vector<double> yy_ghost = std::get<1>(bare_ghost_isoradials);
+	/*std::cout << std::endl << std::endl << std::endl << "Passed to main with size " << xx.size() << std::endl;
+	for (size_t i = 0; i < xx.size(); i++) {
 		std::cout << i << "):  (x, y) = (" << xx[i] << ", " << yy[i] << ")" << std::endl;
 	}*/
-	plot_IR(yy, xx);
+	plot_IR(xx, yy, xx_ghost,yy_ghost);
 
 	return 0;
 }
 
-void plot_IR(std::vector<double>& xx, std::vector<double>& yy) {
+void plot_IR(std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g) {
 	Dislin g;
-	int n = 400;
-	double xray[400], yray[400], x2[10], y2[10];
+	int n =xx.size();
+	
+	//double xray[400], yray[400];
 
 	double x_max = -10000000000.0;
 	double x_min = 10000000000.0;
 	double y_max = -10000000000.0;
 	double y_min = 10000000000.0;
+	/*
+	
+	int n = 400;
 	for (unsigned i = 0; i < n; i++)
 	{
 		yray[i] = xx[i];
@@ -76,15 +88,30 @@ void plot_IR(std::vector<double>& xx, std::vector<double>& yy) {
 		if (xray[i] >= x_max)x_max = xray[i];
 		if (yray[i] <= y_min)y_min = yray[i];
 		if (yray[i] > y_max)y_max = yray[i];
+	}*/
+	for (unsigned i = 0; i < n; i++)
+	{
+		if (xx[i] <= x_min)x_min = xx[i];
+		if (xx[i] >= x_max)x_max = xx[i];
+		if (yy[i] <= y_min)y_min = yy[i];
+		if (yy[i] > y_max)y_max = yy[i];
 	}
+	x_max *= 1.1;
+	x_min *= 1.1;
+	y_max *= 1.1;
+	y_min *= 1.1;
+	if (x_max < y_max)x_max = y_max;
+	if (x_min < y_min)y_min = x_min;
+	if (x_max > y_max)y_max = x_max;
+	if (x_min > y_min)x_min = y_min;
 
 	g.metafl("cons");
-	g.scrmod("revers");
+	//g.scrmod("revers");
 	g.disini();
 	g.pagera();
 	g.complx();
 	g.axspos(450, 1800);
-	g.axslen(2200, 1200);
+	g.axslen(1200, 1200);
 
 	g.name("X-axis", "x");
 	g.name("Y-axis", "y");
@@ -97,11 +124,13 @@ void plot_IR(std::vector<double>& xx, std::vector<double>& yy) {
 	g.titlin("(no redshift)", 3);
 
 
-	int ic = g.intrgb(0.95, 0.95, 0.95);
+	//int ic = g.intrgb(0.95, 0.95, 0.95);
+	int ic = g.intrgb(0., 0., 0.);
 	g.axsbgd(ic);
 
 	g.graf(x_min, x_max, x_min, (x_max-x_min)/10, y_min, y_max, y_min,  (y_max - y_min) / 10);
-	g.setrgb(0.7, 0.7, 0.7);
+	//g.setrgb(0.7, 0.7, 0.7);
+	g.setrgb(0.0, 0.0, 0.0);
 	g.grid(1, 1);
 	g.winfnt("Times New Roman Bold");
 	//g.psfont("Courier-Bold");
@@ -111,7 +140,11 @@ void plot_IR(std::vector<double>& xx, std::vector<double>& yy) {
 
 	g.color("red");
 	g.linwid(3);
-	g.curve(xray, yray, n);
+	//g.curve(xray, yray, n);
+	g.curve(&xx[0], &yy[0], n);
+	g.color("blue");
+	g.linwid(3);
+	g.curve(&xx_g[0], &yy_g[0], n);
 
 	g.disfin();
 }

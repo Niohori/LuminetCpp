@@ -39,7 +39,7 @@ Isoradial BlackHole::calc_apparent_outer_disk_edge() {
 	std::vector<double> X_;
 	std::vector<double> Y_;
 	std::pair<std::vector<double>, std::vector<double>> XY_;
-	XY_ = OperatorsOrder2::polar_to_cartesian_lists(ir.radii_b, ir.angles, -M_PI / 2);
+	XY_ = OperatorsOrder2::polar_to_cartesian_lists(ir._radii_b, ir._angles, -M_PI / 2);
 	ir.X = std::get<0>(XY_);
 	ir.Y = std::get<1>(XY_);
 	return ir;
@@ -53,13 +53,13 @@ Isoradial BlackHole::calc_apparent_outer_disk_edge() {
 Isoradial BlackHole::calc_apparent_inner_disk_edge() {
 	// Implementation of calc_apparent_inner_disk_edge method
 	Isoradial ir(disk_inner_edge, t, M, 0);
-	for (auto& b : ir.radii_b) {
+	for (auto& b : ir._radii_b) {
 		b *= 0.99; // scale slightly down
 	}
 	std::vector<double> X_;
 	std::vector<double> Y_;
 	std::pair<std::vector<double>, std::vector<double>> XY_;
-	XY_ = OperatorsOrder2::polar_to_cartesian_lists(ir.radii_b, ir.angles, -M_PI / 2);
+	XY_ = OperatorsOrder2::polar_to_cartesian_lists(ir._radii_b, ir._angles, -M_PI / 2);
 	ir.X = std::get<0>(XY_);
 	ir.Y = std::get<1>(XY_);
 	return ir;

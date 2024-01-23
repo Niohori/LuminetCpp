@@ -35,15 +35,14 @@ public:
 	std::vector<std::vector<std::vector<double>>> Add(const std::vector<std::vector<std::vector<double>>>&, const double&, const std::vector<std::vector<std::vector<double>>>&, const double&);
 	static std::vector<double>  linspace(const double&, const double&, const int&);
 
-	static std::pair<std::vector<double>, std::vector<double>> polar_to_cartesian_lists(std::vector<double> radii, std::vector<double> angles, double rotation);
+	static std::pair<std::vector<double>, std::vector<double>> polar_to_cartesian_lists(const std::vector<double>& radii, const std::vector<double>& angles, const double& rotation);
 	static std::pair<double, double> polar_to_cartesian_single(double th, double radius, double rotation);
 	//static std::vector<double> polar_to_cartesian_single_as_vector(double th, double radius, double rotation);
 	static std::pair<double, double> cartesian_to_polar(double x, double y);
 	static double get_angle_around(const std::vector<double>& p1, const std::vector<double>& p2);
 
 private:
-	static std::vector<double> matrixMultiply(const std::vector<std::vector<double>>& matrix,
-		const std::vector<double>& vector);
+	static std::vector<double> matrixMultiply(const std::vector<std::vector<double>>& matrix, const std::vector<double>& vector);
 	int nGrid;
 	double delta;
 };
