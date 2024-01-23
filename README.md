@@ -4,4 +4,4 @@ Unoffial C++ version of Luminet project of bgmeulem //https://github.com/bgmeule
 ### Managed to generate a unpolished and bare (no redshift effect) Isoradial:
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/images/BareIsoradial.PNG" width="800" />
 #### The aim is also to give some clarifications to the maths behind the program. 
-<img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/images/fig_Coordinates_system.jpg" width="800" />
+<img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/images/fig_Coordinate_system.jpg" width="800" />
