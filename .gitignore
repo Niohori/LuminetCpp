@@ -403,5 +403,12 @@ MigrationBackup/
 *.htm
 *.auxlock
 *.synctex
+*.synctex.gz
+*.gz
+*.lof
+*.bcf
+*.run.xml
+*.xml
+*.toc
 
 

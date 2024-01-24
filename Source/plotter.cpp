@@ -143,9 +143,9 @@ void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<doubl
 	// Set the color map based on the color parameter
 	for (size_t i = 0; i < Npoints; i++) {
 		g->setrgb(std::get<0>(rgbVector[i]), std::get<1>(rgbVector[i]), std::get<2>(rgbVector[i]));
-		g->rlcirc(xx[i], yy[i], 0.1);
+		g->rlcirc(xx[i], yy[i], 0.2);
 		g->setrgb(std::get<0>(rgbVector_g[i]), std::get<1>(rgbVector_g[i]), std::get<2>(rgbVector_g[i]));
-		g->rlcirc(xx_g[i], yy_g[i], 0.1);
+		g->rlcirc(xx_g[i], yy_g[i], 0.2);
 	}
 
 	//g->disfin();
