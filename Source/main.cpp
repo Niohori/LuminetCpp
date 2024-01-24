@@ -4,6 +4,8 @@
 #include "BlackHole.h"
 #include "BlackHolePhysics.h"
 #include "plotter.h"
+#include <conio.h>
+#include <iostream>
 //#include <discpp.h>
 /*
 ************************************************************************************************************************************
@@ -55,21 +57,72 @@ int main() {
 	//test single isoradial
 	double inclination = 80.0;//in degrees
 	double distance = 30.0;
-	Isoradial IR(distance * bh_mass, inclination * M_PI / 180, bh_mass, 0);
-	IR.calculate();
-	Isoradial IRg(distance * bh_mass, inclination * M_PI / 180, bh_mass, 1);//ghost
-	IRg.calculate();
-	std::pair<std::vector<double>, std::vector<double>> bare_isoradials = IR.get_bare_isoradials();//temporary functions for debugging
-	std::vector<double> xx = std::get<0>(bare_isoradials);
-	std::vector<double> yy = std::get<1>(bare_isoradials);
-	std::pair<std::vector<double>, std::vector<double>> bare_ghost_isoradials = IRg.get_bare_isoradials();//temporary functions for debugging
-	std::vector<double> xx_ghost = std::get<0>(bare_ghost_isoradials);
-	std::vector<double> yy_ghost = std::get<1>(bare_ghost_isoradials);
-	std::vector<double> redshift_factors = IR.get_redshift_factors();
-	std::vector<double> redshift_factors_ghost = IRg.get_redshift_factors();
+	Isoradial* IR;
+	Isoradial* IRg;//ghost
+
+	//setting up the plotting
+	std::pair<std::vector<double>, std::vector<double>> bare_isoradials ;//temporary functions for debugging
+	std::vector<double> xx;
+	std::vector<double> yy;
+	std::pair<std::vector<double>, std::vector<double>> bare_ghost_isoradials;//temporary functions for debugging
+	std::vector<double> xx_ghost ;
+	std::vector<double> yy_ghost;
+	std::vector<double> redshift_factors;
+	std::vector<double> redshift_factors_ghost ;
 	Plotter plotter;
-	//plotter.plot(xx, yy, xx_ghost,yy_ghost);
-	plotter.plot(inclination,xx, yy, xx_ghost, yy_ghost, redshift_factors, redshift_factors_ghost);
+	char escape;
+	std::cout << "press esc to exit! " << std::endl;
+	bool loop = true;
+	std::vector<double> inclinations;
+	for (double p = 10; p < 81.0; p += 1.0) {
+		inclinations.push_back(p);
+	}
+	size_t s = inclinations.size();
+	/*for (size_t i = 0; i < s; i++) {
+		inclinations.push_back(inclinations[s - i - 1]);
+	}*/
+	int sign = 1;
+	int count = 0;
+	unsigned index = 0;
+	double theta = 0.0;
+	while (true)
+	{
+
+	//inclination = { 80.0 };
+	//for (auto theta : inclinations) {
+		theta = inclinations[count];
+		IR = new Isoradial (distance * bh_mass, theta * M_PI / 180, bh_mass, 0);
+		IR->calculate();
+		IRg= new Isoradial(distance * bh_mass, theta* M_PI / 180, bh_mass, 1);//ghost
+		IRg->calculate();
+		bare_isoradials = IR->get_bare_isoradials();//temporary functions for debugging
+		xx = std::get<0>(bare_isoradials);
+		yy = std::get<1>(bare_isoradials);
+		bare_ghost_isoradials = IRg->get_bare_isoradials();//temporary functions for debugging
+		xx_ghost = std::get<0>(bare_ghost_isoradials);
+		yy_ghost = std::get<1>(bare_ghost_isoradials);
+		redshift_factors = IR->get_redshift_factors();
+		redshift_factors_ghost = IRg->get_redshift_factors();
+
+		//plotter.plot(xx, yy, xx_ghost,yy_ghost);
+		plotter.plot(theta, xx, yy, xx_ghost, yy_ghost, redshift_factors, redshift_factors_ghost, loop);
+		count = count + sign;
+		if (count == -1) {
+			sign = 1;
+			count = 0;
+		}
+		if (count == inclinations.size()) {
+			sign = -1;
+			count = inclinations.size()-1;
+		}
+		std::cout << count << std::endl;
+	}
+	/*escape = _getch();
+	if (escape == 27)
+		break;
+			std::cout << "exited: " << std::endl;
+	}*/
+
 
 	return 0;
 }

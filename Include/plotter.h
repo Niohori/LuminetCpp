@@ -23,7 +23,7 @@ public:
 	Plotter();
 	~Plotter();
 	void plot(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//bare isoradials
-	void plot(double, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//isoradials with redshift
+	void plot(double, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&,bool =false);//isoradials with redshift
 
 private:// Functions to convert a value to RGB format
 	std::vector<std::tuple<double, double, double> >convertToRGB(std::vector<double>);

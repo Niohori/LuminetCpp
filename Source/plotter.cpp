@@ -75,7 +75,7 @@ void Plotter::plot(std::vector<double>& xx, std::vector<double>& yy, std::vector
 	//g->disfin();
 }
 
-void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g, std::vector<double>& rs, std::vector<double>& rs_g) {
+void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g, std::vector<double>& rs, std::vector<double>& rs_g,bool loop) {
 	//Dislin g;
 	Npoints = xx.size();
 
@@ -112,6 +112,25 @@ void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<doubl
 	//g->labdig(-1, "x");
 	//g->ticks(9, "x");
 	//g->ticks(10, "y");
+	if (loop) { 
+		g->erase(); 
+		
+		x_max = 150.0;
+		x_min = -x_max;
+		y_max = x_max;
+		y_min = x_min;
+		//std::cout << x_min << "   "<< x_max << std::endl;
+	
+	};
+
+
+	std::cout << x_min << "   " << x_max << std::endl;
+	x_max = 36.0;
+	x_min = -x_max;
+	y_max = x_max;
+	y_min = x_min;
+
+
 	// Convert double to string with 2-digit precision
 	std::string inclination_as_string  = std::to_string(inclination);
 	size_t dotPos = inclination_as_string.find('.');
@@ -120,7 +139,6 @@ void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<doubl
 	}
 	if (inclination_as_string.size() == 1) inclination_as_string = "00"+ inclination_as_string;
 	if (inclination_as_string.size() == 2) inclination_as_string = "0" + inclination_as_string;
-	char degreeSymbol = 176;
 	std::string tittel = "inclination = " + inclination_as_string +  static_cast<char>(186);//static_cast<char>('\u00B0');
 	g->titlin(&tittel[0], 3);
 	//g->titlin("(with redshift)", 3);
@@ -138,7 +156,7 @@ void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<doubl
 	g->winfnt("Times New Roman");
 	//g->psfont("Courier-Bold");
 	g->color("fore");
-	g->height(50);
+	//g->height(50);
 	g->title();
 	// Set the color map based on the color parameter
 	for (size_t i = 0; i < Npoints; i++) {
@@ -147,7 +165,10 @@ void Plotter::plot(double inclination,std::vector<double>& xx, std::vector<doubl
 		g->setrgb(std::get<0>(rgbVector_g[i]), std::get<1>(rgbVector_g[i]), std::get<2>(rgbVector_g[i]));
 		g->rlcirc(xx_g[i], yy_g[i], 0.2);
 	}
-
+	if (loop) {
+		g->endgrf();
+		g->sendbf();	
+	};
 	//g->disfin();
 }
 
@@ -173,6 +194,9 @@ std::vector<std::tuple<double, double, double> > Plotter::convertToRGB(std::vect
 		double red = (value) / 100.;
 		double green = (100 - value) / 100;
 		double blue = 0.0;
+		red = 1;
+		green =1.0- std::sqrt(2) / 200 * value;
+		blue = green;
 		colors.push_back(std::make_tuple(red, green, blue));
 	}
 	return colors;
