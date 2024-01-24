@@ -18,7 +18,6 @@
 #include "IsoRadials.h"
 #include "utilities.h"
 
-
 class IsoRedShift {
 private://variables
 	double theta_0;  // Inclination
@@ -28,7 +27,7 @@ private://variables
 	//*****************************************************************************************
 	//                                             v
 	//std::unordered_map<std::pair<double, double>, double> coordinates_with_radii_dict;//This give a problem
-	// I have to rewrite this for the methods 
+	// I have to rewrite this for the methods
 	// 	   std::unordered_map<std::pair<double, double>, double> init_co_to_radii_dict();
 	// and std::pair<std::vector<double>, std::vector<double>> extract_co_from_solutions_dict();
 	//                                             o

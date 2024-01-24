@@ -47,10 +47,7 @@ void IsoRedShift::improve_tip(int iterations) {
 	}
 }
 
-
-
 void IsoRedShift::improve_between_all_solutions_once() {
-
 	order_coordinates();
 	std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, std::vector<std::vector<double>>>>  a_ = split_co_on_solutions();
 	std::map<double, std::vector<std::vector<double>>> co_w_s = std::get<0>(a_);//contains for a certain redshift, the polar coordinates with this value
@@ -81,8 +78,6 @@ void IsoRedShift::improve_between_all_solutions_once() {
 			if (!a.empty()) {
 				add_solutions(a, r, r_inbetw);
 			}
-
-
 		}
 	}
 }
@@ -111,7 +106,6 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::calc_redshift_o
 	}
 
 	return { a, r };
-
 }
 
 void IsoRedShift::calc_ir_before_closest_ir_wo_z(double angular_margin) {
@@ -147,7 +141,6 @@ void IsoRedShift::calc_ir_before_closest_ir_wo_z(double angular_margin) {
 }
 
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::recalc_redshift_on_closest_isoradial_wo_z(double angular_margin) {
-	
 	auto [r_w_s, r_wo_s] = split_co_on_solutions();
 	ir_params _ir_params_;
 	if (r_wo_s.size() > 0 && r_w_s.size() > 0) {
@@ -170,14 +163,12 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::recalc_redshift
 				end_angle + angular_margin,
 				irs_solver_params_.retry_angular_precision, false, false, "", false);
 
-		
-
 			if (!a.empty()) {
 				add_solutions(a, b, inbetween_r);
 			}
 		}
 	}
-	
+
 	// Placeholder return values
 	return { {}, {} };;
 }
@@ -197,7 +188,6 @@ void IsoRedShift::add_solutions(const std::vector<double>& angles, const std::ve
 
 	*************************  TO REWRITE as I have a problem with std::pair<std::vector<double>, std::vector<double>>
 }*/
-
 
 std::vector<double> IsoRedShift::get_ir_radii_w_co() {
 	std::vector<double> result;
@@ -229,7 +219,7 @@ Iterates the dictionary of coordinates that looks like {r_0: [[angle1, angle2], 
 std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, std::vector<std::vector<double>>>> IsoRedShift::split_co_on_solutions() {
 	std::map<double, std::vector<std::vector<double>>> dict_w_s;
 	std::map<double, std::vector<std::vector<double>>> dict_wo_s;
-		for (const auto& pair : radii_w_coordinates_dict) {
+	for (const auto& pair : radii_w_coordinates_dict) {
 		double key = pair.first;
 		const auto& coordinates = pair.second;
 
@@ -240,22 +230,20 @@ std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, s
 			dict_w_s[key] = coordinates;
 		}
 	}
-	
+
 	return std::make_pair(dict_w_s, dict_wo_s);
 }
 
-
-
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::calc_core_coordinates() {
 	// Assuming you have defined Isoradial class and its constructor in your C++ code.
-	
-Isoradial ir(6. * M, theta_0, M, 0);
-return ir.calc_redshift_location_on_ir(redshift);
-std::pair<std::vector<double>, std::vector<double>>a;
-return a;
+
+	Isoradial ir(6. * M, theta_0, M, 0);
+	return ir.calc_redshift_location_on_ir(redshift);
+	std::pair<std::vector<double>, std::vector<double>>a;
+	return a;
 }
 
-void IsoRedShift::order_coordinates(const std::string& plot_title , bool plot_inbetween ) {
+void IsoRedShift::order_coordinates(const std::string& plot_title, bool plot_inbetween) {
 	std::vector<std::pair<double, double>> co;
 	for (size_t i = 0; i < angles.size(); ++i) {
 		co.emplace_back(angles[i], radii[i]);

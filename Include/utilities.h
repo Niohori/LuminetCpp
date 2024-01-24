@@ -74,7 +74,6 @@ struct solver_params {
 	bool use_ellipse = true;
 };
 
-
 struct  find_redshift_params {
 	bool force_redshift_solution = false;
 	unsigned max_force_iter = 5;

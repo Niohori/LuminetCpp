@@ -3,18 +3,19 @@
 
 #include "BlackHole.h"
 #include "BlackHolePhysics.h"
-#include <discpp.h>
+#include "plotter.h"
+//#include <discpp.h>
 /*
 ************************************************************************************************************************************
-The plotting i not optimzed and temporarely housed in the main().
+The plotting has been moved to the Hary Plotter class.
 ************************************************************************************************************************************
 */
-void plot_IR(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//forward declaration Isoradials
+/*void plot_IR(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//forward declaration Isoradials
 void plot_RS(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);
 
 // Function to convert a value to RGB format
 std::vector<std::tuple<double, double, double> >convertToRGB(std::vector<double>);
-std::vector<double> normalize_vector(std::vector<double>);
+std::vector<double> normalize_vector(std::vector<double>);*/
 int main() {
 	BHphysics BHp;
 
@@ -66,38 +67,17 @@ int main() {
 	std::vector<double> yy_ghost = std::get<1>(bare_ghost_isoradials);
 	std::vector<double> redshift_factors = IR.get_redshift_factors();
 	std::vector<double> redshift_factors_ghost = IRg.get_redshift_factors();
-	/*std::cout << std::endl << std::endl << std::endl << "Passed to main with size " << xx.size() << std::endl;
-	for (size_t i = 0; i < xx.size(); i++) {
-		std::cout << i << "):  (x, y) = (" << xx[i] << ", " << yy[i] << ")" << std::endl;
-	}*/
-	//plot_IR(xx, yy, xx_ghost,yy_ghost);
-	plot_RS(xx, yy, xx_ghost, yy_ghost, redshift_factors, redshift_factors_ghost);
+	Plotter plotter;
+	//plotter.plot(xx, yy, xx_ghost,yy_ghost);
+	plotter.plot(inclination,xx, yy, xx_ghost, yy_ghost, redshift_factors, redshift_factors_ghost);
 
 	return 0;
 }
-
+/*
 void plot_IR(std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g) {
 	Dislin g;
 	int n = xx.size();
 
-	//double xray[400], yray[400];
-
-	double x_max = -10000000000.0;
-	double x_min = 10000000000.0;
-	double y_max = -10000000000.0;
-	double y_min = 10000000000.0;
-	/*
-
-	int n = 400;
-	for (unsigned i = 0; i < n; i++)
-	{
-		yray[i] = xx[i];
-		xray[i] = yy[i];
-		if (xray[i] <= x_min)x_min = xray[i];
-		if (xray[i] >= x_max)x_max = xray[i];
-		if (yray[i] <= y_min)y_min = yray[i];
-		if (yray[i] > y_max)y_max = yray[i];
-	}*/
 	for (unsigned i = 0; i < n; i++)
 	{
 		if (xx[i] <= x_min)x_min = xx[i];
@@ -253,4 +233,4 @@ std::vector<std::tuple<double, double, double> >convertToRGB(std::vector<double>
 		colors.push_back(std::make_tuple(red, green, blue));
 	}
 	return colors;
-}
+}*/

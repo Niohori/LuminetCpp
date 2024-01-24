@@ -112,16 +112,13 @@ std::pair<std::vector<double>, std::vector<double>> BlackHole::apparent_inner_ed
 	}
 }
 
-
 /*
 ----------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------------------------------
 */
 
-
 std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> redshifts) {
-	
 	//std::map<double, IsoRedShift> isoredshifts;
 	std::map<double, std::map<int, Isoradial>> dirty_isoradials = get_dirty_isoradials();
 
@@ -134,7 +131,6 @@ std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> r
 	}
 
 	return isoredshifts;
-
 }
 /*
 ----------------------------------------------------------------------------------------------------------------
@@ -166,7 +162,6 @@ void BlackHole::add_isoradial(Isoradial& isoradial, double radius, int order) {
 	}
 }
 
-
 /*
 ----------------------------------------------------------------------------------------------------------------
 
@@ -187,9 +182,6 @@ void BlackHole::calc_isoradials(const std::vector<double>& direct_r, const std::
 		//add_isoradial(isoradial, radius, 0);
 	}
 }
-
-
-
 
 /*
 ----------------------------------------------------------------------------------------------------------------

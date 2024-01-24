@@ -193,8 +193,8 @@ std::pair<std::vector<double>, std::vector<double>> OperatorsOrder2::polar_to_ca
 	std::vector<double> IRy;
 	//std::cout << "Values computed in OperatorsOrder2::polar_to_cartesian_lists;" << std::endl;
 	for (unsigned i = 0; i < radii.size(); i++) {
-		IRx.push_back(radii[i] * cos(angles[i]+rotation));
-		IRy.push_back(radii[i] * sin(angles[i]+rotation));
+		IRx.push_back(radii[i] * cos(angles[i] + rotation));
+		IRy.push_back(radii[i] * sin(angles[i] + rotation));
 		//std::cout << i << ") for angle : " << angles[i]*180/M_PI <<" and radius " << radii[i] <<": x = " << IRx[i] << " and y = " << IRy[i] << std::endl;
 	}
 
@@ -214,27 +214,27 @@ std::pair<double, double> OperatorsOrder2::cartesian_to_polar(double x, double y
 }
 
 double OperatorsOrder2::get_angle_around(const std::vector<double>& p1, const std::vector<double>& p2) {
-		double cx = p1[0];
-		double cy = p1[1];
+	double cx = p1[0];
+	double cy = p1[1];
 
-		std::vector<double> p2_ = { p2[0] - cx, p2[1] - cy };
+	std::vector<double> p2_ = { p2[0] - cx, p2[1] - cy };
 
-		double angleCenter = OperatorsOrder2::cartesian_to_polar(cx, cy).first;
-		double theta = (angleCenter > M_PI) ? (M_PI - angleCenter) : angleCenter;
+	double angleCenter = OperatorsOrder2::cartesian_to_polar(cx, cy).first;
+	double theta = (angleCenter > M_PI) ? (M_PI - angleCenter) : angleCenter;
 
-		double cosTheta = std::cos(theta);
-		double sinTheta = std::sin(theta);
+	double cosTheta = std::cos(theta);
+	double sinTheta = std::sin(theta);
 
-		std::vector<std::vector<double>> rotationMatrix = {
-			{cosTheta, -sinTheta},
-			{sinTheta, cosTheta}
-		};
+	std::vector<std::vector<double>> rotationMatrix = {
+		{cosTheta, -sinTheta},
+		{sinTheta, cosTheta}
+	};
 
-		std::vector<double> rotatedP2 = OperatorsOrder2::matrixMultiply(rotationMatrix, p2_);
-		double angleTargetAroundCenter = OperatorsOrder2::cartesian_to_polar(rotatedP2[0], rotatedP2[1]).first;
+	std::vector<double> rotatedP2 = OperatorsOrder2::matrixMultiply(rotationMatrix, p2_);
+	double angleTargetAroundCenter = OperatorsOrder2::cartesian_to_polar(rotatedP2[0], rotatedP2[1]).first;
 
-		return angleTargetAroundCenter;
-	}
+	return angleTargetAroundCenter;
+}
 std::vector<double> OperatorsOrder2::matrixMultiply(const std::vector<std::vector<double>>& matrix,
 	const std::vector<double>& vector) {
 	std::vector<double> result(matrix.size(), 0.0);
@@ -246,7 +246,6 @@ std::vector<double> OperatorsOrder2::matrixMultiply(const std::vector<std::vecto
 	}
 	return result;
 }
-
 
 /*int main() {
 	// Example usage

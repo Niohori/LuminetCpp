@@ -28,7 +28,6 @@ int BHphysics::find_index_sign_change_indices(const std::vector<double>& y) {
 }
 
 double BHphysics::calc_q(double periastron, double bh_mass, double tol = 1e-3) {
-	
 	/*
 ----------------------------------------------------------------------------------------------------------------
  Convert Periastron distance P to the variable Q
@@ -51,8 +50,7 @@ double BHphysics::calc_q(double periastron, double bh_mass, double tol = 1e-3) {
 }
 
 double BHphysics::calc_b_from_periastron(double periastron, double bh_mass, double tol = 1e-5) {
-	
-		/*
+	/*
 ----------------------------------------------------------------------------------------------------------------
   Get impact parameter b from Periastron distance P
 	limits give no substantial speed improvement
@@ -69,7 +67,6 @@ double BHphysics::calc_b_from_periastron(double periastron, double bh_mass, doub
 }
 
 double BHphysics::k(double periastron, double bh_mass) {
-	
 	/*
 ----------------------------------------------------------------------------------------------------------------
  Calculate modulus of elliptic integral
@@ -101,7 +98,6 @@ Calculate the squared modulus of elliptic integral
 }
 
 double BHphysics::zeta_inf(double periastron, double bh_mass, double tol = 1e-6) {
-	
 	/*
 ----------------------------------------------------------------------------------------------------------------
  Calculate Zeta_inf for elliptic integral F(Zeta_inf, k)
@@ -148,7 +144,6 @@ Returns cos(angle) alpha in observer frame given angles phi (black hole frame) a
 }
 
 double BHphysics::alpha(double phi, double incl) {
-
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Returns observer coordinate of photon given phi (BHF) and inclination (BHF)
@@ -158,7 +153,6 @@ Returns observer coordinate of photon given phi (BHF) and inclination (BHF)
 }
 
 std::vector<double> BHphysics::filter_periastrons(const std::vector<double>& periastron, double bh_mass, double tol) {
-
 	/*
 ----------------------------------------------------------------------------------------------------------------
 	Removes instances where P == 2*M
@@ -175,7 +169,6 @@ std::vector<double> BHphysics::filter_periastrons(const std::vector<double>& per
 }
 
 double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, double bh_mass, double incl, int n, double tol) {
-	
 	/*
 ----------------------------------------------------------------------------------------------------------------
 	Relation between radius (where photon was emitted in accretion disk), a and P.
@@ -269,17 +262,17 @@ int iterations
 void BHphysics::get_plot(const std::vector<double>& X, const std::vector<double>& Y, const std::vector<double>& solution, const double& radius) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: 
+//TO IMPLEMENT ?:
 ----------------------------------------------------------------------------------------------------------------
 */
-	/*fig = plt.figure()
-		plt.title("Eq13(P)\nr={}, a={}".format(radius, round(_alpha, 5)))
-		plt.xlabel('P')
-		plt.ylabel('Eq13(P)')
-		plt.axhline(0, color='black')
-		plt.plot(X, Y)
-		plt.scatter(solution, 0, color='red')
-		return plt*/
+/*fig = plt.figure()
+	plt.title("Eq13(P)\nr={}, a={}".format(radius, round(_alpha, 5)))
+	plt.xlabel('P')
+	plt.ylabel('Eq13(P)')
+	plt.axhline(0, color='black')
+	plt.plot(X, Y)
+	plt.scatter(solution, 0, color='red')
+	return plt*/
 }
 
 double BHphysics::calc_periastron(double _r, double incl, double _alpha, double bh_mass,
@@ -423,7 +416,6 @@ double BHphysics::redshift_factor(double radius, double angle, double incl, doub
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculate the gravitational redshift factor (1 + z), ignoring cosmological redshift.
-
 
 	WARNING: the paper is absolutely incomprehensible here. Equation 18 for the redshift completely
 	 leaves out important factors. It should be:

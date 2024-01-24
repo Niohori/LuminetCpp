@@ -47,12 +47,10 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradials() {
 	//convert polar to xy
 
-	return OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials),-M_PI/2);
+	return OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials), -M_PI / 2);
 }
 std::vector<double>  Isoradial::get_redshift_factors() {
-
 	return redshift_factors;
-
 }
 
 /*
@@ -102,7 +100,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	unsigned angular_precision = angular_properties_.angular_precision;
 	//angular_precision =10;
 	std::vector<double > angles = OperatorsOrder2::linspace(start_angle, end_angle, angular_precision);
-	
+
 	std::vector<double> impact_parameters;
 	for (auto alpha_ : angles) {
 		double b_ = BHphysics::calc_impact_parameter(radius, theta_0, alpha_, M, solver_params_.midpoint_iterations,
@@ -120,7 +118,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 
 	// flip image if necessary
 	if (theta_0 > M_PI / 2) {
-		std::cout <<"Theta gt than 90 degrees" << std::endl;
+		std::cout << "Theta gt than 90 degrees" << std::endl;
 		std::transform(angles.begin(), angles.end(), angles.begin(), [](double a) { return std::fmod((a + M_PI), (2 * M_PI)); });
 	}
 
@@ -128,9 +126,9 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 		// by default True. Halves computation time for calculating the full isoradial
 		// add second half of image (left half if 0° is set at South)
 		size_t s = angles.size();
-		for (size_t i = 0; i < s;i++) {
-			angles.push_back(2*M_PI-angles[s - i - 1]);
-			impact_parameters.push_back(impact_parameters[s-i-1]);
+		for (size_t i = 0; i < s; i++) {
+			angles.push_back(2 * M_PI - angles[s - i - 1]);
+			impact_parameters.push_back(impact_parameters[s - i - 1]);
 		}
 	}
 
@@ -143,17 +141,16 @@ std::vector<double> Isoradial::calc_redshift_factors() {
 Calculates the redshift factor (1 + z) over the line of the isoradial
  ----------------------------------------------------------------------------------------------------------------
  */
- std::vector<double> redshift_factors_;
- std::cout << "redshiftfactors " << std::endl;
- std::cout << "********************************* " << std::endl;
- for (int i = 0; i < _radii_b.size(); ++i) {
-	 double redshift = BHphysics::redshift_factor(radius, _angles[i], theta_0, M, _radii_b[i]);
-	 //std::cout << i << "i): " << redshift << std::endl;
-	 redshift_factors_.push_back(redshift);
- }
- redshift_factors = redshift_factors_;
- return redshift_factors_;
-
+	std::vector<double> redshift_factors_;
+	std::cout << "redshiftfactors " << std::endl;
+	std::cout << "********************************* " << std::endl;
+	for (int i = 0; i < _radii_b.size(); ++i) {
+		double redshift = BHphysics::redshift_factor(radius, _angles[i], theta_0, M, _radii_b[i]);
+		//std::cout << i << "i): " << redshift << std::endl;
+		redshift_factors_.push_back(redshift);
+	}
+	redshift_factors = redshift_factors_;
+	return redshift_factors_;
 }
 /*
 ----------------------------------------------------------------------------------------------------------------
@@ -168,7 +165,7 @@ void Isoradial::calculate() {
 	/*for (int i = 0; i < angles.size(); i++) {
 		std::cout << i << "):  angle and radius = (" << angles[i] << ", " << radii_b[i] << ")" << std::endl;
 	}*/
-	std::vector<double> redshift_factors_=calc_redshift_factors();
+	std::vector<double> redshift_factors_ = calc_redshift_factors();
 }
 /*
 ----------------------------------------------------------------------------------------------------------------

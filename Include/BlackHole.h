@@ -28,7 +28,7 @@ public:
 	void calc_isoradials(const std::vector<double>& direct_r, const std::vector<double>& ghost_r);
 	void add_isoradial(Isoradial& isoradial, double radius, int order);
 	std::map<double, IsoRedShift> calc_isoredshifts(std::vector<double> redshifts = { -0.15, 0.0, 0.1, 0.2, 0.5 });
-	
+
 private://variables
 	double inclination;
 	double t;
