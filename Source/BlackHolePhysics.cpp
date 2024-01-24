@@ -276,7 +276,7 @@ void BHphysics::get_plot(const std::vector<double>& X, const std::vector<double>
 }
 
 double BHphysics::calc_periastron(double _r, double incl, double _alpha, double bh_mass,
-	int midpoint_iterations = 100, bool plot_inbetween = false, int n = 0, double min_periastron = 1, int initial_guesses = 20)
+	int midpoint_iterations , bool plot_inbetween, int order , double min_periastron, int initial_guesses)
 {
 	/*
 	Given a value for r (BH frame) and alpha (BH/observer frame), calculate the corresponding periastron value
@@ -302,9 +302,12 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 	std::vector<double> y_values;
 
 	for (double periastron : periastron_range) {
-		y_values.push_back(eq13(periastron, _r, _alpha, bh_mass, incl, n, 1e-6));
+		//auto a = eq13(periastron, _r, _alpha, bh_mass, incl, order, 1e-6);
+		//std::cout << "Result of equation 13 = " << a << std::endl;
+		y_values.push_back(eq13(periastron, _r, _alpha, bh_mass, incl, order, 1e-6));
 	}
 	auto ind = find_index_sign_change_indices(y_values);
+	//std::cout << "find_index_sign_change_indices = " << ind << std::endl;
 	double periastron_solution = (ind >= 0) ? periastron_range[ind] : NAN;
 
 	if (!std::isnan(periastron_solution)) {
@@ -312,11 +315,12 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 												  {"ir_angle", _alpha},
 												  {"bh_mass", bh_mass},
 												  {"incl", incl},
-												  {"n", static_cast<double>(n)},
+												  {"n", static_cast<double>(order)},
 												  {"tol", 1e-8}
 		};
 
 		periastron_solution = BHphysics::improve_solutions_midpoint(&BHphysics::eq13, args_eq13, periastron_range, y_values, ind, midpoint_iterations);
+		//std::cout << "improved periastron solution = " << periastron_solution << std::endl;
 	}
 
 	if (plot_inbetween) {
@@ -326,19 +330,20 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 	return periastron_solution;
 }
 
-double BHphysics::calc_impact_parameter(double _r, double incl, double _alpha, double bh_mass, int midpoint_iterations, bool plot_inbetween, int n, double min_periastron, int initial_guesses, bool use_ellipse) {
+double BHphysics::calc_impact_parameter(double _r, double incl, double _alpha, double bh_mass, int midpoint_iterations, bool plot_inbetween, int order, double min_periastron, int initial_guesses, bool use_ellipse) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 
-	Calls the main body: calc_periastron, return the impact parameter.
+	Calls the main body: calc_periastron, return the impact parameter. 
 
 ----------------------------------------------------------------------------------------------------------------
 */
-	double periastron_solution = BHphysics::calc_periastron(_r, incl, _alpha, bh_mass, midpoint_iterations, plot_inbetween, n, min_periastron, initial_guesses);
-
-	if (periastron_solution == NAN) {
+	double periastron_solution = BHphysics::calc_periastron(_r, incl, _alpha, bh_mass, midpoint_iterations, plot_inbetween, order, min_periastron, initial_guesses);
+	//std::cout << "periastron_solution = " << periastron_solution<<std::endl;
+	if (periastron_solution == NAN || std::isnan(periastron_solution) ){
 		// No periastron was found
-		throw std::invalid_argument("No solution was found for the periastron.");
+		//std::cout << "No solution was found for the periastron." << std::endl; 
+		return BHphysics::ellipse(_r, _alpha, incl);
 	}
 	else if (periastron_solution <= 2. * bh_mass) {
 		// Periastron found is non-physical
@@ -346,7 +351,7 @@ double BHphysics::calc_impact_parameter(double _r, double incl, double _alpha, d
 			return BHphysics::ellipse(_r, _alpha, incl);
 		}
 		else {
-			throw std::invalid_argument("No physical periastron solution found.");
+			//std::cout << "No physical periastron solution found." << std::endl;
 		}
 	}
 	else {

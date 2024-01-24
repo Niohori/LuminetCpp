@@ -7,6 +7,12 @@
 #include <conio.h>
 #include <iostream>
 //#include <discpp.h>
+
+/*
+************************************************************************************************************************************
+TESTS.
+************************************************************************************************************************************
+*/
 /*
 ************************************************************************************************************************************
 The plotting has been moved to the Hary Plotter class.
@@ -61,6 +67,12 @@ int main() {
 	Isoradial* IRg;//ghost
 
 	//setting up the plotting
+	/*
+	* *********************************************************************************************************
+	* The code for animation has been commented out for debugging purposes.
+	* BUG to investigate: inclinations > 80° give broken isoradials 
+	* * *********************************************************************************************************
+	*/
 	std::pair<std::vector<double>, std::vector<double>> bare_isoradials ;//temporary functions for debugging
 	std::vector<double> xx;
 	std::vector<double> yy;
@@ -74,13 +86,12 @@ int main() {
 	std::cout << "press esc to exit! " << std::endl;
 	bool loop = true;
 	std::vector<double> inclinations;
-	for (double p = 10; p < 81.0; p += 1.0) {
+	for (double p = 1; p < 180.0; p += 1.0) {
 		inclinations.push_back(p);
 	}
-	size_t s = inclinations.size();
-	/*for (size_t i = 0; i < s; i++) {
-		inclinations.push_back(inclinations[s - i - 1]);
-	}*/
+	//inclinations = { 5.0 }; loop = false;
+
+
 	int sign = 1;
 	int count = 0;
 	unsigned index = 0;
@@ -91,8 +102,10 @@ int main() {
 	//inclination = { 80.0 };
 	//for (auto theta : inclinations) {
 		theta = inclinations[count];
+		//std::cout << "theta = "<< theta * M_PI / 180 << std::endl;
 		IR = new Isoradial (distance * bh_mass, theta * M_PI / 180, bh_mass, 0);
 		IR->calculate();
+		 //std::cout << "Calculating Ghost image" << std::endl;
 		IRg= new Isoradial(distance * bh_mass, theta* M_PI / 180, bh_mass, 1);//ghost
 		IRg->calculate();
 		bare_isoradials = IR->get_bare_isoradials();//temporary functions for debugging
@@ -115,175 +128,11 @@ int main() {
 			sign = -1;
 			count = inclinations.size()-1;
 		}
-		std::cout << count << std::endl;
+		if (!loop) { break; };
 	}
-	/*escape = _getch();
-	if (escape == 27)
-		break;
-			std::cout << "exited: " << std::endl;
-	}*/
+	escape = _getch();
+	if (escape == 27) { std::cout << "exited: " << std::endl; };
 
 
 	return 0;
 }
-/*
-void plot_IR(std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g) {
-	Dislin g;
-	int n = xx.size();
-
-	for (unsigned i = 0; i < n; i++)
-	{
-		if (xx[i] <= x_min)x_min = xx[i];
-		if (xx[i] >= x_max)x_max = xx[i];
-		if (yy[i] <= y_min)y_min = yy[i];
-		if (yy[i] > y_max)y_max = yy[i];
-	}
-	x_max *= 1.1;
-	x_min *= 1.1;
-	y_max *= 1.1;
-	y_min *= 1.1;
-	if (x_max < y_max)x_max = y_max;
-	if (x_min < y_min)y_min = x_min;
-	if (x_max > y_max)y_max = x_max;
-	if (x_min > y_min)x_min = y_min;
-
-	g.metafl("cons");
-	//g.scrmod("revers");
-	g.disini();
-	g.pagera();
-	g.complx();
-	g.axspos(450, 1800);
-	g.axslen(1200, 1200);
-
-	g.name("X-axis", "x");
-	g.name("Y-axis", "y");
-
-	g.labdig(-1, "x");
-	g.ticks(9, "x");
-	g.ticks(10, "y");
-
-	g.titlin("Test of a bare Isoradial", 1);
-	g.titlin("(no redshift)", 3);
-
-	//int ic = g.intrgb(0.95, 0.95, 0.95);
-	int ic = g.intrgb(0., 0., 0.);
-	g.axsbgd(ic);
-
-	g.graf(x_min, x_max, x_min, (x_max - x_min) / 10, y_min, y_max, y_min, (y_max - y_min) / 10);
-	//g.setrgb(0.7, 0.7, 0.7);
-	g.setrgb(0.0, 0.0, 0.0);
-	g.grid(1, 1);
-	g.winfnt("Times New Roman Bold");
-	//g.psfont("Courier-Bold");
-	g.color("fore");
-	g.height(50);
-	g.title();
-
-	g.color("red");
-	g.linwid(3);
-	//g.curve(xray, yray, n);
-	g.curve(&xx[0], &yy[0], n);
-	g.color("blue");
-	g.linwid(3);
-	g.curve(&xx_g[0], &yy_g[0], n);
-
-	g.disfin();
-}
-
-void plot_RS(std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g, std::vector<double>& rs, std::vector<double>& rs_g) {
-	Dislin g;
-	int n = xx.size();
-
-	// Vector to store RGB color values
-	std::vector<std::tuple<double, double, double>> rgbVector = convertToRGB(normalize_vector(rs));
-	std::vector<std::tuple<double, double, double>> rgbVector_g = convertToRGB(normalize_vector(rs_g));
-
-	double x_max = -10000000000.0;
-	double x_min = 10000000000.0;
-	double y_max = -10000000000.0;
-	double y_min = 10000000000.0;
-
-	for (unsigned i = 0; i < n; i++)
-	{
-		if (xx[i] <= x_min)x_min = xx[i];
-		if (xx[i] >= x_max)x_max = xx[i];
-		if (yy[i] <= y_min)y_min = yy[i];
-		if (yy[i] > y_max)y_max = yy[i];
-	}
-	x_max *= 1.1;
-	x_min *= 1.1;
-	y_max *= 1.1;
-	y_min *= 1.1;
-	if (x_max < y_max)x_max = y_max;
-	if (x_min < y_min)y_min = x_min;
-	if (x_max > y_max)y_max = x_max;
-	if (x_min > y_min)x_min = y_min;
-
-	g.metafl("cons");
-	//g.scrmod("revers");
-	g.disini();
-	g.pagera();
-	g.complx();
-	g.axspos(450, 1800);
-	g.axslen(1200, 1200);
-
-	g.name("X-axis", "x");
-	g.name("Y-axis", "y");
-
-	g.labdig(-1, "x");
-	g.ticks(9, "x");
-	g.ticks(10, "y");
-
-	g.titlin("Test of a bare Isoradial", 1);
-	g.titlin("(with redshift)", 3);
-
-	//int ic = g.intrgb(0.95, 0.95, 0.95);
-	int ic = g.intrgb(0., 0., 0.);
-	g.axsbgd(ic);
-
-	g.graf(x_min, x_max, x_min, (x_max - x_min) / 10, y_min, y_max, y_min, (y_max - y_min) / 10);
-	//g.setrgb(0.7, 0.7, 0.7);
-	g.setrgb(0.0, 0.0, 0.0);
-	g.grid(1, 1);
-	g.winfnt("Times New Roman Bold");
-	//g.psfont("Courier-Bold");
-	g.color("fore");
-	g.height(50);
-	g.title();
-	// Set the color map based on the color parameter
-	for (size_t i = 0; i < n; i++) {
-		g.setrgb(std::get<0>(rgbVector[i]), std::get<1>(rgbVector[i]), std::get<2>(rgbVector[i]));
-		g.rlcirc(xx[i], yy[i], 0.1);
-		g.setrgb(std::get<0>(rgbVector_g[i]), std::get<1>(rgbVector_g[i]), std::get<2>(rgbVector_g[i]));
-		g.rlcirc(xx_g[i], yy_g[i], 0.1);
-	}
-
-	g.disfin();
-}
-
-// Function to normalize the redshift in a range 0 to 100
-//stretches it by taking the span of min and max
-std::vector<double> normalize_vector(std::vector<double> avector) {
-	std::vector<double> normalized_vector;
-	double max_rs = *std::max_element(std::begin(avector), std::end(avector));
-	double min_rs = *std::min_element(std::begin(avector), std::end(avector));
-	for (auto value : avector) {
-		value = 100*(value-min_rs)/ (max_rs-min_rs);
-		//std::cout << value << std::endl;
-		normalized_vector.push_back(value);
-	}
-	return normalized_vector;
-}
-
-// Function to convert a value to RGB format
-std::vector<std::tuple<double, double, double> >convertToRGB(std::vector<double> avector) {
-	std::vector<std::tuple<double, double, double> > colors;
-	for (size_t i = 0; i < avector.size(); i++) {
-		// Map the value to the RGB range
-		double red = (avector[i]) / 100.;
-		double green = (100 - avector[i]) / 100;
-		double blue = 0.0;
-		colors.push_back(std::make_tuple(red, green, blue));
-	}
-	return colors;
-}*/

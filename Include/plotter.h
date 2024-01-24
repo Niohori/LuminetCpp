@@ -30,6 +30,7 @@ private:// Functions to convert a value to RGB format
 	std::vector<double> normalize_vector(std::vector<double>);
 private://variables
 	Dislin* g;
+	int ic;//dislin
 	double x_max;
 	double x_min;
 	double y_max;

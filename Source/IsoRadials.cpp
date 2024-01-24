@@ -22,7 +22,7 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_) 
 	cartesian_co = { X, Y };
 	redshift_factors = {};
 };
-
+//***************************  THE FOLLOWING CONSTRUCTOR SEEMS USELESS / TO CHECK
 Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, angular_properties  _angular_properties) :
 	/*const std::unordered_map<std::string, double>& params_,
 	const std::unordered_map<std::string, bool>& plot_params_,
@@ -105,6 +105,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	for (auto alpha_ : angles) {
 		double b_ = BHphysics::calc_impact_parameter(radius, theta_0, alpha_, M, solver_params_.midpoint_iterations,
 			solver_params_.plot_inbetween, order, M * solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
+		//std::cout << "impact parameters for angle : " << alpha_/M_PI*180<< " = " << b_ << std::endl;
 		if (b_ < 1e100) {
 			_angles.push_back(alpha_);
 			impact_parameters.push_back(b_);
@@ -113,15 +114,16 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 
 	if (order > 0) {
 		// TODO: fix dirty manual flip for ghost images
+		//std::cout << "***************************   Ghost image ****************************************" << std::endl;
 		std::transform(angles.begin(), angles.end(), angles.begin(), [](double a) { return a + M_PI; });
 	}
 
 	// flip image if necessary
 	if (theta_0 > M_PI / 2) {
-		std::cout << "Theta gt than 90 degrees" << std::endl;
+		//std::cout << "Theta gt than 90 degrees" << std::endl;
 		std::transform(angles.begin(), angles.end(), angles.begin(), [](double a) { return std::fmod((a + M_PI), (2 * M_PI)); });
 	}
-
+	//angular_properties_.mirror = false;//debugging
 	if (angular_properties_.mirror) {
 		// by default True. Halves computation time for calculating the full isoradial
 		// add second half of image (left half if 0° is set at South)
@@ -142,8 +144,6 @@ Calculates the redshift factor (1 + z) over the line of the isoradial
  ----------------------------------------------------------------------------------------------------------------
  */
 	std::vector<double> redshift_factors_;
-	std::cout << "redshiftfactors " << std::endl;
-	std::cout << "********************************* " << std::endl;
 	for (int i = 0; i < _radii_b.size(); ++i) {
 		double redshift = BHphysics::redshift_factor(radius, _angles[i], theta_0, M, _radii_b[i]);
 		//std::cout << i << "i): " << redshift << std::endl;
