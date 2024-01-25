@@ -120,23 +120,30 @@
 %**************************** Where to find images *****************************
 %\graphicspath{ {./images/} }
 
-
-%**************************** Document itself *******************************
-%\title{The maths behind the code V1.2}
-%**************************** Document itself *******************************
-\author{Bernard Carrette\\
-Status: DRAFT}
-%\gradyear{1979}
-\title{LuminetCpp: The maths behind the code.\\C++ version of the Python code by bgmeulem\\ //https://github.com/bgmeulem/Luminet/ \\version: draft.}
-
 \begin{document}
-\maketitle
+
+    \begin{titlepage}
+    \centering
+    \vspace*{\fill}
+
+    \vspace*{0.5cm}
+
+    \large\bfseries
+    LuminetCpp: The maths behind the code.\\C++ version of the Python code by bgmeulem\\ //https://github.com/bgmeulem/Luminet/ \\
+
+    \vspace*{0.5cm}
+
 \begin{figure}[H]%                 use [hb] only if necceccary!
   \centering
-  \includegraphics[width=15cm]{./images/coordinatesystem.PNG}
+  \includegraphics[width=5cm]{./images/Coordinates_system.PNG}
   %\caption{}
   \label{fig:test}
 \end{figure}
+    \vspace*{0.5cm}
+Bernard Carrette\\
+Status: DRAFT
+    \vspace*{\fill}
+    \end{titlepage}
 \begin{comment}
 \section*{Remarks and warnings}
 You're welcome to use these notes, but they may contain errors, so proceed with caution : I graduated in 1979, went straight in the industry (where I didn't have to use fancy maths), and picked mathematics and physics again after I retired, so my mathematics got rusty  for sure. If you do find an error, typo's , I'd be happy to receive bug reports, suggestions, and the like, through Github.
@@ -153,5 +160,6 @@ You're welcome to use these notes, but they may contain errors, so proceed with 
 
 \tableofcontents
 \listoffigures
+\include{chapter2}
 \include{chapter3}
 \end{document}

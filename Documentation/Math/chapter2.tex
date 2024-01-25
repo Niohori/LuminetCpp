@@ -1,0 +1,49 @@
+\setcounter{chapter}{1}
+\chapter{2. Image of a bare black hole}
+\pagebreak[4]
+%\mysection{45}{Distance function and metric spaces}
+%\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\setcounter{section}{0}
+%\subsection{}
+\section{Derivation of equation (2).}
+\begin{tcolorbox}
+Derivation of 
+$$\left\{\frac{1}{r^2}\left(\dv{r}{\phi}\right)\right\}^2 + \frac{1}{r^2}\left(1-\frac{2M}{r}\right)=\frac{1}{b^2}$$ from 
+$$ds^2=-\left(1-\frac{2M}{r}\right)dt^2 +\left(1-\frac{2M}{r}\right)^{-1}dr^2+r^2\left(d\theta^2+sin^2\theta d\phi^2\right)$$
+\end{tcolorbox}
+The metric form $\Phi$ is (considering the invariance of a rotation along the  $\theta$ generating axis)
+\begin{align}
+\Phi = -\left(1-\frac{2M}{r}\right)dt^2 +\left(1-\frac{2M}{r}\right)^{-1}dr^2+r^2d\phi^2
+\end{align}
+For geodesic null lines we have 
+\begin{align}
+\left \{ \begin{array}{l}
+\dv[2]{x^r}{u} + \Gamma^r_{mn}\dv{x^m}{u}\dv{x^n}{u} = 0\\\\
+\ g_{mn}\dv{x^m}{u}\dv{x^n}{u} = 0
+\end{array}\right.
+\end{align}
+or (2.448 page 46)
+\begin{align}
+\left \{ \begin{array}{l}
+\dv[2]{x^r}{v} + \Gamma^r_{mn}\dv{x^m}{v}\dv{x^n}{v} = \lambda(v) \dv{x^r}{v}\\
+\ a_{mn}\dv{x^m}{v}\dv{x^n}{v} = 0
+\end{array}\right.
+\end{align}
+where by suitable choice of the parameter $v$ , $\lambda(v) $ can be made any preassigned function of $v$.
+\begin{align}
+\text{(2)} \RAr \dv[2]{x^r}{v} &=   \lambda \dv{x^r}{v}-\Gamma^r_{mn}\dv{x^m}{v}\dv{x^n}{v} \\
+\RAr \dv[3]{x^r}{v} &=   \dv{\lambda }{v}\dv{x^r}{v}+ \lambda \dv[2]{x^r}{v}+ A^r_{.mns}\dv{x^m}{v}\dv{x^n}{v}\dv{x^s}{v} \\
+\text{with}\RAr A^r_{.mns} &= - \partial_s \Gamma^r_{mn} + 2 \Gamma^r_{sp}\Gamma^p_{mn}
+\end{align}
+For the considered metric form (Schwarzschild), the connection functions are:
+\begin{align}
+&\left[\begin{matrix}\left[\begin{matrix}0 & \frac{M}{r \left(- 2 M + r\right)} & 0\\\frac{M}{r \left(- 2 M + r\right)} & 0 & 0\\0 & 0 & 0\end{matrix}\right] & \left[\begin{matrix}\frac{M \left(- 2 M + r\right)}{r^{3}} & 0 & 0\\0 & \frac{M}{r \left(2 M - r\right)} & 0\\0 & 0 & 2 M - r\end{matrix}\right] & \left[\begin{matrix}0 & 0 & 0\\0 & 0 & \frac{1}{r}\\0 & \frac{1}{r} & 0\end{matrix}\right]\end{matrix}\right]\\\\
+&\Gamma^{t}{\,rt}= \frac{M}{r \left(- 2 M + r\right)}\\\\
+&\Gamma^{r}{\,tt}= \frac{M \left(- 2 M + r\right)}{r^{3}}\\\\
+&\Gamma^{r}{\,rr}= \frac{M}{r \left(2 M - r\right)}\\\\
+&\Gamma^{r}{\,\phi\phi}= 2 M - r\\\\
+&\Gamma^{\phi}{\,\phi r}= \frac{1}{r}
+\end{align}
+and all the others are zero.
+
+$$\blacklozenge$$\newpage

@@ -1,4 +1,4 @@
-//Unoffial C++ version of Luminet project of bgmeulem
+//Unofficial C++ version of Luminet project of bgmeulem
 //https://github.com/bgmeulem/Luminet/
 
 #include "BlackHole.h"
@@ -6,28 +6,20 @@
 #include "plotter.h"
 #include <conio.h>
 #include <iostream>
-//#include <discpp.h>
 
-/*
+	/*
 ************************************************************************************************************************************
-TESTS.
+TEMPORARY MAIN: USED FOR TESTINGS.
 ************************************************************************************************************************************
-*/
-/*
-************************************************************************************************************************************
-The plotting has been moved to the Hary Plotter class.
-************************************************************************************************************************************
-*/
-/*void plot_IR(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//forward declaration Isoradials
-void plot_RS(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);
+	*/
 
-// Function to convert a value to RGB format
-std::vector<std::tuple<double, double, double> >convertToRGB(std::vector<double>);
-std::vector<double> normalize_vector(std::vector<double>);*/
 int main() {
+	/*
+************************************************************************************************************************************
+INITIALIZATION OF SOME VARIABLES
+************************************************************************************************************************************
+	*/
 	BHphysics BHp;
-
-	// Test the translated functions
 	double periastron = 30.;// provide periastron value ;
 	double bh_mass = 1.;// provide black hole mass value
 	double radius = 100.0 * bh_mass;// 20. provide radius value
@@ -36,6 +28,11 @@ int main() {
 	double acc = 5.;// provide accretion value
 	double redshift_factor = 2.;// provide redshift factor ;
 	double b_ = 1.0;// provide b_ value ;
+	/*
+************************************************************************************************************************************
+SOME TESTS OF INDIVIDUAL FUNCTIONS
+************************************************************************************************************************************
+	*/
 
 	/*double result_phi_inf = BHp.phi_inf(periastron, bh_mass);
 
@@ -56,83 +53,132 @@ int main() {
 	std::cout << "Result flux_observed: " << result_flux_observed << std::endl;
 	std::cout << "Result result_redshift_factor: " << result_redshift_factor << std::endl;
 
-	//Test data reading
-	BlackHole BH(bh_mass);
-	BH.sample_Sources(20000);// , "D:/dev/Cpp/Luminet/Points/points_incl=85b.csv", "D:/dev/Cpp/Luminet/Points/points_secondary_incl=85b.csv");
+	/*
+************************************************************************************************************************************
+TEST OF READINGG THE ACCRETION DISK DATA
+************************************************************************************************************************************
 	*/
-	//test single isoradial
+	//BlackHole BH(bh_mass);
+	//BH.sample_Sources(20000);// , "D:/dev/Cpp/Luminet/Points/points_incl=85b.csv", "D:/dev/Cpp/Luminet/Points/points_secondary_incl=85b.csv");
+
+	/*
+************************************************************************************************************************************
+TESTS OF PLOTTING SINGLE ISORADIALS
+************************************************************************************************************************************
+	*/
+	//setting up the plotting
+	Plotter plotter;
+	char escape;
+	//std::cout << "press esc to exit! " << std::endl;
+	bool loop = true;
+	std::vector<double> inclinations;//will contain the inclinations for the animated vis (in degrees)
+	double step = 1.0;//the resolution (in degrees )of animated views
 	double inclination = 80.0;//in degrees
 	double distance = 30.0;
-	Isoradial* IR;
-	Isoradial* IRg;//ghost
-
-	//setting up the plotting
-	/*
-	* *********************************************************************************************************
-	* The code for animation has been commented out for debugging purposes.
-	* BUG to investigate: inclinations > 80° give broken isoradials 
-	* * *********************************************************************************************************
-	*/
-	std::pair<std::vector<double>, std::vector<double>> bare_isoradials ;//temporary functions for debugging
+	std::pair<std::vector<double>, std::vector<double>> bare_isoradials;//temporary functions for debugging
 	std::vector<double> xx;
 	std::vector<double> yy;
 	std::pair<std::vector<double>, std::vector<double>> bare_ghost_isoradials;//temporary functions for debugging
-	std::vector<double> xx_ghost ;
+	std::vector<double> xx_ghost;
 	std::vector<double> yy_ghost;
 	std::vector<double> redshift_factors;
-	std::vector<double> redshift_factors_ghost ;
-	Plotter plotter;
-	char escape;
-	std::cout << "press esc to exit! " << std::endl;
-	bool loop = true;
-	std::vector<double> inclinations;
-	for (double p = 1; p < 180.0; p += 1.0) {
-		inclinations.push_back(p);
-	}
-	//inclinations = { 5.0 }; loop = false;
-
-
-	int sign = 1;
-	int count = 0;
-	unsigned index = 0;
-	double theta = 0.0;
-	while (true)
-	{
-
-	//inclination = { 80.0 };
-	//for (auto theta : inclinations) {
-		theta = inclinations[count];
-		//std::cout << "theta = "<< theta * M_PI / 180 << std::endl;
-		IR = new Isoradial (distance * bh_mass, theta * M_PI / 180, bh_mass, 0);
-		IR->calculate();
-		 //std::cout << "Calculating Ghost image" << std::endl;
-		IRg= new Isoradial(distance * bh_mass, theta* M_PI / 180, bh_mass, 1);//ghost
-		IRg->calculate();
-		bare_isoradials = IR->get_bare_isoradials();//temporary functions for debugging
+	std::vector<double> redshift_factors_ghost;
+	int sign = 1;//used for the loop (animation)
+	int count = 0;//used for the loop (animation)
+	unsigned index = 0;//used for the loop (animation)
+	double theta = 0.0;//used for the loop (animation)
+	int my_switch = -1;
+	std::vector<Isoradial*> IR;;
+	std::vector<Isoradial*> IRg;
+	//end of setting
+	/*
+			************************************************************************************************************************************
+			MAKE A CHOICE with my_switch:
+									1= picture of a bare isoradial (no redshift) (make sure you choose the desired inclination)
+									2= picture of an isoradial (with redshift) (make sure you choose the desired inclination)
+									3= picture of an animated isoradial (with redshift) (standard: step=1° and between 0 and 180°)
+			************************************************************************************************************************************
+	*/
+	my_switch = 3;
+	inclination = 94.0;//in degrees
+	switch (my_switch) {
+	case 1:
+		loop = false;
+		IR.push_back(new Isoradial(distance * bh_mass, inclination * M_PI / 180, bh_mass, 0));
+		IRg.push_back(new Isoradial(distance * bh_mass, inclination * M_PI / 180, bh_mass, 1));
+		theta = inclination;
+		//IR = new Isoradial(distance * bh_mass, theta * M_PI / 180, bh_mass, 0);
+		IR[0]->calculate();
+		//std::cout << "Calculating Ghost image" << std::endl;
+		//IRg = new Isoradial(distance * bh_mass, theta * M_PI / 180, bh_mass, 1);//ghost
+		IRg[0]->calculate();
+		bare_isoradials = IR[0]->get_bare_isoradials();//temporary functions for debugging
 		xx = std::get<0>(bare_isoradials);
 		yy = std::get<1>(bare_isoradials);
-		bare_ghost_isoradials = IRg->get_bare_isoradials();//temporary functions for debugging
+		bare_ghost_isoradials = IRg[0]->get_bare_isoradials();//temporary functions for debugging
 		xx_ghost = std::get<0>(bare_ghost_isoradials);
 		yy_ghost = std::get<1>(bare_ghost_isoradials);
-		redshift_factors = IR->get_redshift_factors();
-		redshift_factors_ghost = IRg->get_redshift_factors();
-
-		//plotter.plot(xx, yy, xx_ghost,yy_ghost);
+		plotter.plot(xx, yy, xx_ghost, yy_ghost);
+		break;
+	case 2:
+		loop = false;
+		IR.push_back(new Isoradial(distance * bh_mass, inclination * M_PI / 180, bh_mass, 0));
+		IRg.push_back(new Isoradial(distance * bh_mass, inclination * M_PI / 180, bh_mass, 1));
+		theta = inclination;
+		IR[0]->calculate();
+		IRg[0]->calculate();
+		bare_isoradials = IR[0]->get_bare_isoradials();//temporary functions for debugging
+		xx = std::get<0>(bare_isoradials);
+		yy = std::get<1>(bare_isoradials);
+		bare_ghost_isoradials = IRg[0]->get_bare_isoradials();//temporary functions for debugging
+		xx_ghost = std::get<0>(bare_ghost_isoradials);
+		yy_ghost = std::get<1>(bare_ghost_isoradials);
+		redshift_factors = IR[0]->get_redshift_factors();
+		redshift_factors_ghost = IRg[0]->get_redshift_factors();
 		plotter.plot(theta, xx, yy, xx_ghost, yy_ghost, redshift_factors, redshift_factors_ghost, loop);
-		count = count + sign;
-		if (count == -1) {
-			sign = 1;
-			count = 0;
-		}
-		if (count == inclinations.size()) {
-			sign = -1;
-			count = inclinations.size()-1;
-		}
-		if (!loop) { break; };
-	}
-	escape = _getch();
-	if (escape == 27) { std::cout << "exited: " << std::endl; };
+		break;
 
+	case 3:
+		loop = true;
+		for (double p = 1; p < 180.0; p += step) {
+			inclinations.push_back(p);
+			IR.push_back(new Isoradial(distance * bh_mass, p * M_PI / 180, bh_mass, 0));
+			IRg.push_back(new Isoradial(distance * bh_mass, p * M_PI / 180, bh_mass, 1));
+		}
+		while (true)
+		{
+			theta = inclinations[count];
+			IR[count]->calculate();
+			IRg[count]->calculate();
+			bare_isoradials = IR[count]->get_bare_isoradials();//temporary functions for debugging
+			xx = std::get<0>(bare_isoradials);
+			yy = std::get<1>(bare_isoradials);
+			bare_ghost_isoradials = IRg[count]->get_bare_isoradials();//temporary functions for debugging
+			xx_ghost = std::get<0>(bare_ghost_isoradials);
+			yy_ghost = std::get<1>(bare_ghost_isoradials);
+			redshift_factors = IR[count]->get_redshift_factors();
+			redshift_factors_ghost = IRg[count]->get_redshift_factors();
+			plotter.plot(theta, xx, yy, xx_ghost, yy_ghost, redshift_factors, redshift_factors_ghost, loop);
+			count = count + sign;
+			if (count == -1) {
+				sign = 1;
+				count = 0;
+			}
+			if (count == inclinations.size()) {
+				sign = -1;
+				count = inclinations.size() - 1;
+			}
+			if (!loop) { break; };
+			//escape = _getch();
+			//if (escape == 27) { std::cout << "exited: " << std::endl; };
+		}
+
+		break;
+	default:
+		// code to be executed if
+		// expression doesn't match any constant
+		break;
+	};
 
 	return 0;
-}
+};

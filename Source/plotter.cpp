@@ -111,9 +111,9 @@ void Plotter::plot(double inclination, std::vector<double>& xx, std::vector<doub
 	if (x_min > y_min)x_min = y_min;*/
 
 	x_max = *std::max_element(std::begin({ x_max, y_max }), std::end({ x_max, y_max }));
+	x_min = -x_max;
 	y_max = x_max;
-	x_min = *std::max_element(std::begin({ x_max, y_max }), std::end({ x_max, y_max }));
-	y_max = x_max;
+	y_min = x_min;
 
 	//g->name("X-axis", "x");
 	//g->name("Y-axis", "y");
@@ -123,7 +123,6 @@ void Plotter::plot(double inclination, std::vector<double>& xx, std::vector<doub
 	//g->ticks(10, "y");
 	if (loop) {
 		g->erase();
-
 		x_max = 36.0;
 		x_min = -x_max;
 		y_max = x_max;
@@ -131,11 +130,8 @@ void Plotter::plot(double inclination, std::vector<double>& xx, std::vector<doub
 		//std::cout << x_min << "   "<< x_max << std::endl;
 	};
 
-	/*std::cout << x_min << "   " << x_max << std::endl;
-	x_max = 36.0;
-	x_min = -x_max;
-	y_max = x_max;
-	y_min = x_min;*/
+
+
 
 	// Convert double to string with 2-digit precision
 	std::string inclination_as_string = std::to_string(inclination);
