@@ -8,7 +8,7 @@ BlackHole::BlackHole(double mass_, double inclination_, double acc_) :
 	M(mass_),
 	acc(acc_)
 {
-	t = inclination_ * M_PI / 180;
+	theta_0 = inclination_ * M_PI / 180;
 	disk_outer_edge = 50. * M;
 	disk_inner_edge = 6. * M;
 
@@ -35,7 +35,7 @@ BlackHole::~BlackHole() {
 */
 Isoradial BlackHole::calc_apparent_outer_disk_edge() {
 	// Implementation of calc_apparent_outer_disk_edge method
-	Isoradial ir(disk_outer_edge, t, M, 0);
+	Isoradial ir(disk_outer_edge, theta_0, M, 0);
 	std::vector<double> X_;
 	std::vector<double> Y_;
 	std::pair<std::vector<double>, std::vector<double>> XY_;
@@ -52,7 +52,7 @@ Isoradial BlackHole::calc_apparent_outer_disk_edge() {
 */
 Isoradial BlackHole::calc_apparent_inner_disk_edge() {
 	// Implementation of calc_apparent_inner_disk_edge method
-	Isoradial ir(disk_inner_edge, t, M, 0);
+	Isoradial ir(disk_inner_edge, theta_0, M, 0);
 	for (auto& b : ir._radii_b) {
 		b *= 0.99; // scale slightly down
 	}
@@ -125,7 +125,7 @@ std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> r
 	for (const auto& redshift : redshifts) {
 		std::cout << "Calculating redshift " << redshift << std::endl;
 		std::map<double, std::map<int, Isoradial>> dirty_ir_copy = dirty_isoradials;
-		IsoRedShift iz(t, redshift, M, dirty_ir_copy);
+		IsoRedShift iz(theta_0, redshift, M, dirty_ir_copy);
 		iz.improve();//to code!!!
 		isoredshifts.emplace(redshift, iz);
 	}
@@ -141,7 +141,7 @@ std::map<double, std::map<int, Isoradial>> BlackHole::get_dirty_isoradials() {
 	std::map<double, std::map<int, Isoradial>> isoradials_;
 	std::vector<double> a__ = OperatorsOrder2::linspace(disk_inner_edge, disk_outer_edge, irs_solver_params_.initial_radial_precision);
 	for (double radius : a__) {
-		Isoradial isoradial(radius, t, M, 0);// , ir_parameters);
+		Isoradial isoradial(radius, theta_0, M, 0);// , ir_parameters);
 		isoradials_[radius] = { {0, isoradial} };
 	}
 	return isoradials_;
@@ -270,23 +270,23 @@ void BlackHole::sample_Sources(int n_points, const std::string& f, const std::st
 	std::uniform_real_distribution<double> dist_radius(min_radius_, max_radius_);
 
 	for (int i = 0; i < n_points; ++i) {
-		double theta = dist_theta(gen);
+		double theta_ = dist_theta(gen);
 		double r = dist_radius(gen);
-		double b_ = BHphysics::calc_impact_parameter(r, t, theta, M, irs_solver_params_.midpoint_iterations, irs_solver_params_.plot_inbetween, 0, irs_solver_params_.min_periastron, irs_solver_params_.initial_guesses, irs_solver_params_.use_ellipse);
-		double b_2 = BHphysics::calc_impact_parameter(r, t, theta, M, irs_solver_params_.midpoint_iterations, irs_solver_params_.plot_inbetween, 1, irs_solver_params_.min_periastron, irs_solver_params_.initial_guesses, irs_solver_params_.use_ellipse);
+		double b_ = BHphysics::calc_impact_parameter(r, theta_0, theta_, M, irs_solver_params_.midpoint_iterations, irs_solver_params_.plot_inbetween, 0, irs_solver_params_.min_periastron, irs_solver_params_.initial_guesses, irs_solver_params_.use_ellipse);
+		double b_2 = BHphysics::calc_impact_parameter(r, theta_0, theta_, M, irs_solver_params_.midpoint_iterations, irs_solver_params_.plot_inbetween, 1, irs_solver_params_.min_periastron, irs_solver_params_.initial_guesses, irs_solver_params_.use_ellipse);
 
 		if (b_ != 0) {
-			auto [x, y] = OperatorsOrder2::polar_to_cartesian_single(b_, theta, -M_PI / 2);
-			double redshift_factor_ = BHphysics::redshift_factor(r, theta, t, M, b_);
+			auto [x, y] = OperatorsOrder2::polar_to_cartesian_single(b_, theta_, -M_PI / 2);
+			double redshift_factor_ = BHphysics::redshift_factor(r, theta_, theta_0, M, b_);
 			double f_o = BHphysics::flux_observed(r, acc, M, redshift_factor_);
-			points.push_back({ x, y, b_, theta, redshift_factor_, f_o });
+			points.push_back({ x, y, b_, theta_, redshift_factor_, f_o });
 		}
 
 		if (b_2 != 0) {
-			auto [x, y] = OperatorsOrder2::polar_to_cartesian_single(b_2, theta, -M_PI / 2);
-			double redshift_factor_2 = BHphysics::redshift_factor(r, theta, t, M, b_2);
+			auto [x, y] = OperatorsOrder2::polar_to_cartesian_single(b_2, theta_, -M_PI / 2);
+			double redshift_factor_2 = BHphysics::redshift_factor(r, theta_, theta_0, M, b_2);
 			double f_o2 = BHphysics::flux_observed(r, acc, M, redshift_factor_2);
-			points2.push_back({ x, y, b_2, theta, redshift_factor_2, f_o2 });
+			points2.push_back({ x, y, b_2, theta_, redshift_factor_2, f_o2 });
 		}
 	}
 

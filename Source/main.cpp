@@ -99,8 +99,8 @@ TESTS OF PLOTTING SINGLE ISORADIALS
 									3= picture of an animated isoradial (with redshift) (standard: step=1° and between 0 and 180°)
 			************************************************************************************************************************************
 	*/
-	my_switch = 3;
-	inclination = 94.0;//in degrees
+	my_switch =2;
+	inclination = 89.1;//in degrees @90° gives a strange result: to investigate the maths
 	switch (my_switch) {
 	case 1:
 		loop = false;

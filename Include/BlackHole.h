@@ -31,7 +31,7 @@ public:
 
 private://variables
 	double inclination;
-	double t;
+	double theta_0;
 	double M;
 	double acc;
 	double disk_outer_edge;
