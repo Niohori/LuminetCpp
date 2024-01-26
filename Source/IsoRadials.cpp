@@ -44,6 +44,12 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 	redshift_factors = {};
 }
 
+
+double Isoradial::get_radius() {
+
+	return radius;
+}
+
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradials() {
 	//convert polar to xy
 
@@ -175,7 +181,7 @@ Returns angle at which the isoradial redshift equals some value z
 ----------------------------------------------------------------------------------------------------------------
 */
 std::vector<double> Isoradial::find_angle(double z) {
-	/*std::vector<int> indices;
+	std::vector<int> indices;
 	for (int i = 0; i < redshift_factors.size() - 1; ++i) {
 		if ((redshift_factors[i] - z - 1) * (redshift_factors[i + 1] - z - 1) < 0) {
 			indices.push_back(i + 1);
@@ -184,11 +190,11 @@ std::vector<double> Isoradial::find_angle(double z) {
 
 	std::vector<double> result;
 	for (int index : indices) {
-		result.push_back(angles[index]);
+		result.push_back(_angles[index]);
 	}
-	return result;*/
-	std::vector<double> a;
-	return a;
+	return result;
+	//std::vector<double> a;
+	//return a;
 }
 
 /*
@@ -202,18 +208,19 @@ double Isoradial::get_b_from_angle(double angle) {
 	// TODO: this method only works if angles augment from index 0 to end
 	// if the image is flipped, then the mod operator makes it so they jump back to 0 about halfway
 	// yielding a fake intersection
-	/*std::transform(angles.begin(), angles.end(), std::back_inserter(d),
+	std::transform(_angles.begin(), _angles.end(), std::back_inserter(_angles),
 		[angle](double a) { return std::abs(fmod(a, 2 * M_PI) - fmod(angle, 2 * M_PI)); });
 
-	auto minIt = std::min_element(d.begin(), d.end());
-	if (minIt != d.end()) {
-		int resIndex = std::distance(d.begin(), minIt);
-		return radii_b[resIndex];
+	auto minIt = std::min_element(_radii_b.begin(), _radii_b.end());
+	if (minIt != _radii_b.end()) {
+		int resIndex = std::distance(_radii_b.begin(), minIt);
+		return _radii_b[resIndex];
 	}
 	else {
 		return -1e100;
-	}*/
-	return 0.;
+	}
+	return -1e100;;
+}
 
 	/*
 	----------------------------------------------------------------------------------------------------------------
@@ -229,16 +236,16 @@ double Isoradial::get_b_from_angle(double angle) {
 				None: Nothing. Updates the isoradial.
 	----------------------------------------------------------------------------------------------------------------
 	*/
-	//void Isoradial::calc_between(int ind) {
-		/*double mid_angle = 0.5 * (angles[ind] + angles[ind + 1]);
-		double b_ = BHphysics::calc_impact_parameter(radius, t, mid_angle, M, solver_params_.midpoint_iterations, solver_params_.plot_inbetween, order, M*solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
-		double z_ = BHphysics::redshift_factor(radius, mid_angle, t, M, b_);
+void Isoradial::calc_between(int ind) {
+		double mid_angle = 0.5 * (_angles[ind] + _angles[ind + 1]);
+		double b_ = BHphysics::calc_impact_parameter(radius, theta_0, mid_angle, M, solver_params_.midpoint_iterations, solver_params_.plot_inbetween, order, M*solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
+		double z_ = BHphysics::redshift_factor(radius, mid_angle, theta_0, M, b_);
 
-		radii_b.insert(radii_b.begin() + ind + 1, b_);
-		angles.insert(angles.begin() + ind + 1, mid_angle);
+		_radii_b.insert(_radii_b.begin() + ind + 1, b_);
+		_angles.insert(_angles.begin() + ind + 1, mid_angle);
 		redshift_factors.insert(redshift_factors.begin() + ind + 1, z_);
-		*/
-}//
+		
+}
 
 /*
 ----------------------------------------------------------------------------------------------------------------
@@ -253,7 +260,7 @@ double Isoradial::get_b_from_angle(double angle) {
 */
 
 std::vector<double> Isoradial::force_intersection(double redshift) {
-	/*if (angles.size() == 2) {
+	if (_angles.size() == 2) {
 		calc_between(0);
 	}
 
@@ -309,9 +316,7 @@ std::vector<double> Isoradial::force_intersection(double redshift) {
 		it += 1;
 	}
 
-	return diff;*/
-	std::vector<double> a;
-	return a;
+	return diff;
 }
 
 /*
@@ -324,7 +329,12 @@ Calculates which location on the isoradial has some redshift value (not redshift
 ----------------------------------------------------------------------------------------------------------------
 */
 std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_location_on_ir(double redshift, bool cartesian) {
-	/*/std::vector<double> diff;
+	if (redshift_factors.size() == 0) {
+		//I should discard this Isoradial
+		return std::make_pair(std::vector<double> {	0.0	}, std::vector<double> {0.0	});
+	}
+	std::vector<double> diff;
+	//std::cout << "redshift_factors has size  = " << redshift_factors.size()<< std::endl;
 	for (double z_ : redshift_factors) {
 		diff.push_back(redshift + 1 - z_);
 	}
@@ -336,6 +346,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_loc
 
 	std::vector<int> initial_guess_indices;
 	for (int i = 0; i < diff.size() - 1; ++i) {
+		//std::cout << "diff[" << i << "] = " << diff[i] << std::endl;
 		if (diff[i] * diff[i + 1] < 0) {
 			initial_guess_indices.push_back(i);
 		}
@@ -367,8 +378,8 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_loc
 			}
 
 			// append average values of the final interval
-			angle_solutions.push_back(0.5 * (angles[new_ind] + angles[new_ind + 1]));
-			b_solutions.push_back(0.5 * (radii_b[new_ind] + radii_b[new_ind + 1]));
+			angle_solutions.push_back(0.5 * (_angles[new_ind] + _angles[new_ind + 1]));
+			b_solutions.push_back(0.5 * (_radii_b[new_ind] + _radii_b[new_ind + 1]));
 
 			// update the initial guess indices, as the indexing has changed due to inserted solutions
 			for (int& e : initial_guess_indices) {
@@ -381,7 +392,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_loc
 		return OperatorsOrder2::polar_to_cartesian_lists(b_solutions, angle_solutions,0.0);
 	}
 
-	return std::make_pair(angle_solutions, b_solutions);*/
-	std::pair<std::vector<double>, std::vector<double>> a;
-	return a;
+	return std::make_pair(angle_solutions, b_solutions);
+	//std::pair<std::vector<double>, std::vector<double>> a;
+	//return a;
 }

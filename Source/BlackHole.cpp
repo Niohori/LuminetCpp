@@ -118,16 +118,16 @@ std::pair<std::vector<double>, std::vector<double>> BlackHole::apparent_inner_ed
 ----------------------------------------------------------------------------------------------------------------
 */
 
-std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> redshifts) {
+std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> redshifts, const int& order) {
 	//std::map<double, IsoRedShift> isoredshifts;
-	std::map<double, std::map<int, Isoradial>> dirty_isoradials = get_dirty_isoradials();
+	std::map<double, std::pair<int, Isoradial*> > dirty_isoradials = get_dirty_isoradials(order);
 
 	for (const auto& redshift : redshifts) {
 		std::cout << "Calculating redshift " << redshift << std::endl;
-		std::map<double, std::map<int, Isoradial>> dirty_ir_copy = dirty_isoradials;
-		IsoRedShift iz(theta_0, redshift, M, dirty_ir_copy);
-		iz.improve();//to code!!!
-		isoredshifts.emplace(redshift, iz);
+		std::map<double, std::pair<int,Isoradial*> > dirty_ir_copy = dirty_isoradials;
+		IsoRedShift irs(theta_0, redshift, M, dirty_ir_copy);
+		irs.improve();//to code!!!
+		isoredshifts.emplace(redshift, irs);
 	}
 
 	return isoredshifts;
@@ -137,12 +137,12 @@ std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> r
 
 ----------------------------------------------------------------------------------------------------------------
 */
-std::map<double, std::map<int, Isoradial>> BlackHole::get_dirty_isoradials() {
-	std::map<double, std::map<int, Isoradial>> isoradials_;
+std::map<double, std::pair<int,Isoradial*> > BlackHole::get_dirty_isoradials(const int& order) {
+	std::map<double, std::pair<int,Isoradial*> > isoradials_;
 	std::vector<double> a__ = OperatorsOrder2::linspace(disk_inner_edge, disk_outer_edge, irs_solver_params_.initial_radial_precision);
 	for (double radius : a__) {
-		Isoradial isoradial(radius, theta_0, M, 0);// , ir_parameters);
-		isoradials_[radius] = { {0, isoradial} };
+		Isoradial* isoradial= new Isoradial(radius, theta_0, M, 0);// , ir_parameters);
+		isoradials_[radius]= std::make_pair(order, isoradial) ;
 	}
 	return isoradials_;
 }
@@ -153,12 +153,12 @@ Add isoradial to dict of isoradials. Each key is a radius corresponding to
 		of the isoradial (usually just 0 for direct and 1 for ghost image)
 ----------------------------------------------------------------------------------------------------------------
 */
-void BlackHole::add_isoradial(Isoradial& isoradial, double radius, int order) {
+void BlackHole::add_isoradial(Isoradial* isoradial, double radius, int order) {
 	if (isoradials.find(radius) != isoradials.end()) {
-		isoradials[radius][order] = isoradial;
+		isoradials[radius]=std::make_pair(order, isoradial);
 	}
 	else {
-		isoradials[radius] = { {order, isoradial} };
+		isoradials[radius] = std::make_pair(order, isoradial);//????????????????????????????????????????????????
 	}
 }
 
@@ -171,15 +171,15 @@ void BlackHole::calc_isoradials(const std::vector<double>& direct_r, const std::
 	std::cout << "Ghost images" << std::endl;
 	plot_params_.alpha = 0.5;
 	for (const auto& radius : ghost_r) {
-		//Isoradial isoradial(radius, t, M, 1);
-		//add_isoradial(isoradial, radius, 1);
+		Isoradial* isoradial= new Isoradial(radius, theta_0, M, 1);
+		add_isoradial(isoradial, radius, 1);
 	}
 
 	std::cout << "Direct images" << std::endl;
 	plot_params_.alpha = 1.0;
 	for (const auto& radius : direct_r) {
-		//Isoradial isoradial(radius, t, M, 0);
-		//add_isoradial(isoradial, radius, 0);
+		Isoradial* isoradial = new Isoradial(radius, theta_0, M, 0);
+		add_isoradial(isoradial, radius, 0);
 	}
 }
 

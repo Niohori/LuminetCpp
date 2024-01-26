@@ -14,6 +14,7 @@
 #include <utility>
 #include <unordered_map>
 #include <algorithm>
+#include <map>
 
 #include <discpp.h>
 const double a_PI = 3.14159265358979323846;
@@ -22,9 +23,9 @@ class Plotter {
 public:
 	Plotter();
 	~Plotter();
-	void plot(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//bare isoradials
-	void plot(double, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&,bool =false);//isoradials with redshift
-
+	void plot_isoradials(std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&);//bare isoradials
+	void plot_isoradials(double, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&,bool =false);//isoradials with redshift
+	void plot_redshifts(double,std::map<double, std::pair<std::vector<double>, std::vector<double>>>&);//bare isoradials
 private:// Functions to convert a value to RGB format
 	std::vector<std::tuple<double, double, double> >convertToRGB(std::vector<double>);
 	std::vector<double> normalize_vector(std::vector<double>);

@@ -8,8 +8,30 @@ IsoRedShift::~IsoRedShift() {
 	//destructor;
 };
 
-IsoRedShift::IsoRedShift(const double& angle, const double& redshift_, const double& bh_mass, const std::map<double, std::map<int, Isoradial>>) {
-	;
+IsoRedShift::IsoRedShift(const double& angle, const double& redshift_, const double& bh_mass, const std::map<double, std::pair<int, Isoradial*> > & from_isoradials)
+	: theta_0(angle), M(bh_mass), redshift(redshift_) {
+	if (from_isoradials.empty()) {
+		// TODO: initialize from photon sphere isoradial?
+	}
+	else {
+		calc_from_isoradials(from_isoradials,false);
+	}
+
+	coordinates_with_radii_dict = init_co_to_radii_dict();
+	 get_ir_radii_with_co();
+	std::tie(angles, radii) = extract_co_from_solutions_dict();
+	max_radius = radii.empty() ? 0 : *std::max_element(radii.begin(), radii.end());
+	std::tie(x, y) = OperatorsOrder2::polar_to_cartesian_lists(radii, angles, 0); // Assuming polar_to_cartesian_lists is a defined function
+	order_coordinates();
+}
+
+void IsoRedShift::get_ir_radii_with_co() {
+	ir_radii_w_co.clear();
+	for (const auto& entry : radii_w_coordinates_dict) {
+		if (!entry.second.first.empty()) {  // if radius has solution
+			ir_radii_w_co.push_back(entry.first);
+		}
+	}
 }
 
 void IsoRedShift::improve() {
@@ -49,17 +71,17 @@ void IsoRedShift::improve_tip(int iterations) {
 
 void IsoRedShift::improve_between_all_solutions_once() {
 	order_coordinates();
-	std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, std::vector<std::vector<double>>>>  a_ = split_co_on_solutions();
-	std::map<double, std::vector<std::vector<double>>> co_w_s = std::get<0>(a_);//contains for a certain redshift, the polar coordinates with this value
+	std::pair<std::map<double, std::pair<std::vector<double>, std::vector<double>>>, std::map<double, std::pair<std::vector<double>, std::vector<double>>> >  a_ = split_co_on_solutions();
+	std::map<double, std::pair<std::vector<double>, std::vector<double> > > co_w_s = std::get<0>(a_);//contains for a certain redshift, the polar coordinates with this value
 	std::vector<double> redshft = {};
 	std::vector<double> angles_ = {};
 	std::vector<double> radii_ = {};
-	for (std::map<double, std::vector<std::vector<double>>>::iterator it = co_w_s.begin(); it != co_w_s.end(); ++it) {
+	for (std::map<double, std::pair<std::vector<double>, std::vector<double>> >::iterator it = co_w_s.begin(); it != co_w_s.end(); ++it) {
 		redshft.push_back(it->first);
 		auto b_ = it->second;
-		for (auto polcoor : b_) {
-			angles_.push_back(polcoor[0]);
-			radii_.push_back(polcoor[0]);
+		for (size_t i = 0; i < b_.first.size(); i++) {
+			angles_.push_back(b_.first[i]);
+			radii_.push_back(b_.second[i]);
 		}
 	}
 
@@ -115,8 +137,8 @@ void IsoRedShift::calc_ir_before_closest_ir_wo_z(double angular_margin) {
 		double first_r_wo_s = r_wo_s.begin()->first;
 		double last_r_w_s = r_w_s.rbegin()->first;
 		double inbetween_r = 0.5 * (first_r_wo_s + last_r_w_s);
-		std::vector<double> angle_interval = radii_w_coordinates_dict[last_r_w_s][0];
-		std::vector<double> last_radii = radii_w_coordinates_dict[last_r_w_s][1];
+		std::vector<double> angle_interval = radii_w_coordinates_dict[last_r_w_s].first;
+		std::vector<double> last_radii = radii_w_coordinates_dict[last_r_w_s].second;
 
 		if (angle_interval.size() > 1) {
 			double begin_angle = angle_interval[0];
@@ -129,6 +151,12 @@ void IsoRedShift::calc_ir_before_closest_ir_wo_z(double angular_margin) {
 			auto [a, r] = calc_redshift_on_ir_between_angles(inbetween_r, begin_angle - angular_margin,
 				end_angle + angular_margin,
 				irs_solver_params_.retry_angular_precision, false, false, "", false);
+			if (a.size() == 1) {//safegard if no redshift was found for this isoradial
+				if (a[0] == 0.0 && r[0] == 0.0) {
+					a.clear();
+					r.clear();
+				}
+			}
 
 			if (!a.empty()) {
 				add_solutions(a, r, inbetween_r);
@@ -148,8 +176,8 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::recalc_redshift
 		double last_r_w_s = r_w_s.rbegin()->first;
 		double inbetween_r = 0.5 * (first_r_wo_s + last_r_w_s);
 
-		std::vector<double> angle_interval = radii_w_coordinates_dict[last_r_w_s][0];
-		std::vector<double> last_radii = radii_w_coordinates_dict[last_r_w_s][1];
+		std::vector<double> angle_interval = radii_w_coordinates_dict[last_r_w_s].first;
+		std::vector<double> last_radii = radii_w_coordinates_dict[last_r_w_s].second;
 
 		if (angle_interval.size() > 1) {
 			double begin_angle = angle_interval[0];
@@ -173,39 +201,42 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::recalc_redshift
 	return { {}, {} };;
 }
 
-void IsoRedShift::update() {
-	// Implement the update function
-}
-
-void IsoRedShift::add_solutions(const std::vector<double>& angles, const std::vector<double>& impact_parameters, double radius_ir) {
-	// Implement the add_solutions function
-}
-
 /*std::unordered_map<std::pair<double, double>, double> IsoRedShift::init_co_to_radii_dict() {
 	// Implement the init_co_to_radii_dict function
 	std::unordered_map<std::pair<double, double>, double> a;
 	return a;
 
-	*************************  TO REWRITE as I have a problem with std::pair<std::vector<double>, std::vector<double>>
+	*************************  ???? USELESS ***********************************************
 }*/
+
+std::unordered_map< double, std::pair<std::vector<double>, std::vector<double> > > IsoRedShift::init_co_to_radii_dict() {
+	std::unordered_map< double, std::pair<std::vector<double>, std::vector<double> > > to_return;
+
+	/*for (const auto& [radius, co] : radii_w_coordinates_dict) {
+		if (!co.first.empty()) {  // if radius has solution
+			std::vector<std::pair<double, double>> coordinates;
+			for (size_t i = 0; i < co.first.size(); ++i) {
+				coordinates.emplace_back(co.first[i], co.second[i]);
+			}
+			to_return[radius] = coordinates;
+			for (const auto& co_ : coordinates) {  // either one or two solutions
+				//to_return[co_] = radius;
+				to_return[radius] = co_;
+			}
+		}
+	}*/
+	to_return = radii_w_coordinates_dict;
+	return to_return;
+}
 
 std::vector<double> IsoRedShift::get_ir_radii_w_co() {
 	std::vector<double> result;
 	for (const auto& entry : radii_w_coordinates_dict) {
-		if (entry.second[0].size() > 0) {
+		if (entry.second.first.size() > 0) {
 			result.push_back(entry.first);
 		}
 	}
 	return result;
-}
-std::pair<std::vector<double>, std::vector<double>> IsoRedShift::extract_co_from_solutions_dict() {
-	// Implement the extract_co_from_solutions_dict function
-	std::pair<std::vector<double>, std::vector<double>> a;
-	return a;
-}
-
-void IsoRedShift::calc_from_isoradials(const std::vector<Isoradial>& isoradials, bool cartesian) {
-	// Implement the calc_from_isoradials function
 }
 
 /*
@@ -216,14 +247,14 @@ Iterates the dictionary of coordinates that looks like {r_0: [[angle1, angle2], 
 
 		:returns: two dictionaries: one with solutions and one without.
 */
-std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, std::vector<std::vector<double>>>> IsoRedShift::split_co_on_solutions() {
-	std::map<double, std::vector<std::vector<double>>> dict_w_s;
-	std::map<double, std::vector<std::vector<double>>> dict_wo_s;
+std::pair<std::map<double, std::pair<std::vector<double>, std::vector<double>>>, std::map<double, std::pair<std::vector<double>, std::vector<double>>> > IsoRedShift::split_co_on_solutions() {
+	std::map<double, std::pair<std::vector<double>, std::vector<double>>> dict_w_s;
+	std::map<double, std::pair<std::vector<double>, std::vector<double>>> dict_wo_s;
 	for (const auto& pair : radii_w_coordinates_dict) {
 		double key = pair.first;
 		const auto& coordinates = pair.second;
 
-		if (coordinates[0].empty()) {
+		if (coordinates.first.empty()) {
 			dict_wo_s[key] = coordinates;
 		}
 		else {
@@ -235,7 +266,7 @@ std::pair<std::map<double, std::vector<std::vector<double>>>, std::map<double, s
 }
 
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::calc_core_coordinates() {
-	// Assuming you have defined Isoradial class and its constructor in your C++ code.
+	//
 
 	Isoradial ir(6. * M, theta_0, M, 0);
 	return ir.calc_redshift_location_on_ir(redshift);
@@ -277,4 +308,84 @@ void IsoRedShift::order_coordinates(const std::string& plot_title, bool plot_inb
 	a = OperatorsOrder2::polar_to_cartesian_lists(radii, angles, 0.0);
 	x = std::get<0>(a);
 	y = std::get<1>(a);
+}
+
+std::pair<std::vector<double>, std::vector<double> > IsoRedShift::extract_co_from_solutions_dict() {
+	std::vector<double> ang;
+	std::vector<double> rad;
+	//std::unordered_map<double, std::pair<std::vector<double>,std::vector<double>>> radii_w_coordinates_dict_;
+	for (const auto& entry : radii_w_coordinates_dict) {
+		const auto key = entry.first;
+		const auto val = entry.second;
+		//const auto& val = entry.first;
+		if (val.first.size() > 0) {  // at least one solution was found
+			const auto& angles = val.first;
+			const auto& radii = val.second;
+
+			for (const auto& angle : angles) {
+				ang.push_back(angle);
+			}
+
+			for (const auto& radius : radii) {
+				rad.push_back(radius);
+			}
+		}
+	}
+	angles = ang;
+	radii = rad;
+	return std::make_pair(ang, rad);
+}
+
+void IsoRedShift::calc_from_isoradials(std::map<double, std::pair<int, Isoradial*> > isoradials, bool cartesian) {
+	std::unordered_map<double, std::pair<std::vector<double>, std::vector<double>> > solutions;
+	double _max_radius = 0.0;
+	for (auto ir_ : isoradials) {
+		std::pair<std::vector<double>, std::vector<double>> coor = ir_.second.second->calc_redshift_location_on_ir(redshift, cartesian);
+		solutions[ir_.second.second->get_radius()] = coor;
+
+		// Update _max_radius if needed
+		if (ir_.second.second->get_radius() > _max_radius) {
+			_max_radius = ir_.second.second->get_radius();
+		}
+	}
+	radii_w_coordinates_dict = solutions;
+	update();  
+}
+
+void IsoRedShift::update() {
+	std::vector<double> ir_radii_w_co = {};
+	for (const auto& [key, val] : radii_w_coordinates_dict) {
+		if (!val.first.empty()) {
+			ir_radii_w_co.push_back(key);
+		}
+	}
+	std::pair<std::vector<double>, std::vector<double>> co = extract_co_from_solutions_dict();
+	std::tie(x, y) = OperatorsOrder2::polar_to_cartesian_lists(radii, angles, 0); 
+	order_coordinates();
+}
+
+void IsoRedShift::add_solution(double angle, double radius_b, double radius_ir) {
+	auto it = radii_w_coordinates_dict.find(radius_ir);
+
+	if (it != radii_w_coordinates_dict.end()) {
+		if (!it->second.first.empty()) {
+			it->second.first.push_back(angle);
+			it->second.second.push_back(radius_b);
+		}
+		else {
+			it->second = { std::vector<double>{angle}, std::vector<double>{radius_b} };
+		}
+	}
+	else {
+		radii_w_coordinates_dict[radius_ir] = { std::vector<double>{angle}, std::vector<double>{radius_b} };
+	}
+
+	//coordinates_with_radii_dict.emplace_back(angle, radius_b);
+	update();
+}
+
+void IsoRedShift::add_solutions(const std::vector<double>& angles, const std::vector<double>& impact_parameters, double radius_ir) {
+	for (size_t i = 0; i < angles.size() && i < impact_parameters.size(); ++i) {
+		add_solution(angles[i], impact_parameters[i], radius_ir);
+	}
 }

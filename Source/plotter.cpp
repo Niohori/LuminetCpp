@@ -25,7 +25,75 @@ Plotter::~Plotter() {
 	g->disfin();
 }
 
-void Plotter::plot(std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g) {
+
+void Plotter::plot_redshifts(double inclination, std::map<double, std::pair<std::vector<double>, std::vector<double>>>& good) {
+	//Dislin g;
+	double N_redshifts = good.size();
+	//std::vector<double> redshifts;
+
+
+		for (std::map<double, std::pair<std::vector<double>, std::vector<double>>>::iterator iter = good.begin(); iter != good.end(); ++iter)
+		{
+			//redshifts.push_back(iter->first);
+			std::vector<double> x_ = iter->second.first;
+			std::vector<double> y_ = iter->second.second;
+			for (size_t i = 0; i < x_.size(); i++) {
+				if (x_[i] <= x_min)x_min = x_[i];
+				if (x_[i] >= x_max)x_max = x_[i];
+				if (y_[i] <= y_min)y_min = y_[i];
+				if (y_[i] > y_max)y_max = y_[i];
+
+			}
+		}
+	
+	x_max *= 1.1;
+	x_min *= 1.1;
+	y_max *= 1.1;
+	y_min *= 1.1;
+	/*if (x_max < y_max)x_max = y_max;
+	if (x_min < y_min)y_min = x_min;
+	if (x_max > y_max)y_max = x_max;
+	if (x_min > y_min)x_min = y_min;*/
+
+	x_max = *std::max_element(std::begin({ x_max, y_max }), std::end({ x_max, y_max }));
+	//x_max = 1.0;
+	x_min = -x_max;
+	y_max = x_max;
+	y_min = x_min;
+
+	g->titlin("Isoredshifts", 3);
+	g->setclr(0);
+
+	g->graf(x_min, x_max, x_min, (x_max - x_min) / 10, y_min, y_max, y_min, (y_max - y_min) / 10);
+	//g->setrgb(0.7, 0.7, 0.7);
+	g->setrgb(0.0, 0.0, 0.0);
+	g->color("fore");
+	g->title();
+	// Set the color map based on the color parameter
+	size_t Npoints = 0;
+	g->linwid(3);
+	double color = 0.5;
+	for (std::map<double, std::pair<std::vector<double>, std::vector<double>>>::iterator iter = good.begin(); iter != good.end(); ++iter)
+	{
+		double aredshift = iter->first;
+		std::vector<double> x_ = iter->second.first;
+		std::vector<double> y_ = iter->second.second;
+		Npoints = x_.size();
+		g->setrgb(color, 1.0-color,0);
+		color = color + 0.1;
+		g->curve(&x_[0], &y_[0], Npoints);
+
+	}
+	/*for (size_t i = 0; i < Npoints; i++) {
+		g->setrgb(std::get<0>(rgbVector[i]), std::get<1>(rgbVector[i]), std::get<2>(rgbVector[i]));
+		g->rlcirc(xx[i], yy[i], 0.2);
+		g->setrgb(std::get<0>(rgbVector_g[i]), std::get<1>(rgbVector_g[i]), std::get<2>(rgbVector_g[i]));
+		g->rlcirc(xx_g[i], yy_g[i], 0.2);
+	}*/
+
+}
+
+void Plotter::plot_isoradials(std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g) {
 	//Dislin g;
 	Npoints = xx.size();
 
@@ -87,7 +155,7 @@ void Plotter::plot(std::vector<double>& xx, std::vector<double>& yy, std::vector
 	//g->disfin();
 }
 
-void Plotter::plot(double inclination, std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g, std::vector<double>& rs, std::vector<double>& rs_g, bool loop) {
+void Plotter::plot_isoradials(double inclination, std::vector<double>& xx, std::vector<double>& yy, std::vector<double>& xx_g, std::vector<double>& yy_g, std::vector<double>& rs, std::vector<double>& rs_g, bool loop) {
 	//Dislin g;
 	Npoints = xx.size();
 

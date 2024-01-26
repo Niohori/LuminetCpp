@@ -19,7 +19,7 @@ public:
 	std::pair<std::vector<double>, std::vector<double>> get_bare_isoradials();
 	std::vector<double> get_redshift_factors();
 	void calculate();
-
+	double get_radius();
 private://variables
 	double M;  // mass of the black hole containing this isoradial
 	double theta_0;  // inclination of the observer's plane

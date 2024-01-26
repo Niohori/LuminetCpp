@@ -26,8 +26,8 @@ public:
 	~BlackHole();
 	void sample_Sources(int n_points = 1000, const std::string& f = "", const std::string& f2 = "");
 	void calc_isoradials(const std::vector<double>& direct_r, const std::vector<double>& ghost_r);
-	void add_isoradial(Isoradial& isoradial, double radius, int order);
-	std::map<double, IsoRedShift> calc_isoredshifts(std::vector<double> redshifts = { -0.15, 0.0, 0.1, 0.2, 0.5 });
+	void add_isoradial(Isoradial* isoradial, double radius, int order);
+	std::map<double, IsoRedShift> calc_isoredshifts(std::vector<double> redshifts = { -0.15, 0.0, 0.1, 0.2, 0.5 }, const int& order =0);
 
 private://variables
 	double inclination;
@@ -39,7 +39,7 @@ private://variables
 
 	//std::vector<double>  isoradials;
 	//std::vector<double> isoredshifts;
-	std::map<double, std::map<int, Isoradial>> isoradials;
+	std::map<double, std::pair<int,Isoradial* > > isoradials;
 	std::map<double, IsoRedShift> isoredshifts;
 
 	//make struct from this variables
@@ -64,6 +64,6 @@ private://methods
 	double get_apparent_outer_edge_radius(Isoradial&, double angle, double rotation);
 	double get_apparent_inner_edge_radius(Isoradial&, double angle, double rotation);
 	std::pair<std::vector<double>, std::vector<double>> apparent_inner_edge(Isoradial&, bool cartesian = true, double scale = 0.99);
-	std::map<double, std::map<int, Isoradial>> get_dirty_isoradials();
+	std::map<double, std::pair<int, Isoradial*>>  get_dirty_isoradials(const int&);
 };
 #endif

@@ -26,6 +26,7 @@
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\plotter.cpp" />
     <ClCompile Include="Source\TensorCalculus.cpp" />
+    <ClCompile Include="Source\Tests.cpp" />
     <ClCompile Include="Source\utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="Include\IsoRedShift.h" />
     <ClInclude Include="Include\plotter.h" />
     <ClInclude Include="Include\TensorCalculus.h" />
+    <ClInclude Include="Include\Tests.h" />
     <ClInclude Include="Include\utilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
