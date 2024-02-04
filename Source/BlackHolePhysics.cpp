@@ -7,7 +7,7 @@ BHphysics::BHphysics() {
 int BHphysics::find_index_sign_change_indices(const std::vector<double>& y) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
+//=================================================================================================ed
 ----------------------------------------------------------------------------------------------------------------
 */
 	int index = -1;
@@ -122,7 +122,7 @@ Calculate the elliptic integral argument Zeta_r for a given value of P and r
 	return s;
 }
 
-double BHphysics::cos_gamma(double _a, double incl, double tol = 1e-5) {
+double BHphysics::cos_gamma(double gamma, double incl, double tol = 1e-5) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculate the cos of the angle gamma
@@ -131,7 +131,7 @@ Calculate the cos of the angle gamma
 	if (std::abs(incl) < tol) {
 		return 0;
 	}
-	return std::cos(_a) / std::sqrt(std::cos(_a) * std::cos(_a) + 1 / (std::tan(incl) * std::tan(incl)));  // real
+	return std::cos(gamma) / std::sqrt(std::cos(gamma) * std::cos(gamma) + 1 / (std::tan(incl) * std::tan(incl)));  // real
 }
 
 double BHphysics::cos_alpha(double phi, double incl) {
@@ -363,7 +363,7 @@ double BHphysics::calc_impact_parameter(double _r, double incl, double _alpha, d
 double BHphysics::phi_inf(double periastron, double M) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
+//=========================================================================================================
 ----------------------------------------------------------------------------------------------------------------
 */
 	double q = calc_q(periastron, M);
@@ -376,7 +376,7 @@ double BHphysics::phi_inf(double periastron, double M) {
 double BHphysics::mu(double periastron, double bh_mass) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
+//=====================================================================================================
 ----------------------------------------------------------------------------------------------------------------
 */
 	return 2 * phi_inf(periastron, bh_mass) - M_PI;
@@ -398,7 +398,7 @@ Equation of an ellipse, reusing the definition of cos_gamma.
 double BHphysics::flux_intrinsic(double r, double acc, double bh_mass) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
+//====================================================================================================
 ----------------------------------------------------------------------------------------------------------------
 */
 	double r_ = r / bh_mass;
@@ -411,7 +411,7 @@ double BHphysics::flux_intrinsic(double r, double acc, double bh_mass) {
 double BHphysics::flux_observed(double r, double acc, double bh_mass, double redshift_factor) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
+//================================================================================
 ----------------------------------------------------------------------------------------------------------------
 */
 	double flux_intr = BHphysics::flux_intrinsic(r, acc, bh_mass);

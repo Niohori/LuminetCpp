@@ -17,11 +17,17 @@ public:
 	Isoradial(double radius, double incl, double bh_mass, int order, angular_properties);
 	//Isoradial(const std::vector<double>& angles, const std::vector<double>& radius_b);
 	std::pair<std::vector<double>, std::vector<double>> get_bare_isoradials();
+	void calculate_ISCO_region();
+	std::pair<std::vector<double>, std::vector<double>> get_ISCO_region();
+	std::pair<std::vector<double>, std::vector<double>> get_ISCO_curve();
 	std::vector<double> get_redshift_factors();
-	void calculate();
+	void calculate(const bool& isc=false);
 	double get_radius();
+	
 private://variables
 	double M;  // mass of the black hole containing this isoradial
+	double rS;//Schwarzschild radius
+	double rIsco;// innermost stable circular orbit
 	double theta_0;  // inclination of the observer's plane
 	double radius;
 	int order;
@@ -31,15 +37,18 @@ private://variables
 
 	std::vector<double> redshift_factors;//TO DO: pack isoradials and redshift
 	std::tuple<std::vector<double>, std::vector<double>> cartesian_co;
-	std::pair<std::vector<double>, std::vector<double>> bare_isoradials;//TEMPORARY for debugging: holds the polar coordinates (angles, radii) of the projected isoradial
+	std::pair<std::vector<double>, std::vector<double> > bare_isoradials;//TEMPORARY for debugging: holds the polar coordinates (angles, radii) of the projected isoradial
+	std::pair<std::vector<double>, std::vector<double> > ISCO_region;//TEMPORARY for debugging: holds the polar coordinates (angles, radii) of the projected isoradial
+	std::pair<std::vector<double>, std::vector<double> > ISCO_boundary;
 
 private://methods
+	
 
 public://methods
 
-	std::pair<std::vector<double>, std::vector<double>> calculate_coordinates();
+	std::pair<std::vector<double>, std::vector<double>> calculate_coordinates(const bool& isc=false);
 	std::vector<double> calc_redshift_factors();
-
+	bool isPointInsidePolygon(const std::pair<double, double>&, const std::pair<std::vector<double>, std::vector<double> >&);
 	std::vector<double> find_angle(double z);
 	double get_b_from_angle(double angle);
 	void calc_between(int ind);

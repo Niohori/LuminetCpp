@@ -4,5 +4,6 @@ Unofficial C++ version of Luminet project of bgmeulem //https://github.com/bgmeu
 ### Managed to generate an Isoradial with its redshift :
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Isoradial.gif" width="800" />
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Isoradial_89.PNG" width="800" />
+<img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Isoredshifts2.gif" width="800" />
 ### The aim is also to give some clarifications to the maths behind the program (in progress). 
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/images/Coordinates_system.PNG" width="800" />

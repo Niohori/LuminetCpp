@@ -6,19 +6,14 @@ BlackHole::BlackHole() {
 BlackHole::BlackHole(double mass_, double inclination_, double acc_) :
 	inclination(inclination_),
 	M(mass_),
-	acc(acc_)
+	acc(acc_),
+	rS(2.0 * M),
+	Isco(3.0*rS)
 {
 	theta_0 = inclination_ * M_PI / 180;
 	disk_outer_edge = 50. * M;
-	disk_inner_edge = 6. * M;
-
-	//isoradials = {};
-	//isoredshifts = {};
-	/*initial_guesses = 10;
-	midpoint_iterations = 10;
-	plot_inbetween = false;*/
+	disk_inner_edge = Isco;
 	min_periastron = irs_solver_params_.min_periastron * M;
-	//use_ellipse = true;
 
 	critical_b = 3.0 * std::sqrt(3) * M;
 	angular_precision = 100;
@@ -114,7 +109,7 @@ std::pair<std::vector<double>, std::vector<double>> BlackHole::apparent_inner_ed
 
 /*
 ----------------------------------------------------------------------------------------------------------------
-
+NECESSARY?
 ----------------------------------------------------------------------------------------------------------------
 */
 
@@ -123,7 +118,7 @@ std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> r
 	std::map<double, std::pair<int, Isoradial*> > dirty_isoradials = get_dirty_isoradials(order);
 
 	for (const auto& redshift : redshifts) {
-		std::cout << "Calculating redshift " << redshift << std::endl;
+		//std::cout << "Calculating redshift " << redshift << std::endl;
 		std::map<double, std::pair<int,Isoradial*> > dirty_ir_copy = dirty_isoradials;
 		IsoRedShift irs(theta_0, redshift, M, dirty_ir_copy);
 		irs.improve();//to code!!!
@@ -134,7 +129,7 @@ std::map<double, IsoRedShift> BlackHole::calc_isoredshifts(std::vector<double> r
 }
 /*
 ----------------------------------------------------------------------------------------------------------------
-
+NECESSARY?
 ----------------------------------------------------------------------------------------------------------------
 */
 std::map<double, std::pair<int,Isoradial*> > BlackHole::get_dirty_isoradials(const int& order) {
@@ -164,7 +159,7 @@ void BlackHole::add_isoradial(Isoradial* isoradial, double radius, int order) {
 
 /*
 ----------------------------------------------------------------------------------------------------------------
-
+NECESSAR?
 ----------------------------------------------------------------------------------------------------------------
 */
 void BlackHole::calc_isoradials(const std::vector<double>& direct_r, const std::vector<double>& ghost_r) {

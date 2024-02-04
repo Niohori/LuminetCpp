@@ -19,6 +19,8 @@
 #include "plotter.h"
 #include <conio.h>
 #include <iostream>
+#include <memory>
+#include <chrono>
 
 //const double M_PI = 3.14159265358979323846;
 class Tests{

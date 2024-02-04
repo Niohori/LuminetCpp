@@ -2,20 +2,19 @@
 //https://github.com/bgmeulem/Luminet/
 
 #include "Tests.h"
-#include <conio.h>
-#include <iostream>
+
 
 
 
 int main() {
 	Tests test;
-	unsigned test_choice = 3;
+	unsigned test_choice =4;
 
 	const double bh_mass = 1.;// provide black hole mass value
-	const double radius = 100.0 * bh_mass;// 20. provide radius value
-	const double inclination = 45.0;
+	const double radius = 50.0;// 20. provide radius value
+	const double inclination = 85.0;
 
-	const unsigned type_of_plot = 3;
+	const unsigned type_of_plot = 1;
 	int order = 0;
 
 	switch (test_choice) {

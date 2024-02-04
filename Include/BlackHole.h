@@ -33,6 +33,8 @@ private://variables
 	double inclination;
 	double theta_0;
 	double M;
+	double rS;//Schwarzschild radius
+	double Isco;// innermost stable circular orbit
 	double acc;
 	double disk_outer_edge;
 	double disk_inner_edge;

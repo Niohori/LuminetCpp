@@ -4,16 +4,12 @@ Isoradial::Isoradial() {
 	;
 }
 Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_) :
-	/*const std::unordered_map<std::string, double>& params_,
-	const std::unordered_map<std::string, bool>& plot_params_,
-	const std::unordered_map<std::string, double>& angular_properties_)*/
 	M(bh_mass_),
+	rS(2.0 * M),
+	rIsco(3.0 * rS),
 	theta_0(incl_),
 	radius(radius_),
 	order(order_)
-	// params(params_),
-	 //plot_params(plot_params_),
-	 //angular_properties(angular_properties_)
 {
 	_radii_b = {};
 	_angles = {};
@@ -24,17 +20,13 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_) 
 };
 //***************************  THE FOLLOWING CONSTRUCTOR SEEMS USELESS / TO CHECK
 Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, angular_properties  _angular_properties) :
-	/*const std::unordered_map<std::string, double>& params_,
-	const std::unordered_map<std::string, bool>& plot_params_,
-	const std::unordered_map<std::string, double>& angular_properties_)*/
 	M(bh_mass_),
+	rS(2.0 * M),
+	rIsco(3.0 * rS),
 	theta_0(incl_),
 	radius(radius_),
 	order(order_),
 	angular_properties_(_angular_properties)
-	// params(params_),
-	 //plot_params(plot_params_),
-	 //angular_properties(angular_properties_)
 {
 	_radii_b = {};
 	_angles = {};
@@ -45,6 +37,65 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 }
 
 
+void Isoradial::calculate_ISCO_region() {
+	auto Ib= calculate_coordinates(true);
+	
+	ISCO_boundary = OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(Ib), std::get<0>(Ib), -M_PI / 2);
+	/*auto X = ISCO_boundary.first;
+	auto Y = ISCO_boundary.second;
+	std::cout << "Size of region " << X.size() << ", " <<Y.size() << std::endl;
+	//going through all points in the rectangle (xmin,ymin)--(xmax,ymax)
+	double xmax = *std::max_element(X.begin(),X.end());
+	double xmin = *std::min_element(X.begin(), X.end());
+	double ymax = *std::max_element(Y.begin(), Y.end());
+	double ymin = *std::min_element(Y.begin(), Y.end());
+	double x_resolution = (xmax - xmin) / X.size();
+	double y_resolution = (ymax - ymin) / Y.size();
+	std::cout << "resolution =  " << x_resolution << ", " << y_resolution << std::endl;
+	std::vector<double> x_inside;
+	std::vector<double> y_inside;
+	// Calculate inner coordinates
+	for (int x = xmin; x <= xmax; x=x+x_resolution) {
+		for (int y = ymin; y <= ymax; y = y + y_resolution) {
+			std::pair point = { x, y };
+			if (isPointInsidePolygon(point, ISCO_boundary)) {
+				x_inside.push_back(x);
+				y_inside.push_back(y);
+			}
+		}
+	}
+	ISCO_region = std::make_pair( x_inside,y_inside );*/
+
+
+}
+std::pair<std::vector<double>, std::vector<double>> Isoradial::get_ISCO_region() {
+	return ISCO_region;
+
+}
+std::pair<std::vector<double>, std::vector<double>> Isoradial::get_ISCO_curve() {
+
+	return ISCO_boundary;
+}
+
+bool Isoradial::isPointInsidePolygon(const std::pair<double,double>& point, const std::pair<std::vector<double>, std::vector<double> >& polygon) {
+	int crossings = 0;
+	int n = polygon.first.size();
+
+	for (int i = 0; i < n; ++i) {
+		int j = (i + 1) % n;
+
+		if ((polygon.second[i] <= point.second && point.second < polygon.second[j]) ||
+			(polygon.second[j] <= point.second && point.second < polygon.second[i])) {
+			if (point.first < (polygon.first[j] - polygon.first[i]) * (point.second - polygon.second[i]) /
+				(polygon.second[j] - polygon.second[i]) +
+				polygon.first[i]) {
+				crossings++;
+			}
+		}
+	}
+
+	return crossings % 2 == 1;
+}
 double Isoradial::get_radius() {
 
 	return radius;
@@ -55,6 +106,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradia
 
 	return OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials), -M_PI / 2);
 }
+
 std::vector<double>  Isoradial::get_redshift_factors() {
 	return redshift_factors;
 }
@@ -89,7 +141,7 @@ Isoradial::Isoradial(const std::vector<double>& angles, const std::vector<double
 	return a;
 }*/
 
-std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates() {
+std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates(const bool& isc) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
  Calculates the angles (alpha) and radii (b) of the photons emitted at radius self.radius as they would appear
@@ -105,11 +157,16 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	double end_angle = angular_properties_.end_angle;
 	unsigned angular_precision = angular_properties_.angular_precision;
 	//angular_precision =10;
-	std::vector<double > angles = OperatorsOrder2::linspace(start_angle, end_angle, angular_precision);
+	bool full = false;
+	double _radius_ = radius;
+	if (isc)_radius_ = rIsco;
+	if (end_angle - start_angle > 1.1 * M_PI)full = true;
+	//std::vector<double > angles = OperatorsOrder2::linspace(start_angle, end_angle, angular_precision);
+	std::vector<double > angles = OperatorsOrder2::ellipticspace(full, theta_0, angular_precision);
 
 	std::vector<double> impact_parameters;
 	for (auto alpha_ : angles) {
-		double b_ = BHphysics::calc_impact_parameter(radius, theta_0, alpha_, M, solver_params_.midpoint_iterations,
+		double b_ = BHphysics::calc_impact_parameter(_radius_, theta_0, alpha_, M, solver_params_.midpoint_iterations,
 			solver_params_.plot_inbetween, order, M * solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
 		//std::cout << "impact parameters for angle : " << alpha_/M_PI*180<< " = " << b_ << std::endl;
 		if (b_ < 1e100) {
@@ -147,12 +204,13 @@ std::vector<double> Isoradial::calc_redshift_factors() {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculates the redshift factor (1 + z) over the line of the isoradial
+TO CHECK: DO WE NEED TO RETURN THE VECTOR? (already stored in member variable)
  ----------------------------------------------------------------------------------------------------------------
  */
 	std::vector<double> redshift_factors_;
 	for (int i = 0; i < _radii_b.size(); ++i) {
 		double redshift = BHphysics::redshift_factor(radius, _angles[i], theta_0, M, _radii_b[i]);
-		//std::cout << i << "i): " << redshift << std::endl;
+		//std::cout << i << "i): angle" << _angles[i] *180/M_PI<< std::endl;
 		redshift_factors_.push_back(redshift);
 	}
 	redshift_factors = redshift_factors_;
@@ -163,8 +221,8 @@ Calculates the redshift factor (1 + z) over the line of the isoradial
  ?
 ----------------------------------------------------------------------------------------------------------------
 */
-void Isoradial::calculate() {
-	auto result = calculate_coordinates();
+void Isoradial::calculate(const bool& isc) {
+	auto result = calculate_coordinates(isc);
 	bare_isoradials = { std::get<0>(result) ,std::get<1>(result) };//angle in [0,pi/2]
 	_angles = std::get<0>(result);
 	_radii_b = std::get<1>(result);
@@ -393,6 +451,5 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_loc
 	}
 
 	return std::make_pair(angle_solutions, b_solutions);
-	//std::pair<std::vector<double>, std::vector<double>> a;
-	//return a;
+
 }

@@ -410,5 +410,7 @@ MigrationBackup/
 *.run.xml
 *.xml
 *.toc
+**/Archives/
+*.txt
 
 

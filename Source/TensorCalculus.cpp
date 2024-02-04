@@ -188,6 +188,66 @@ std::vector<double> OperatorsOrder2::linspace(const double& start_in, const doub
 	return linspaced;
 }
 
+std::vector<double> OperatorsOrder2::ellipticspace(const bool& full, const double& theta, const int & num_in)
+{
+	/*======================================================================================================================
+	*
+	* Returns an non-linear spacing so that tha angles at 90° and 270° are more densely sample
+	*
+	* returns always a vector of an odd size, i.e; num_n+1 if num_in is even
+	*
+	* ======================================================================================================================*/
+	//double theta = M_PI / 2 - theta_;
+	std::vector<double> ellipticspaced;
+	if (num_in == 0 || num_in == 1) { return { 0.0 }; }
+
+	std::vector<double> base;
+	int n_base = num_in;
+	//check wether num_in is odd or even
+	if (n_base % 2 != 0) {//odd
+		n_base++;
+	}
+	n_base = size_t(num_in / 2);
+	if (full) {
+		n_base = int(num_in / 4);
+	}
+
+	for (int i = 0; i < n_base; i++) {//getting the quadrant alpha= [0,90°)
+		double tau = std::log(4.0 / n_base);
+		double k = (std::exp(tau * theta) - 1) / 2.0;
+		double alpha = i * M_PI / 2.0 / n_base - k * std::abs(std::sin(i * M_PI / n_base));
+		base.push_back(alpha);
+		ellipticspaced.push_back(alpha);
+	}
+	ellipticspaced.push_back(M_PI / 2.0);//ensure that the return number of posize_ts equals the expected: 90° is included;
+
+	n_base = ellipticspaced.size();
+	base = ellipticspaced;
+	//
+	for (int i = n_base - 2; i >= 0; i--) {//getting the 2nd quadrant alpha= [90,180°)
+
+		double alpha = M_PI - base[i];
+		//std::cout << i << "): " << alpha * 180 / M_PI << std::endl;
+		ellipticspaced.push_back(alpha);
+	}
+
+	if (!full) {
+		return ellipticspaced;
+	}
+	base = ellipticspaced;
+	n_base = base.size();
+
+
+	for (int i = n_base - 2; i >= 0; i--) {//getting the 3rd and 4th quadrant alpha= [180,360°)
+		double alpha = 2.0 * M_PI - base[i];
+		//std::cout <<i<< "----): " <<alpha * 180 / M_PI << std::endl;
+		ellipticspaced.push_back(alpha);
+	}
+
+	return  ellipticspaced;
+
+}
+
 std::pair<std::vector<double>, std::vector<double>> OperatorsOrder2::polar_to_cartesian_lists(const std::vector<double>& radii, const std::vector<double>& angles, const double& rotation) {
 	std::vector<double>IRx;
 	std::vector<double> IRy;

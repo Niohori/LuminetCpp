@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\BlackHole.cpp" />
     <ClCompile Include="Source\BlackHolePhysics.cpp" />
+    <ClCompile Include="Source\Delaunay.cpp" />
     <ClCompile Include="Source\IsoRadials.cpp" />
     <ClCompile Include="Source\IsoRedShift.cpp" />
     <ClCompile Include="Source\main.cpp" />
@@ -32,6 +33,7 @@
   <ItemGroup>
     <ClInclude Include="Include\BlackHole.h" />
     <ClInclude Include="Include\BlackHolePhysics.h" />
+    <ClInclude Include="Include\Delaunay.h" />
     <ClInclude Include="Include\IsoRadials.h" />
     <ClInclude Include="Include\IsoRedShift.h" />
     <ClInclude Include="Include\plotter.h" />
