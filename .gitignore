@@ -412,5 +412,6 @@ MigrationBackup/
 *.toc
 **/Archives/
 *.txt
+*.csv
 
 
