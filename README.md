@@ -1,4 +1,3 @@
-<div align="center">
 # LuminetCpp
 Unofficial C++ version of Luminet project of bgmeulem //https://github.com/bgmeulem/Luminet/.
 Work in progress. Do not use as a lot of  functionalities have to be implemented.
