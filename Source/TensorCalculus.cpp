@@ -165,20 +165,16 @@ std::tuple<double, double, double> OperatorsOrder2::partialDerivs(const std::vec
 std::vector<double> OperatorsOrder2::linspace(const double& start_in, const double& end_in, const int& num_in)
 {
 	std::vector<double> linspaced;
-
 	double start = static_cast<double>(start_in);
 	double end = static_cast<double>(end_in);
 	double num = static_cast<double>(num_in);
-
 	if (num == 0) { return linspaced; }
 	if (num == 1)
 	{
 		linspaced.push_back(start);
 		return linspaced;
 	}
-
 	double delta = (end - start) / (num - 1);
-
 	for (int i = 0; i < num - 1; ++i)
 	{
 		linspaced.push_back(start + delta * i);
@@ -188,17 +184,72 @@ std::vector<double> OperatorsOrder2::linspace(const double& start_in, const doub
 	return linspaced;
 }
 
-std::vector<double> OperatorsOrder2::ellipticspace(const bool& full, const double& theta, const int & num_in)
+std::vector<double> OperatorsOrder2::logspace(const double& start_in, const double& end_in, const int& num_in)
+{
+	//std::cout << "N = " << num_in << " with rMin = " << start_in << " rMax = " << end_in << std::endl;
+	std::vector<double> linspaced = linspace(start_in, end_in, num_in);
+	std::vector<double> deltas;
+	for (auto& elem : linspaced) {
+		elem = std::log(elem);
+	
+	}
+	double lmin = *std::min_element(linspaced.begin(), linspaced.end());
+	double lmax = *std::max_element(linspaced.begin(), linspaced.end());
+	//std::cout << "Nlog = " << linspaced.size() << " with lMin = " << lmin << " lMax = " << lmax << std::endl;
+	double r_p = linspaced[0];
+	for (int i = 1; i < linspaced.size(); i++) {
+		double delta = linspaced[i] - r_p;
+		deltas.push_back(delta);
+		r_p = linspaced[i];
+	}
+	/*for (auto& d : deltas) {
+		std::cout << "delta = " << d << std::endl;
+	}*/
+	linspaced.clear();
+	linspaced.push_back(lmin);
+	for (int i = 0; i < deltas.size(); i++) {
+		linspaced.push_back(lmin + deltas[deltas.size() - i - 1]);
+		lmin = lmin + deltas[deltas.size() - i - 1];
+	}
+	//std::cout << "size linspaced = " << linspaced.size() << std::endl;
+	/*r_p = linspaced[0];
+	for (auto r : linspaced) {
+		std::cout << " radius = " << r << " ----->  delta r = " << std::abs(r - r_p) << std::endl;
+		r_p = r;
+	}*/
+	double max = *std::max_element(linspaced.begin(), linspaced.end());
+	double min = *std::min_element(linspaced.begin(), linspaced.end());
+	if (max == 0)return linspaced;
+	for (auto& elem : linspaced) {
+		elem = start_in + (end_in - start_in) / (max - min) * (elem - min);
+	}
+	//std::cout << "size linspaced = " << linspaced.size() << std::endl;
+	//std::reverse(linspaced.begin(), linspaced.end());
+	/*r_p = linspaced[0];
+	for (auto r : linspaced) {
+		std::cout << " radius = " << r << " ----->  delta r = " << std::abs(r -r_p)  << std::endl;
+		r_p = r;
+	}*/
+	//std::cin.get();
+	return linspaced;
+}
+
+double OperatorsOrder2::phi(const double& delta, const double& thet) {
+	double K = 1.01;
+	return (2 * (1 - K) / M_PI * thet + K) / K * delta;
+}
+
+std::vector<double> OperatorsOrder2::nonLinSpace(const bool& full, const double& theta, const int& num_in)
 {
 	/*======================================================================================================================
 	*
-	* Returns an non-linear spacing so that tha angles at 90° and 270° are more densely sample
+	* Returns an non-linear spacing so that that angles at 90° and 270° are more densely sampled
 	*
 	* returns always a vector of an odd size, i.e; num_n+1 if num_in is even
 	*
 	* ======================================================================================================================*/
 	//double theta = M_PI / 2 - theta_;
-	std::vector<double> ellipticspaced;
+	std::vector<double> nonlinspaced;
 	if (num_in == 0 || num_in == 1) { return { 0.0 }; }
 
 	std::vector<double> base;
@@ -211,42 +262,138 @@ std::vector<double> OperatorsOrder2::ellipticspace(const bool& full, const doubl
 	if (full) {
 		n_base = int(num_in / 4);
 	}
-
-	for (int i = 0; i < n_base; i++) {//getting the quadrant alpha= [0,90°)
-		double tau = std::log(4.0 / n_base);
-		double k = (std::exp(tau * theta) - 1) / 2.0;
-		double alpha = i * M_PI / 2.0 / n_base - k * std::abs(std::sin(i * M_PI / n_base));
-		base.push_back(alpha);
-		ellipticspaced.push_back(alpha);
+	double delta_0 = 0.00001;
+	int n = num_in;
+	double k = theta;
+	double coef = M_PI / 2 ;
+	double start = 0;
+	double delta = delta_0;
+	base.push_back(start);
+	for (int i = 0; i < n - 1; ++i) {
+		delta = phi(delta, k);
+		start += delta;
+		nonlinspaced.push_back(start);
 	}
-	ellipticspaced.push_back(M_PI / 2.0);//ensure that the return number of posize_ts equals the expected: 90° is included;
+	double max = *std::max_element(nonlinspaced.begin(), nonlinspaced.end());
+	//std::cout << "Max =  " << max*180/M_PI<<  std::endl;
+	for (auto& v : nonlinspaced) {
+		v /= max;
+		v *= coef;
+	}
+	max = *std::max_element(nonlinspaced.begin(), nonlinspaced.end());
+	if (*nonlinspaced.end() != M_PI / 2.0) {//ensures that the return number of posize_ts equals the expected: 90° is included;
+		nonlinspaced.push_back(M_PI / 2.0);
+	}
+	//double alpha_p = 0;
+	//for (auto a : nonlinspaced) {
+	//	std::cout << " alpha = " << a * 180 / M_PI << " ----->  delta alpha = " << std::abs(a - alpha_p) * 180 / M_PI << std::endl;
+	//	alpha_p = a;
+	//}
+	//std::cin.get();
 
-	n_base = ellipticspaced.size();
-	base = ellipticspaced;
+	n_base = nonlinspaced.size();
+	base = nonlinspaced;
 	//
 	for (int i = n_base - 2; i >= 0; i--) {//getting the 2nd quadrant alpha= [90,180°)
-
 		double alpha = M_PI - base[i];
 		//std::cout << i << "): " << alpha * 180 / M_PI << std::endl;
-		ellipticspaced.push_back(alpha);
+		nonlinspaced.push_back(alpha);
 	}
-
+	//alpha_p = 0;
+	//for (auto a : nonlinspaced) {
+	//	std::cout << " alpha = " << a * 180 / M_PI << " ----->  delta alpha = " << std::abs(a - alpha_p) * 180 / M_PI << std::endl;
+	//	alpha_p = a;
+	//}
+	//std::cin.get();
 	if (!full) {
-		return ellipticspaced;
+		return nonlinspaced;
 	}
-	base = ellipticspaced;
+	base = nonlinspaced;
 	n_base = base.size();
-
 
 	for (int i = n_base - 2; i >= 0; i--) {//getting the 3rd and 4th quadrant alpha= [180,360°)
 		double alpha = 2.0 * M_PI - base[i];
 		//std::cout <<i<< "----): " <<alpha * 180 / M_PI << std::endl;
-		ellipticspaced.push_back(alpha);
+		nonlinspaced.push_back(alpha);
 	}
+	//alpha_p = 0;
+	//for (auto a : nonlinspaced) {
+	//	std::cout << " alpha = " << a * 180 / M_PI << " ----->  delta alpha = " << std::abs(a - alpha_p) * 180 / M_PI << std::endl;
+	//	alpha_p = a;
+	//}
+	//std::cin.get();
 
-	return  ellipticspaced;
-
+	return  nonlinspaced;
 }
+//
+//std::vector<double> OperatorsOrder2::ellipticspace(const bool& full, const double& theta, const int & num_in)
+//{
+//	/*======================================================================================================================
+//	*
+//	* Returns an non-linear spacing so that that angles at 90° and 270° are more densely sampled
+//	*
+//	* returns always a vector of an odd size, i.e; num_n+1 if num_in is even
+//	*
+//	* ======================================================================================================================*/
+//	//double theta = M_PI / 2 - theta_;
+//	std::vector<double> ellipticspaced;
+//	if (num_in == 0 || num_in == 1) { return { 0.0 }; }
+//
+//	std::vector<double> base;
+//	int n_base = num_in;
+//	//check wether num_in is odd or even
+//	if (n_base % 2 != 0) {//odd
+//		n_base++;
+//	}
+//	n_base = size_t(num_in / 2);
+//	if (full) {
+//		n_base = int(num_in / 4);
+//	}
+//	std::vector<double> t = logspace(0, n_base, n_base);
+//	t = linspace(0,1, n_base);
+//	double alpha_p = 0;
+//	double log_p = 0;
+//	for (int i = 0; i < n_base; i++) {//getting the quadrant alpha= [0,90°)
+//		double tau = std::log(4.0 / n_base);
+//		double k =  2.0/std::pow(M_PI,2)/theta;
+//		double alpha = t[i] +k * std::abs(std::sin(t[i]));
+//		alpha *= M_PI / 2;
+//		//std::cout << " log = " <<t[i] << " ----->  delta log  = " << std::abs(t[i]-log_p) << std::endl;
+//		std::cout << " alpha = " << alpha * 180 / M_PI << " ----->  delta alpha = " << std::abs(alpha - alpha_p) * 180 / M_PI << std::endl;
+//		alpha_p = alpha;
+//		log_p = t[i];
+//		base.push_back(alpha);
+//		ellipticspaced.push_back(alpha);
+//	}
+//	//std::cin.get();
+//	ellipticspaced.push_back(M_PI / 2.0);//ensure that the return number of posize_ts equals the expected: 90° is included;
+//
+//	n_base = ellipticspaced.size();
+//	base = ellipticspaced;
+//	//
+//	for (int i = n_base - 2; i >= 0; i--) {//getting the 2nd quadrant alpha= [90,180°)
+//
+//		double alpha = M_PI - base[i];
+//		//std::cout << i << "): " << alpha * 180 / M_PI << std::endl;
+//		ellipticspaced.push_back(alpha);
+//	}
+//
+//	if (!full) {
+//		return ellipticspaced;
+//	}
+//	base = ellipticspaced;
+//	n_base = base.size();
+//
+//
+//	for (int i = n_base - 2; i >= 0; i--) {//getting the 3rd and 4th quadrant alpha= [180,360°)
+//		double alpha = 2.0 * M_PI - base[i];
+//		//std::cout <<i<< "----): " <<alpha * 180 / M_PI << std::endl;
+//		ellipticspaced.push_back(alpha);
+//	}
+//
+//	return  ellipticspaced;
+//
+//}
 
 std::pair<std::vector<double>, std::vector<double>> OperatorsOrder2::polar_to_cartesian_lists(const std::vector<double>& radii, const std::vector<double>& angles, const double& rotation) {
 	std::vector<double>IRx;

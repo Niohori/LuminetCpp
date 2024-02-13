@@ -436,3 +436,102 @@ Calculate the gravitational redshift factor (1 + z), ignoring cosmological redsh
 		pow((1 - 3. * bh_mass / radius), -0.5);
 	return z_factor;
 }
+
+// Function to convert wavelength to RGB
+std::vector<double> BHphysics::wavelengthToRGB(const double& temperature, const double& brightness) {//wavelength in Kelvin
+	// Normalize temperature to the range [0, 1]
+	double t_normalized = static_cast<double>(temperature / 100.0 - 20) / (70 - 20);
+
+	// Linear interpolation between red and blue
+	double red = 1.0 - t_normalized;
+	double blue = t_normalized;
+
+	// Intensity adjustment
+	const double intensityMax = 1.0;
+	const double gamma = 0.8;
+	red = intensityMax * std::pow(red, gamma);
+	blue= intensityMax * std::pow(blue, gamma);
+
+	// Create the RGB color
+	std::vector<double> rgb = { red, 0, blue}; // No green component
+	//if (temperature >= 4500.0 && temperature <= 5500.0)rgb = { 1.0,1.0,1.0 };
+	return rgb;
+}
+
+////////////////////////////////////////////////////////////////
+//
+//  Tanner Helland formulas
+//
+std::vector<double> BHphysics::convert_TH(const double& temperature, const double& brightness)
+{
+	std::vector<double> rgb = std::vector < double>(3, 0.0);
+	double red = 0.0;
+	double green = 0.0;
+	double blue = 0.0;
+	double t = temperature * 0.01;
+		if (t <= 66)
+	{
+		red = 255;
+		green = (99.4708025861 * log(t)) - 161.1195681661;
+		if (t > 19)
+		{
+			blue = (138.5177312231 * log(t - 10)) - 305.0447927307;
+		}
+		else blue = 0;
+	}
+	else
+	{
+		red = 329.698727466 * pow(t - 60, -0.1332047592);
+		green = 288.1221695283 * pow(t - 60, -0.0755148492);
+		blue = 255;
+	}
+	rgb = { red,green,blue };
+	normalizeRGB(rgb, brightness);
+	return rgb;
+}
+
+////////////////////////////////////////////////////////////////
+//
+//  Neil Bartlett formulas
+//
+std::vector<double> BHphysics::convert_NB(const double& temperature, const double& brightness)
+{
+	std::vector<double> rgb = std::vector < double>(3, 0.0);
+	double red = 0.0;
+	double green = 0.0;
+	double blue = 0.0;
+	double t = temperature * 0.01;
+	if (t <= 66)
+	{
+		red = 255;
+		green = t - 2;
+		green = -155.25485562709179 - 0.44596950469579133 * green + 104.49216199393888 * log(green);
+		blue = 0;
+		if (t > 20)
+		{
+			blue = t - 10;
+			blue = -254.76935184120902 + 0.8274096064007395 * blue + 115.67994401066147 * log(blue);
+		}
+	}
+	else
+	{
+		red = t - 55.0;
+		red = 351.97690566805693 + 0.114206453784165 * red - 40.25366309332127 * log(red);
+		green = t - 50.0;
+		green = 325.4494125711974 + 0.07943456536662342 * green - 28.0852963507957 * log(green);
+		blue = 255;
+	}
+	rgb = { red,green,blue };
+	normalizeRGB(rgb, brightness);
+	return rgb;
+}
+
+void BHphysics::normalizeRGB(std::vector<double>& rgb,const double& brightness)
+{
+	double f = 0.01 * brightness;
+	if (f == 0.0)f = 0.0001;
+	//  divide by 255 to get factors between 0..1
+	rgb[0] /= (255/f);
+	rgb[1] /= (255 / f);
+	rgb[2] /= (255 / f);
+}

@@ -208,10 +208,20 @@ Version 1: all isoradials with rs
 ************************************************************************************************************************************/
 
 void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, const double& inclination, const int& order, const unsigned& my_switch) {
+	//==================================================================
+//==================================================================
+//==================================================================
+
+	double STEP = 1.0;//the resolution (in degrees )of animated views
+	double nIsolines = 10;//numebr of isolines wanted
+
+	//==================================================================
+	//==================================================================
+	//==================================================================
 	const double lower_radius = 6.0;
 	const double upper_radius = 50.0;
 	const size_t _n_radii_ = 20;
-	const size_t _n_angles_ = size_t(360. / 2.);
+	const size_t _n_angles_ = size_t(360. / 1.);
 	double redshift_treschold_ = 0.1;
 	bool loop = false;
 	std::vector<double> X;
@@ -221,7 +231,6 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 	//bool loop = true;
 	std::vector<double> inclinations;//will contain the inclinations for the animated vis (in degrees)
 
-	//double inclination = 80.0;//in degrees
 	double distance = radius;
 
 	int sign = 1;//used for the loop (animation)
@@ -229,56 +238,40 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 	unsigned index = 0;//used for the loop (animation)
 	double theta = 0.0;//used for the loop (animation)
 	std::vector<std::unique_ptr<IsoRedShift> > Irs;;
-
-	//std::cout << "Inclination : " << inclination << std::endl;
-	Isoradial Ir(0, inclination * M_PI / 180, bh_mass, 0);
-	Ir.calculate_ISCO_region();
-	auto Isco_curve = Ir.get_ISCO_curve();
-
-	//print_ISCO(Isco_curve, inclination );
-
-	//IsoRedShift Irs(inclination * M_PI / 180, bh_mass, lower_radius, upper_radius, _n_radii_, _n_angles_, redshift_treschold_);
-	////std::multimap<double, std::vector<delaunay::Segment> > isolines = Irs.get_isolines_2(15, Isco_curve.first, Isco_curve.second);
 	double xmax = 0.0;
 	double ymax = 0.0;
 	double xmin = 0.0;
 	double ymin = 0.0;
 	double rsmax = 0.0;
 	double rsmin = 0.0;
-	//Plotter plot;
-	//plot.plot_iso_redshifts(inclination, isolines, xmax, xmin, rsmax, rsmin, false);
-	std::multimap<double, std::vector<delaunay::Segment> > isolines;
-	std::vector< std::multimap<double, std::vector<delaunay::Segment> > > allIsolines;
+	std::multimap<double, std::vector<meshes::Point> > isolines;
+	std::vector< std::multimap<double, std::vector<meshes::Point> > > allIsolines;
 	Plotter plot;
-	//==================================================================
-	//==================================================================
-	//==================================================================
 
-	double STEP = 1.0;//the resolution (in degrees )of animated views
-	double nIsolines =10;//numebr of isolines wanted
-
-	//==================================================================
-	//==================================================================
-	//==================================================================
 	std::vector<double> xCoordinates;
 	std::vector<double> yCoordinates;
 	std::vector<double> redshifts;
-	double  t0 = 0.0;// std::chrono::high_resolution_clock::now();
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
-
+	std::vector<std::pair<std::vector<double>, std::vector<double>> > Iscos;
+	std::vector< std::pair<std::vector<double>, std::vector<double>> > concaveHulls;
+	//dlib::mutex m;
 	switch (my_switch) {
 	case 1:
 
 		loop = false;
 		t1 = std::chrono::high_resolution_clock::now();
+
 		Irs.push_back(std::make_unique<IsoRedShift>(inclination * M_PI / 180, bh_mass, lower_radius, upper_radius, _n_radii_, _n_angles_, redshift_treschold_));
+
 		t2 = std::chrono::high_resolution_clock::now();
-		std::cout << "Average time (s) for the redshift objectts creation: " << (t2 - t1).count() / 1e9 << std::endl;
+		std::cout << "Average time (s) for the redshift objects creation: " << (t2 - t1).count() / 1e6 << " ms."<<std::endl;
 		std::cout << "==================================================================" << std::endl << std::endl;
 		theta = inclination;
 		//IR = new Isoradial(distance * bh_mass, theta * M_PI / 180, bh_mass, 0);
-		isolines = Irs[0]->get_isolines(nIsolines, Isco_curve.first, Isco_curve.second);
+		isolines = Irs[0]->get_isolines(nIsolines);// , Isco_curve.first, Isco_curve.second);
+		concaveHulls.push_back(Irs[0]->get_ConcaveHull());
+		Iscos.push_back(Irs[0]->get_ISCO_curve());
 		xmax = Irs[0]->x_max;
 		ymax = Irs[0]->y_max;
 		xmin = Irs[0]->x_min;
@@ -286,48 +279,44 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 		rsmax = Irs[0]->redshift_max;
 		rsmin = Irs[0]->redshift_min;
 		t1 = std::chrono::high_resolution_clock::now();
-		plot.plot_iso_redshifts(inclination, isolines, xmax, xmin, rsmax, rsmin, false);
+		plot.plot_iso_redshifts(inclination, isolines, xmax, xmin, rsmax, rsmin, Iscos[0], concaveHulls[0], false);
 		t2 = std::chrono::high_resolution_clock::now();
-		std::cout << "Average time (s) for the isolines calculation: " << (t2 - t1).count() / 1e9 << std::endl;
+		std::cout << "Average time (s) for the isolines calculation: " << (t2 - t1).count() / 1e6 <<" ms." <<std::endl;
 		count = 0;
 		break;
 	case 2:
 
 		loop = true;
-
-		for (double p = 1; p < 180.0; p += STEP) {
-			t1 = std::chrono::high_resolution_clock::now();
+		t1 = std::chrono::high_resolution_clock::now();
+		count = 0;
+		for (double p = 1; p < 91.0; p += STEP) {
 			if (p == 90.0)continue;
 			inclinations.push_back(p);
-			Irs.push_back(std::make_unique<IsoRedShift>(p * M_PI / 180, bh_mass, lower_radius, upper_radius, _n_radii_, _n_angles_, redshift_treschold_));
-			t2 = std::chrono::high_resolution_clock::now();
-			t0 += (t2 - t1).count() / 1e9;
-			std::cout << "Generated redshift object for "<< p << "°" <<std::endl;
+			Irs.push_back(std::make_unique<IsoRedShift>(p * M_PI / 180, bh_mass, lower_radius, upper_radius, _n_radii_, _n_angles_, redshift_treschold_));;
 		}
-		std::cout << "Average time (s) for the redshift objectts creation: " << t0 / inclinations.size() << std::endl;
-		std::cout << "==================================================================" << std::endl << std::endl;
-		t0 = 0;
-		for (int i = 0; i < inclinations.size(); i++) {
-			t1 = std::chrono::high_resolution_clock::now();
-			Isoradial Ir(0, inclination * M_PI / 180, bh_mass, 0);
-			Ir.calculate_ISCO_region();
-			auto Isco_curve = Ir.get_ISCO_curve();
-			isolines = Irs[i]->get_isolines(nIsolines, Isco_curve.first, Isco_curve.second);
-			allIsolines.push_back(isolines);
-			t2 = std::chrono::high_resolution_clock::now();
-			t0 += (t2 - t1).count() / 1e9;
-			std::cout << "Calculated redshift isolines  for " << inclinations[i] << "°" << std::endl;
+		t2 = std::chrono::high_resolution_clock::now();
+		std::cout << "Time (s) for redshift objects creation for "<< inclinations.size() <<" inclinations: " << (t2 - t1).count() / 1e9  << " s." << " (" << (t2 - t1).count() / 1e6 / inclinations.size() << " ms/inclination)." << std::endl;
+		std::cout << std::endl << "================================== Calculating isolines ...  ===========================================" << std::endl << std::endl;
+		t1 = std::chrono::high_resolution_clock::now();
+		allIsolines = std::vector< std::multimap<double, std::vector<meshes::Point> > >(inclinations.size(), isolines);
+		concaveHulls = std::vector<std::pair<std::vector<double>, std::vector<double>> >(inclinations.size());
+		Iscos = std::vector<std::pair<std::vector<double>, std::vector<double>> >(inclinations.size());
+		parallel_for(0, inclinations.size(), [&](long i) {
+		//for (int i = 0; i < inclinations.size(); i++) {
+			std::multimap<double, std::vector<meshes::Point> > iso =Irs[i]->get_isolines(nIsolines);;
+			concaveHulls[i] = Irs[i]->get_ConcaveHull();
+			Iscos[i] = Irs[i]->get_ISCO_curve();
+			//isolines = Irs[i]->get_isolines(nIsolines);// , Isco_curve.first, Isco_curve.second);
+			//auto_mutex lock(m);
+			allIsolines[i] = iso;
 		}
-		std::cout << "Average time (s) for the isolines calculation: " << t0 / inclinations.size() << std::endl;
+		);
+		t2 = std::chrono::high_resolution_clock::now();
+		std::cout << "Time (s) for " << nIsolines << " isolines calculation for " << inclinations.size() << " inclinations: " << (t2 - t1).count() / 1e9 << " s." << " (" << (t2 - t1).count() / 1e6 / inclinations.size()/ nIsolines << " ms/isoline/inclination)." << std::endl;
+		std::cout << "=========================================================================================================" << std::endl << std::endl;
 		count = 0;
 		while (true)
 		{
-			//Isoradial Ir(0, inclination * M_PI / 180, bh_mass, 0);
-			//Ir.calculate_ISCO_region();
-			//auto Isco_curve = Ir.get_ISCO_curve();
-
-			//print_ISCO(Isco_curve, inclinations[count]);
-
 			theta = inclinations[count];
 			auto anIsolines = allIsolines[count];
 			xmax = Irs[count]->x_max;
@@ -337,7 +326,7 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 			rsmax = Irs[count]->redshift_max;
 			rsmin = Irs[count]->redshift_min;
 
-			plot.plot_iso_redshifts(inclinations[count], anIsolines, xmax, xmin, rsmax, rsmin, true);
+			plot.plot_iso_redshifts(inclinations[count], anIsolines, xmax, xmin, rsmax, rsmin,Iscos[count] ,concaveHulls[count],true);
 
 			count = count + sign;
 			if (count == -1) {
@@ -349,10 +338,7 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 				count = inclinations.size() - 1;
 			}
 			if (!loop) { break; };
-			//escape = _getch();
-			//if (escape == 27) { std::cout << "exited: " << std::endl; };
 		}
-
 		break;
 	case 3:
 
@@ -361,7 +347,7 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 
 		theta = inclination;
 		//IR = new Isoradial(distance * bh_mass, theta * M_PI / 180, bh_mass, 0);
-		isolines = Irs[0]->get_isolines(nIsolines, Isco_curve.first, Isco_curve.second);
+		isolines = Irs[0]->get_isolines(nIsolines);// , Isco_curve.first, Isco_curve.second);
 		xmax = Irs[0]->x_max;
 		ymax = Irs[0]->y_max;
 		xmin = Irs[0]->x_min;

@@ -79,7 +79,7 @@ double BlackHole::get_apparent_inner_edge_radius(Isoradial& ir, double angle, do
 
 /*
 ----------------------------------------------------------------------------------------------------------------
-The apparent inner edge of the black hole(not the apparent inner disk edge).THis takes eventual ghost images
+The apparent inner edge of the black hole(not the apparent inner disk edge).This takes eventual ghost images
 into account
 ----------------------------------------------------------------------------------------------------------------
 */

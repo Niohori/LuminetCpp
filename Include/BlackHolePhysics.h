@@ -1,4 +1,6 @@
 #pragma once
+#ifndef BLACKHOLEPHYSICS_H
+#define BLACKHOLEPHYSICS_H
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -63,4 +65,24 @@ public:
 	static double flux_observed(double r, double acc, double bh_mass, double redshift_factor);
 	static double redshift_factor(double radius, double angle, double incl, double bh_mass, double b_);
 	static int find_index_sign_change_indices(const std::vector<double>&);
+	//Black body temperature to RGB conversion
+
+static std::vector<double> wavelengthToRGB(const double& , const double& );//artist's impression
+////////////////////////////////////////////////////////////////
+//
+//  Tanner Helland formulas
+//
+static std::vector<double> convert_TH(const double& temperature, const double& brightness);
+
+
+
+////////////////////////////////////////////////////////////////
+//
+//  Neil Bartlett formulas
+//
+static std::vector<double> convert_NB(const double& temperature, const double& brightness);
+private:
+static  void normalizeRGB(std::vector<double>&, const double&);
+
 };
+#endif

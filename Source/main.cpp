@@ -8,13 +8,14 @@
 
 int main() {
 	Tests test;
-	unsigned test_choice =4;
+	unsigned test_choice =3;
+	const unsigned type_of_plot =2;
+	const double inclination = 89.0;
 
 	const double bh_mass = 1.;// provide black hole mass value
-	const double radius = 50.0;// 20. provide radius value
-	const double inclination = 85.0;
+	const double radius = 30.0;// 20. provide radius value
+	
 
-	const unsigned type_of_plot = 1;
 	int order = 0;
 
 	switch (test_choice) {

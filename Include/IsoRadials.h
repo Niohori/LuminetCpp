@@ -1,4 +1,6 @@
 #pragma once
+#ifndef ISORADIALS_H
+#define ISORADIALS_H
 /*#include <iostream>
 #include <cmath>
 #include <fstream>
@@ -68,3 +70,4 @@ public://variables ? make get method?
 	std::vector<double> _radii_b;
 	std::vector<double> _angles;
 };
+#endif

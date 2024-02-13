@@ -39,41 +39,13 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 
 void Isoradial::calculate_ISCO_region() {
 	auto Ib= calculate_coordinates(true);
-	
 	ISCO_boundary = OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(Ib), std::get<0>(Ib), -M_PI / 2);
-	/*auto X = ISCO_boundary.first;
-	auto Y = ISCO_boundary.second;
-	std::cout << "Size of region " << X.size() << ", " <<Y.size() << std::endl;
-	//going through all points in the rectangle (xmin,ymin)--(xmax,ymax)
-	double xmax = *std::max_element(X.begin(),X.end());
-	double xmin = *std::min_element(X.begin(), X.end());
-	double ymax = *std::max_element(Y.begin(), Y.end());
-	double ymin = *std::min_element(Y.begin(), Y.end());
-	double x_resolution = (xmax - xmin) / X.size();
-	double y_resolution = (ymax - ymin) / Y.size();
-	std::cout << "resolution =  " << x_resolution << ", " << y_resolution << std::endl;
-	std::vector<double> x_inside;
-	std::vector<double> y_inside;
-	// Calculate inner coordinates
-	for (int x = xmin; x <= xmax; x=x+x_resolution) {
-		for (int y = ymin; y <= ymax; y = y + y_resolution) {
-			std::pair point = { x, y };
-			if (isPointInsidePolygon(point, ISCO_boundary)) {
-				x_inside.push_back(x);
-				y_inside.push_back(y);
-			}
-		}
-	}
-	ISCO_region = std::make_pair( x_inside,y_inside );*/
-
-
 }
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_ISCO_region() {
 	return ISCO_region;
 
 }
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_ISCO_curve() {
-
 	return ISCO_boundary;
 }
 
@@ -111,35 +83,7 @@ std::vector<double>  Isoradial::get_redshift_factors() {
 	return redshift_factors;
 }
 
-/*
-* **************Necessary?
-Isoradial::Isoradial(const std::vector<double>& angles, const std::vector<double>& radius_b)
-	: angles(angles), radii_b(radius_b) {
-	// Initialize other members if needed
-}*/
-/*
-----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
-----------------------------------------------------------------------------------------------------------------
-*/
-/*std::unordered_map<std::string, double> Isoradial::__read_default_solver_params() {
-	// Implement the default solver parameters if needed
-	// Return the default parameters as an unordered_map
-	std::unordered_map<std::string, double> a;
-	return a ;
-}*/
 
-/*
-----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?: for the moment being, the parameters are hardcoded
-----------------------------------------------------------------------------------------------------------------
-*/
-/*std::unordered_map<std::string, bool> Isoradial::default_plot_params() {
-	// Implement the default plot parameters if needed
-	// Return the default parameters as an unordered_map
-	std::unordered_map<std::string, bool> a;
-	return a;
-}*/
 
 std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates(const bool& isc) {
 	/*
@@ -162,7 +106,7 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	if (isc)_radius_ = rIsco;
 	if (end_angle - start_angle > 1.1 * M_PI)full = true;
 	//std::vector<double > angles = OperatorsOrder2::linspace(start_angle, end_angle, angular_precision);
-	std::vector<double > angles = OperatorsOrder2::ellipticspace(full, theta_0, angular_precision);
+	std::vector<double > angles = OperatorsOrder2::nonLinSpace(full, theta_0, angular_precision);
 
 	std::vector<double> impact_parameters;
 	for (auto alpha_ : angles) {

@@ -1,4 +1,6 @@
 #pragma once
+#ifndef ISOREDSHIFTS_H
+#define ISOREDSHIFTS_H
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -20,7 +22,12 @@
 #include "BlackHolePhysics.h"
 #include "IsoRadials.h"
 #include "utilities.h"
-#include "Delaunay.h"
+//#include "Delaunay.h"
+#include "mesh.h"
+#include "isolines.h"
+#include <dlib/threads.h>
+using namespace dlib;
+using namespace meshes;
 
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
 #define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
@@ -56,7 +63,10 @@ public://methods
 	IsoRedShift(const double& angle, const double& bh_mass, const double& lower_radius, const double& upper_radius, const size_t& _n_radii_, const size_t& _n_angles_, const double&);
 	IsoRedShift(const double&, const double&, const double&, const std::map<double, std::pair<int, Isoradial*> >&);
 	~IsoRedShift();
-	std::multimap<double, std::vector<delaunay::Segment> > get_isolines(const size_t n, const std::vector<double>&, const std::vector<double>&);
+	//std::multimap<double, std::vector<delaunay::Point> > get_isolines(const size_t n, const std::vector<double>&, const std::vector<double>&);
+	std::multimap<double, std::vector<meshes::Point> > get_isolines(const size_t n);// , const std::vector<double>&, const std::vector<double>&));
+	std::pair<std::vector<double>, std::vector<double>> get_ISCO_curve();
+	std::pair<std::vector<double>, std::vector<double>> get_ConcaveHull();
 	void improve();
 private://variables
 	double theta_0;  // Inclination
@@ -80,11 +90,12 @@ private://variables
 	solver_params solver_params_;
 	plot_params plot_params_;
 	ir_params ir_params_;
+	std::pair<std::vector<double>, std::vector<double> > ISCO_boundary;
 
 private://methods
 	void make_grid();
-	double calculateDistance(const delaunay::Point& p1, const delaunay::Point& p2);
-	double findSmallestDistance(const std::vector<delaunay::Point>&);
+	double calculateDistance(const meshes::Point& p1, const meshes::Point& p2);
+	double findSmallestDistance(const std::vector<meshes::Point>&);
 
 public://variables ? make get method?
 	double redshift_;
@@ -96,7 +107,10 @@ public://variables ? make get method?
 	double y_min = x_min;
 	double redshift_max = -1000000000000.0;
 	double redshift_min = -redshift_max;
-
+	std::vector<double> xIsco;
+	std::vector<double> yIsco;
+	std::vector<meshes::Point> ConcaveHull;
+	std::vector<meshes::Point> ISCO;
 	double delta = 5.0e-2;
 	double redshift_treshold;//TEMPORARY
 	std::vector<double> xCoordinates;
@@ -106,3 +120,4 @@ public://variables ? make get method?
 	std::vector<double> yGrid;//TEMPORARY
 	std::vector<std::vector<double>> redshiftGrid;//TEMPORARY
 };
+#endif

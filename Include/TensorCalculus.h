@@ -34,7 +34,10 @@ public:
 	std::tuple<double, double, double> partialDerivs(const std::vector<std::vector<std::vector<double>>>& fct, int i, int j, int k);
 	std::vector<std::vector<std::vector<double>>> Add(const std::vector<std::vector<std::vector<double>>>&, const double&, const std::vector<std::vector<std::vector<double>>>&, const double&);
 	static std::vector<double>  linspace(const double&, const double&, const int&);
-	static std::vector<double> ellipticspace(const bool&, const double& , const int& );
+	static std::vector<double> nonLinSpace(const bool&, const double&, const int&);
+	static double phi(const double&, const double&);
+	static std::vector<double>  logspace(const double&, const double&, const int&);
+	//static std::vector<double> ellipticspace(const bool&, const double& , const int& );
 
 	static std::pair<std::vector<double>, std::vector<double>> polar_to_cartesian_lists(const std::vector<double>& radii, const std::vector<double>& angles, const double& rotation);
 	static std::pair<double, double> polar_to_cartesian_single(double th, double radius, double rotation);

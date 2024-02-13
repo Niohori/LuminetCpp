@@ -1,7 +1,6 @@
 #include "Plotter.h"
 Plotter::Plotter()
 {
-	
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);;
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
@@ -19,9 +18,9 @@ Plotter::Plotter()
 	g->pagera();
 	g->complx();
 	g->nochek();
-	g->axspos(500, 0*screenHeight-200);
+	g->axspos(500, 0 * screenHeight - 200);
 	//g->axspos(1250, 1600);
-	int scrheight = std::min(screenWidth, screenHeight)-20;
+	int scrheight = std::min(screenWidth, screenHeight) - 20;
 	g->axslen(scrheight, scrheight);
 	//g->axslen(1200, 2800);
 	g->chacod("ISO1");
@@ -35,10 +34,11 @@ Plotter::~Plotter() {
 	g->disfin();
 }
 
-
- 
-void Plotter::plot_iso_redshifts(const double& inclination, const std::multimap<double, std::vector<delaunay::Segment > >& isolines, const double& x_max_, const double& x_min_, const double& max_rs, const double& min_rs, const bool& loop) {
+void Plotter::plot_iso_redshifts(const double& inclination, const std::multimap<double, std::vector<meshes::Point > >& isolines, const double& x_max_, const double& x_min_, const double& max_rs, const double& min_rs, const std::pair<std::vector<double>, std::vector<double>>& isco, const std::pair<std::vector<double>, std::vector<double>>&  concavehull,const bool& loop) {
 	//Dislin g;
+	//==================== Creating the concave hull ===========================================================
+
+	
 	double N_redshifts = isolines.size();
 	// Counting the number of different keys
 	std::vector<double> uniqueKeys;
@@ -50,8 +50,8 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::multimap<
 	//std::cout << "xmax" << x_max << "  xmin "<< x_min << std::endl;
 
 	rgbVector = convertToRGB(normalize_vector(uniqueKeys));
-	x_max = std::min(x_max_,60.0);
-	
+	x_max = std::min(x_max_, 60.0);
+
 	//x_max = 1.0;
 	x_min = -x_max;
 	y_max = x_max;
@@ -91,7 +91,7 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::multimap<
 
 	g->linwid(3);
 	double color = 0.5;
-	
+
 	auto clr = g->intrgb(0.0, 0.0, 0.0);
 	double color_i = 1.0 / isolines.size();
 	size_t cc = 0;
@@ -102,23 +102,32 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::multimap<
 	}*/
 
 	for (auto iso : isolines) {
-
 		auto segments = iso.second;;
 		g->setrgb(cc * color_i, 0, 1.0 - cc * color_i);
-		for (auto segment : segments) {
-
-			g->rline(segment.p1.x, segment.p1.y, segment.p2.x, segment.p2.y);
+		/*	for (auto segment : segments) {
+				g->rline(segment.p1.x, segment.p1.y, segment.p2.x, segment.p2.y);
+			}*/
+		if (segments.size() != 0) {
+			for (auto i = 0; i < segments.size() - 1; i++) {
+				if (std::pow(segments[i].x - segments[i + 1].x, 2) + std::pow(segments[i].y - segments[i + 1].y, 2) > 2) { continue; }
+				g->rline(segments[i].x, segments[i].y, segments[i + 1].x, segments[i + 1].y);
+			}
 		}
 		cc++;
 	}
+	//===================================== Plotting the concave hull  ===========================================================================
+	g->lintyp(0);
+	g->setrgb(0.5, 0.5, 0.5);
+	//g->curve(&concavehull.first[0], &concavehull.second[0], concavehull.first.size());
+	//plotting the ISCO
+	//g->color("yellow");
+	g->curve(&isco.first[0], &isco.second[0], isco.first.size());
 	if (loop) {
 		g->endgrf();
 		g->sendbf();
 	};
 	//g.disfin();
 }
-
-
 
 void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<double>& xVal, const std::vector<double>& yVal, const std::vector<double>& rsVal, const double& x_max_, const double& x_min_, const double& max_rs, const double& min_rs) {
 	//Dislin g;
@@ -135,17 +144,12 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<do
 	double yMin = *std::min_element(yVal.begin(), yVal.end());
 	double rsMax = *std::max_element(rsVal.begin(), rsVal.end());
 	double rsMin = *std::min_element(rsVal.begin(), rsVal.end());
-	double grid_resolution =0.9;
+	double grid_resolution = 0.9;
 	int N_grid = std::ceil((xMax - xMin) / grid_resolution);
 	//create the grid
 	x_grid = OperatorsOrder2::linspace(xMin, xMin + N_grid * grid_resolution, N_grid);
 	y_grid = x_grid;
 	redshift_grid = std::vector<std::vector<double> >(N_grid, std::vector<double>(N_grid, 0.0));// instantiated with zero's
-	std::cout << "Size of the x_grid: " << y_grid.size() << " and y_grid  " << y_grid.size() << "and redshift_grid : " << redshift_grid.size() << " x " << redshift_grid[0].size() << std::endl;
-	//std::cin.get();
-	//std::cout << "x_grid.size() = " << x_grid.size() << "redshift_field.size() = " << redshift_grid.size() << std::endl;
-	//we now start to fill the vectors x_grid an y_grid with the  (x,y) values of the cloud_points.
-	//the redshifts are also store in the right row/col of the matrix redshift_grid
 	for (size_t i = 0; i < xVal.size(); i++) {
 		int I_x = std::floor((xVal[i] - xMin) / grid_resolution);
 		if (I_x < 0)I_x = 0;
@@ -153,25 +157,21 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<do
 		int I_y = std::floor((yVal[i] - yMin) / grid_resolution);
 		if (I_y < 0)I_y = 0;
 		if (I_y > N_grid - 1)I_y = N_grid - 1;
-		//I_y = N_grid - I_y - 1;//necessary as the isoline routine has a reversed axis
-		//std::cout << "Size of the grid: " << x_grid.size() << " x " << y_grid.size() << " and trying to acces element " << I_x << " and " <<I_y << std::endl;
 		x_grid[I_x] = xVal[i];
 		y_grid[I_y] = yVal[i];
-		double rs = rsVal[i]-1;
-		//std::cout << rs << std::endl;
+		double rs = rsVal[i] - 1;
 		redshift_grid[I_x][I_y] = rs;;
-		//std::cout << "@(i,j)= @(" << I_x << ", " << I_y << ")  : " << "(x, y) = (" << x_grid[I_x] << ", " << y_grid[I_y] << ") with redshift = " << redshift_grid[I_x][I_y] << std::endl;
-		//if (i > 20)break;;
 	}
+	rsMax -= 1;
+	rsMin -= 1;
 	int n = xVal.size();
-	
-	
+
 	// Flatten the matrix into a one-dimensional array
 	std::vector<double> zarr;
 	for (const auto& row : redshift_grid) {
 		zarr.insert(zarr.end(), row.begin(), row.end());
 	}
-	
+
 	g->scrmod("revers");
 	g->metafl("cons");
 	g->disini();
@@ -185,13 +185,9 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<do
 	//g->axslen(1200, 2800);
 	g->chacod("ISO1");
 	g->winfnt("Times New Roman");
-	int ic = g->intrgb(1., 1.,1.);
+	int ic = g->intrgb(1., 1., 1.);
 	g->axsbgd(ic);
-
-
 	x_max = std::min(xMax, 60.0);
-
-
 	//x_max = 1.0;
 	x_min = -x_max;
 	y_max = x_max;
@@ -201,7 +197,7 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<do
 	x_min = -x_max;
 	y_max = x_max;
 	y_min = -x_max;
-	
+
 	g->titlin("Redshift", 1);
 	// Convert double to string with 2-digit precision
 	std::string inclination_as_string = std::to_string(inclination);
@@ -216,26 +212,14 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<do
 	//g->setclr(0);
 	g->intax();
 	g->graf(x_min, x_max, x_min, (x_max - x_min) / 10, y_min, y_max, y_min, (y_max - y_min) / 10);
-	//g->setrgb(0.7, 0.7, 0.7);
-	//g->setrgb(0.0, 0.0, 0.0);
-	
-	// Set the color map based on the color parameter
-
 	g->linwid(3);
 	double color = 0.5;
-
-	
 	size_t cc = 0;
-	//plotting the isoradials
-	/*for (size_t i = 0; i < x_grid.size(); i++) {
-		g.setrgb(0.5, 0.5, 0.5);
-		g.rlcirc(x_grid[i], y_grid[i], 0.05);
-	}*/
-	auto zlev= OperatorsOrder2::linspace(rsMin-1, rsMax-1, 5);
-	
+	auto zlev = OperatorsOrder2::linspace(rsMin, rsMax, 15);
 
-	for(int i = 0; i < zlev.size(); i++)
+	for (int i = 0; i < zlev.size(); i++)
 	{
+		std::cout<< "Level " << i << " = " << zlev[i] << std::endl;
 		g->setclr(0);
 		if (i == 2)
 			g->labels("none", "contur");
@@ -246,7 +230,7 @@ void Plotter::plot_iso_redshifts(const double& inclination, const std::vector<do
 	}
 	g->color("fore");
 	g->title();
-	
+
 	//g.disfin();
 }
 
@@ -318,7 +302,8 @@ void Plotter::plot_isoradials(double inclination, std::vector<double>& xx, std::
 
 	rgbVector = convertToRGB(normalize_vector(rs));
 	rgbVector_g = convertToRGB(normalize_vector(rs_g));
-
+	//rgbVector = convertToRGBbis(rs, 5000.0);
+	//rgbVector_g = convertToRGBbis(rs_g, 5000.0);
 	for (unsigned i = 0; i < Npoints; i++)
 	{
 		if (xx[i] <= x_min)x_min = xx[i];
@@ -373,6 +358,7 @@ void Plotter::plot_isoradials(double inclination, std::vector<double>& xx, std::
 	g->color("fore");
 	g->title();
 	// Set the color map based on the color parameter
+	size_t cc = 0;
 	for (size_t i = 0; i < Npoints; i++) {
 		g->setrgb(std::get<0>(rgbVector[i]), std::get<1>(rgbVector[i]), std::get<2>(rgbVector[i]));
 		g->rlcirc(xx[i], yy[i], 0.2);
@@ -411,6 +397,20 @@ std::vector<std::tuple<double, double, double> > Plotter::convertToRGB(std::vect
 		red = 1;
 		green = 1.0 - std::sqrt(2) / 200 * value;
 		blue = green;
+		colors.push_back(std::make_tuple(red, green, blue));
+	}
+	return colors;
+}
+
+// Function to convert a value to RGB format
+std::vector<std::tuple<double, double, double> > Plotter::convertToRGBbis(const std::vector<double>& avector, const double& temperature) {
+	std::vector<std::tuple<double, double, double> > colors;
+	for (auto value : avector) {
+		std::vector<double> rgb = BHphysics::wavelengthToRGB(temperature / value, 100.0);
+		// Map the value to the RGB range
+		double red = rgb[0];
+		double green = rgb[1];
+		double blue = rgb[2];
 		colors.push_back(std::make_tuple(red, green, blue));
 	}
 	return colors;

@@ -39,10 +39,13 @@
     <ClCompile Include="Source\Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Delaunay.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\main.cpp">
+    <ClCompile Include="Source\mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\isolines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,7 +74,10 @@
     <ClInclude Include="Include\Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Delaunay.h">
+    <ClInclude Include="Include\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\isolines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
