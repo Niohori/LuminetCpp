@@ -1,0 +1,140 @@
+\tdplotsetmaincoords{70}{93}
+
+\begin{tikzpicture}[scale=1,tdplot_main_coords]
+   
+  % VARIABLES
+  \def\R{2.5}
+  \def\dist{12}
+  \def\thetazero{60}
+  \def\myphi{45}
+    \def\thetazero{60}
+   \def\myalpha{63.43495}
+  \def\plate{3}
+  \def\pie{3.1415}
+  \def\k{5}
+  \def\r{\R}
+   \def\modulus#1#2{sqrt(\dist*\dist+#1*#1+#2*#2)}
+    \def\teeta#1#2{atan(sqrt(#1*#1+#2*#2)/\dist)}
+    \def\fee#1#2{acos(#1/sqrt(#1*#1+#2*#2))}
+\def\factor{1.4}
+
+%Initial setup: coordinates, black hole , ISCO, accretion disk,...
+    \tdplotsetrotatedcoords{0}{0}{0};
+ \tdplotsetcoord{O}{0}{0}{0};
+  \tdplotsetrotatedcoords{0}{0}{0};
+ \tdplotsetcoord{MM}{\R}{90}{\myphi};%point of photon emission
+\tdplotsetcoord{MMM}{\R*1.9}{90}{\myphi};%azimuthal line  of photon emission
+\tdplotsetcoord{MMMM}{-\R}{90}{\myphi};%azimuthal line  of photon emission
+\tdplotsetcoord{MMMMM}{-\R*1.9}{90}{\myphi};%azimuthal line  of photon emission
+ 
+ \tdplotsetrotatedcoords{-45}{39}{ 52.23};%Equatorial plane (Euler angles were computed using a Python code snippet
+\begin{scope}[tdplot_rotated_coords]
+ \def\coef{1.8};
+\tdplotsetcoord{AZplane1}{sqrt(\coef*\coef*\R*\R+\dist*\dist)}{90}{atan(\dist/\R/\coef)};
+\tdplotsetcoord{AZplane2}{sqrt(\coef*\coef*\R*\R+\dist*\dist)}{90}{180-atan(\dist/\R/\coef)};
+\tdplotsetcoord{AZplane3}{-sqrt(\coef*\coef*\R*\R+\dist*\dist/4)}{90}{180-atan(\dist/\R/2/\coef)};
+\tdplotsetcoord{AZplane4}{-sqrt(\coef*\coef*\R*\R+\dist*\dist/4)}{90}{atan(\dist/\R/2/\coef)};
+ \draw[dashdotted,tdplot_main_coords](AZplane1)--(AZplane2)-- (AZplane4)--(AZplane3)--cycle;
+ \node[right] at (AZplane3){$\text{Photon equatorial plane}$};
+\end{scope}%end of equatorila plane
+ 
+ 
+  
+  % AXES
+  \tdplotsetrotatedcoords{0}{0}{0};
+   \tdplotsetcoord{Z1}{\factor*\R}{0}{90};%z-axis
+   \tdplotsetcoord{X}{1.3*\factor*\R}{90}{0};%x-axis
+   
+  \fill[fill = lightgray!50] (0,0,0) circle (1.3*\R);%accretion disk
+  \draw[dashed] (0,0,0) circle (\R);orbit of emmiting particle
+  \fill[fill = white] (0,0,0) circle (\R/4);%ISCO
+  \tdplotsetrotatedcoords{0}{90}{0};%change plane of drawing (Tikz stuff)
+  \fill[fill = black,tdplot_rotated_coords] (0,0,0) circle (\R/10);%black hole
+  \tdplotsetrotatedcoords{0}{0}{0};
+
+  
+  \node[left=70,right] at (0,-{\R},0){Accretion disk};
+  
+   \tdplotsetcoord{Z}{\factor*\R}{0}{0};
+   \draw[tdplot_rotated_coords,very thick,-{Latex[length=3mm, width=1mm]}] (O) -- (Z1)node[right]{$z$};;
+   % theta_0 angle
+  \tdplotsetrotatedcoords{0}{90}{90} % set the rotated coordinate system
+\tdplotdrawarc[tdplot_rotated_coords,very thick,,->]{(O)}{1}{90}{90-\thetazero}{anchor=south}{$\theta_0$} ;%arc z-axis->observation line
+  
+  %OBSERVER
+\tdplotsetrotatedcoords{90}{\thetazero}{270} % set the rotated coordinate system
+  \begin{scope}[tdplot_rotated_coords] % use the rotated coordinate system
+   \tdplotsetcoord{Obs}{\dist}{0}{0)};
+   %Let's travel to the observer
+  \tdplotsetrotatedcoordsorigin{(Obs)};
+  %Photographic Plate
+ \draw[tdplot_rotated_coords,decoration={markings, 
+mark= at position 0.70 with with {\arrowreversed[scale=2]{>}},
+	mark= at position 0.5 with {\arrowreversed[scale=2]{>}},
+	mark= at position 0.3 with {\arrowreversed[scale=2]{>}}},postaction={decorate}] ({sin(\myalpha)*\plate},{cos(\myalpha)*\plate},0)-- ({sin(\myalpha)*\plate},{cos(\myalpha)*\plate},-1)node[{anchor=south east},xshift=0.2cm] {$\begin{array}{c}
+photon \,emitted \\
+ from \,M
+\end{array}$ };
+ \draw[tdplot_rotated_coords,dashed] (O)--(Obs);
+\draw[fill= gray!20,opacity=.5,tdplot_rotated_coords](\plate,\plate,0)-- (\plate,-\plate,0)--(-\plate,-\plate,0)-- (-\plate,\plate,0)--cycle;
+
+\draw[tdplot_rotated_coords,dashed](0,\plate,0)-- (0,-\plate,0);
+\draw[tdplot_rotated_coords,dashed](\plate,0,0)-- (-\plate,0,0);
+\node[right=2,right] at (Obs) {\tiny$O^{'}$};
+
+
+%\tdplotresetrotatedcoordsorigin
+\tdplotsetcoord {Xaccc}{\modulus{\plate}{0}}{\teeta{\plate}{0}}{\fee{\plate}{0}};
+\tdplotsetcoord  {Yaccc} {\modulus{0}{\plate}}{\teeta{0}{\plate}}{\fee{0}{\plate}};
+\node[left] at (Xaccc) {\tiny$X^{"}$};
+\node[right] at (Yaccc) {\tiny$Y^{"}$};
+ \tdplotsetcoord{m}{\modulus{\plate}{\plate}}{0}{\myalpha};
+\draw[tdplot_rotated_coords,ultra thick,](0,0,0)-- ({sin(\myalpha)*\plate},{cos(\myalpha)*\plate},0)node[right] {$m$ };
+\tdplotdrawarc[tdplot_rotated_coords]{(Obs)}{\plate/2.5}{90}{90-\myalpha}{below,xshift=0.1cm }{$\alpha$}
+\draw[tdplot_rotated_coords,](0,0,0)+({1.8*sin(\myalpha)*\plate/2},{1.5*cos(\myalpha)*\plate/2})node[left] {$d$ };;
+\tdplotsetcoord{mphoton}{0.9*\modulus{\plate}{\plate}}{10.75}{90};
+\draw[tdplot_rotated_coords,](0,0,0)+(-4.8*\plate/1,2.2*\plate/1,0)node[left] {$\begin{array}{c}
+Observers' \\
+frame
+\end{array}$ };;
+\draw[fill = lightgray!50] (Obs) circle (0.5pt);
+\end{scope}
+%Let's go back to the black hole
+
+
+
+  % draw photon geodesic
+ 
+\tdplotsetrotatedcoords{-45}{39}{ 52.23};
+\begin{scope}[tdplot_rotated_coords]
+ \draw[tdplot_rotated_coords, thick,dashed](\R,0,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R];;
+ \draw[tdplot_rotated_coords,thick, dashed](0,\R,0) arc [start angle=90,end angle=270,x radius=\R,y radius=\R];
+\draw[tdplot_rotated_coords,thick,dashed](\R,0,0) arc [start angle=0,end angle=-90,x radius=\R,y radius=\R];
+\def\omega{1.8*180/3.14159}
+\def\epsilon{0.18}
+\def\a{\epsilon}
+\draw[ultra thick,variable=\t,domain=pi/9:1.12*pi,samples=100] plot ({(\R+\a*(\t-pi/9))*cos(\t *\omega)},{(\R+\a*(\t-pi/9))*sin(\t *\omega)},{0});
+\def\coef{1};
+\tdplotsetcoord{AZphoton}{sqrt(\coef*\coef*\plate/2*\plate/2+\dist*\dist)}{90}{atan(\dist/\plate/2/\coef)};
+\tdplotsetcoord{photon}{\R+\a*3.10669}{90}{3};%point where photon leaves the BH's influence
+\draw[ultra thick] (photon)--(mphoton);
+\end{scope}
+
+%Final decorations
+   \tdplotsetcoord{Yacc}{\R}{\thetazero}{90};
+   \draw[fill = white, tdplot_rotated_coords] (Yacc) circle (1.5pt)node[right=0.2cm]{\large$Y’$};
+\node[below=2,right,tdplot_rotated_coords,] at (MM) {\large$M$};
+  \draw[ tdplot_main_coords,dashed] (O)--(MMM);
+  \draw[ tdplot_main_coords,dashed] (O)--(MMMM);
+   \draw[ tdplot_main_coords,dashed] (MMMMM)--(MMMM);
+  \draw[fill = white,tdplot_rotated_coords,] (MM) circle (1.5pt);
+ \draw[fill = white,tdplot_rotated_coords,] (MMMM) circle (1.5pt);
+  
+  %perpendicular slice  to observer
+      \tdplotsetrotatedcoords{270}{-\thetazero}{0};
+      \begin{scope}[tdplot_rotated_coords]
+      \tdplotdrawarc[tdplot_rotated_coords,very thick,,->]{(MM)}{-3.5}{\myalpha+10}{\myalpha+18}{anchor = south west}{$\frac{\pi}{2}-\alpha$} ;
+\end{scope}
+\draw[->,dashed] (0,0,0)--(X)node[left]{$x$};
+\end{tikzpicture}
+

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\BlackHole.cpp" />
+    <ClCompile Include="Source\AccretionDisk.cpp" />
     <ClCompile Include="Source\BlackHolePhysics.cpp" />
     <ClCompile Include="Source\isolines.cpp" />
     <ClCompile Include="Source\IsoRadials.cpp" />
@@ -32,7 +32,7 @@
     <ClCompile Include="Source\utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\BlackHole.h" />
+    <ClInclude Include="Include\AccretionDisk.h" />
     <ClInclude Include="Include\BlackHolePhysics.h" />
     <ClInclude Include="Include\isolines.h" />
     <ClInclude Include="Include\IsoRadials.h" />

@@ -25,10 +25,12 @@
 #include <set>
 #include <stdexcept>
 #include <vector>
+#include<random>//TEMPORARY
 #include <dlib/threads.h>
 
 #include <memory>
 #include "mesh.h"
+#include "utilities.h"
 using std::make_shared;
 
 
@@ -49,17 +51,11 @@ using namespace meshes;
 
 	private://methods
 		std::vector<Segment> generateContourLines();
-		bool isNoise(Segment);
-		std::vector<std::vector<Point> > reduceToCurves(std::vector<Segment>&);
-		void mergeSegments(std::vector<Segment>&);
-		//void buildAdjacencyList(const std::vector<Segment>&);
 		std::vector<Point> createPointsList(const std::vector<Segment>&);
 		std::vector<Point> reorderPoints(const std::vector<Point>&);
-		//std::pair<std::vector<double>, std::vector<double> > smoothCurve(const std::vector<Point>&);
-		double distance(const Point&, const Point&);
-		//std::vector<std::vector<Point> > constructCurveDFS(std::vector<Segment>& );
-		std::vector<std::vector<double> > makeAdjacencyMatrix(const std::vector< Segment >&);
-		std::vector<int> dijkstra(const std::vector<std::vector<double>>&, int);
+		static double distance(const Point& p1, const Point& p2);
+
+
 	private://variables
 	const double contourValue;
 	const std::shared_ptr<Mesh> meshPointer;

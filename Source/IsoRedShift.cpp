@@ -1,36 +1,5 @@
 #include "IsoRedShift.h"
 
-void print_IsoLines(const std::vector<double>& X, const std::vector<double>& Y, const std::vector<double>& RS, const double& inclination) {
-	// Convert double to string with 2-digit precision
-	std::string inclination_as_string = std::to_string(inclination);
-	size_t dotPos = inclination_as_string.find('.');
-	if (dotPos != std::string::npos && dotPos + 0 < inclination_as_string.size()) {
-		inclination_as_string = inclination_as_string.substr(0, dotPos + 0); // keep 2 digits after the dot
-	}
-
-	std::string filename = "data_dump_of_isoredshifts_" + inclination_as_string + ".txt";
-
-	// Open the file for writing
-	std::ofstream outputFile(filename);
-
-	// Check if the file is opened successfully
-	if (outputFile.is_open()) {
-		outputFile << "x;y;rs;";
-		for (int i = 0; i < X.size(); i++) {
-			outputFile << std::endl << X[i] << ";" << Y[i] << ";" << RS[i] << ";";
-		}
-		// Close the file
-		outputFile.close();
-
-		std::cout << "IsoLines has been written to " << filename << std::endl;
-	}
-	else {
-		std::cerr << "Error opening file: " << filename << std::endl;
-	}
-
-	std::cout << "end now " << std::endl;
-}
-
 IsoRedShift::IsoRedShift() {
 	//constructor;
 };
@@ -41,8 +10,8 @@ IsoRedShift::~IsoRedShift() {
 IsoRedShift::IsoRedShift(const double& angle, const double& bh_mass, const double& _lower_radius_, const double& _upper_radius_, const size_t& _n_radii_, const size_t& _n_angles_, const double& redshift_treschold_)
 	:
 	theta_0(angle),
-	rS(2.0 * M),
-	rIsco(3.0 * rS),
+	rS(2.0 * bh_mass),
+	rIsco(_lower_radius_),
 	M(bh_mass),
 	lower_radius(_lower_radius_),
 	upper_radius(_upper_radius_),
@@ -54,14 +23,32 @@ IsoRedShift::IsoRedShift(const double& angle, const double& redshift_, const dou
 	:
 	theta_0(angle),
 	M(bh_mass),
-	rS(2.0 * M),
-	rIsco(3.0 * rS),
+	rS(2.0 * bh_mass),
+	rIsco(6.0 * bh_mass),
 	redshift(redshift_) {
 }
 
+
+/**
+	===================================================================================================================================
+	* @brief Creates the grid where redshiftfactors will be calculated
+	*
+	* @param[in] None
+	*
+	*
+	* @return None Updates the class members.
+	*
+	=====================================================================================================================================*/
 void IsoRedShift::make_grid() {
-	radii = OperatorsOrder2::linspace(lower_radius, upper_radius, n_radii);
-	//radii = OperatorsOrder2::logspace(lower_radius, upper_radius, n_radii);
+	if (std::acos(std::cos(theta_0)) < M_PI / 4 || std::acos(std::cos(theta_0)) > 3 * M_PI / 4) {
+		radii = OperatorsOrder2::linspace(lower_radius, upper_radius, n_radii);
+		std::cout << "Linear raddi" << std::endl;
+	}
+	else {
+		radii = OperatorsOrder2::logspace(lower_radius, upper_radius, n_radii);
+		std::cout << "Log raddi" << std::endl;
+	}
+
 	//angles = OperatorsOrder2::linspace(0, 2 * M_PI, n_angles);
 	angles.clear();
 }
@@ -79,6 +66,16 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::get_ConcaveHull
 	return std::make_pair(x_hull, y_hull);
 }
 
+/**
+	===================================================================================================================================
+	* @brief Core pubilc function to get the redshift isolines (manages the Mesh and Isolines classes) 
+	*
+	* @param[in] size_t: number of isolines wanted (equaly space between min and max redshift factor
+	*
+	*
+	* @return std::multimap<double, std::vector<meshes::Point> > a map (entry is an isoline value) with  vectors of points representing the isolines
+	*
+	=====================================================================================================================================*/
 std::multimap<double, std::vector<meshes::Point> > IsoRedShift::get_isolines(const size_t number_of_isolines) {//}, const std::vector<double>& xIsco, const std::vector<double>& yIsco) {
 	std::multimap<double, std::vector<meshes::Point> > IsoLines;
 	double impact_parameter = 0.0;
@@ -89,7 +86,7 @@ std::multimap<double, std::vector<meshes::Point> > IsoRedShift::get_isolines(con
 	y_min = x_min;
 	redshift_max = -1000000000000.0;
 	redshift_min = -redshift_max;
-	//we first calculate the redshift for de polar grid, convert the polar to cartesian and store the triple(x,y,redshift) in a vector of struct "cloud_points".
+	//we first calculate the redshift for de polar grid, convert the polar to cartesian and store the triple(x,y,redshift) in a vector of struct "Point".
 	//Isoradial  IR;
 	{//scoping bracket (Isoradial object destroyed after usage...
 		Isoradial IR(radii[0] * M, theta_0, M, 0);//calculate the ISCO for one of the radii (which one is of no importance
@@ -98,16 +95,12 @@ std::multimap<double, std::vector<meshes::Point> > IsoRedShift::get_isolines(con
 		auto ISCO = IR.get_ISCO_curve();
 		xIsco = ISCO.first;
 		yIsco = ISCO.second;
-	}
+	}//end of scoping bracket
 	for (auto rad : radii) {
 		Isoradial IR(rad * M, theta_0, M, 0);
 		IR.calculate();
-		/*IR.calculate_ISCO_region();
-		auto ISCO = IR.get_ISCO_curve();
-		xIsco = ISCO.first;
-		yIsco = ISCO.second;*/
 		double sizingFactor = 1.0;
-		auto bare_isoradials = IR.get_bare_isoradials();//temporary functions for debugging
+		auto bare_isoradials = IR.get_bare_isoradials();
 		std::vector<double> xx = std::get<0>(bare_isoradials);
 		std::vector<double> yy = std::get<1>(bare_isoradials);
 		auto redshift_factors = IR.get_redshift_factors();
@@ -125,21 +118,14 @@ std::multimap<double, std::vector<meshes::Point> > IsoRedShift::get_isolines(con
 			redshifts.push_back((redshift_factors[i]) * 1.0);//TEMPORARY
 		}
 	}
-
 	// take equal boundaries for the x an y axis
-	x_max = std::max(x_max, y_max);
-	x_min = std::min(x_min, y_min);
-	x_max = std::max(x_max, std::abs(x_min)) * 1.1;
-	x_min = -x_max;// std::max(abs(x_max), abs(x_min)) * 1.1;
+	x_max = std::max(std::max(x_max, std::abs(x_min)) * 1.1, std::max(y_max, std::abs(y_min)) * 1.1);
+	x_min = -x_max;
+	maxCoordinate = x_max;
 	std::vector<double> rsLevels = OperatorsOrder2::linspace(redshift_min, redshift_max, number_of_isolines);
 	std::shared_ptr<meshes::Mesh> mesh = std::make_shared<meshes::Mesh>(xCoordinates, yCoordinates, redshifts, xIsco, yIsco);
 	ConcaveHull = mesh->concaveHull;
-	ISCO= mesh->ISCO;
-	//for (auto iso : rsLevels) {
-	//	Isolines isoLines(mesh, iso);
-	//	std::vector<meshes::Point> anIsoLine = isoLines.get_iso_lines();
-	//	IsoLines.insert(std::make_pair(iso, anIsoLine));
-	//}
+	ISCO = mesh->ISCO;
 	parallel_for(0, rsLevels.size(), [&](int i) {
 		//for (int i = 0; i < rsLevels.size(); i++) {
 		double iso = rsLevels[i];
@@ -157,10 +143,8 @@ double IsoRedShift::calculateDistance(const meshes::Point& p1, const meshes::Poi
 
 double IsoRedShift::findSmallestDistance(const std::vector<meshes::Point>& dataset) {
 	// Function to find the smallest distance between all points in the dataset
-
 	size_t size = dataset.size();
 	double minDistance = std::numeric_limits<double>::infinity();
-
 	// Iterate through all pairs of points
 	for (size_t i = 0; i < size - 1; ++i) {
 		for (size_t j = i + 1; j < size; ++j) {
@@ -171,13 +155,9 @@ double IsoRedShift::findSmallestDistance(const std::vector<meshes::Point>& datas
 			}
 		}
 	}
-
 	return minDistance;
 }
 
-void IsoRedShift::improve() {
-	;
-}
 std::pair<std::vector<double>, std::vector<double>> IsoRedShift::get_ISCO_curve() {
 	std::vector<double> xIsco;
 	std::vector<double> yIsco;
@@ -188,4 +168,8 @@ std::pair<std::vector<double>, std::vector<double>> IsoRedShift::get_ISCO_curve(
 	};
 	ISCO_boundary = std::make_pair(xIsco, yIsco);
 	return ISCO_boundary;
+}
+
+double  IsoRedShift::getMaxX() {
+	return std::abs(maxCoordinate);
 }

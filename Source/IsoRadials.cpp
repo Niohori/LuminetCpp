@@ -5,8 +5,8 @@ Isoradial::Isoradial() {
 }
 Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_) :
 	M(bh_mass_),
-	rS(2.0 * M),
-	rIsco(3.0 * rS),
+	rS(2.0 * bh_mass_),
+	rIsco(radius_),
 	theta_0(incl_),
 	radius(radius_),
 	order(order_)
@@ -21,8 +21,8 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_) 
 //***************************  THE FOLLOWING CONSTRUCTOR SEEMS USELESS / TO CHECK
 Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, angular_properties  _angular_properties) :
 	M(bh_mass_),
-	rS(2.0 * M),
-	rIsco(3.0 * rS),
+	rS(2.0 * bh_mass_),
+	rIsco(radius_),
 	theta_0(incl_),
 	radius(radius_),
 	order(order_),
@@ -36,20 +36,18 @@ Isoradial::Isoradial(double radius_, double incl_, double bh_mass_, int order_, 
 	redshift_factors = {};
 }
 
-
 void Isoradial::calculate_ISCO_region() {
-	auto Ib= calculate_coordinates(true);
+	auto Ib = calculate_coordinates(true);
 	ISCO_boundary = OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(Ib), std::get<0>(Ib), -M_PI / 2);
 }
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_ISCO_region() {
 	return ISCO_region;
-
 }
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_ISCO_curve() {
 	return ISCO_boundary;
 }
 
-bool Isoradial::isPointInsidePolygon(const std::pair<double,double>& point, const std::pair<std::vector<double>, std::vector<double> >& polygon) {
+bool Isoradial::isPointInsidePolygon(const std::pair<double, double>& point, const std::pair<std::vector<double>, std::vector<double> >& polygon) {
 	int crossings = 0;
 	int n = polygon.first.size();
 
@@ -69,34 +67,36 @@ bool Isoradial::isPointInsidePolygon(const std::pair<double,double>& point, cons
 	return crossings % 2 == 1;
 }
 double Isoradial::get_radius() {
-
 	return radius;
 }
 
 std::pair<std::vector<double>, std::vector<double>> Isoradial::get_bare_isoradials() {
 	//convert polar to xy
-
-	return OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials), -M_PI / 2);
+	auto coords = OperatorsOrder2::polar_to_cartesian_lists(std::get<1>(bare_isoradials), std::get<0>(bare_isoradials), -M_PI / 2);
+	maxCoordinate = *std::max_element(coords.first.begin(), coords.first.end());
+	return coords;
 }
 
 std::vector<double>  Isoradial::get_redshift_factors() {
 	return redshift_factors;
 }
+double  Isoradial::getMaxX() {
+	return std::abs(maxCoordinate);
+}
 
-
+/**
+===================================================================================================================================
+* @brief Calculates the angles (alpha) and radii (b) of the photons emitted at radius as they would appear
+		on the observer's photographic plate.
+* @brief Also saves the corresponding values for the impact parameters (P).
+*
+* @param[in] isc A boolean (true if we want to calculate the ISCO
+*
+*
+* @return a pair of vectors containing the angles (alpha) and radii (b) for the image on the observer's photographic plate
+=====================================================================================================================================*/
 
 std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordinates(const bool& isc) {
-	/*
-----------------------------------------------------------------------------------------------------------------
- Calculates the angles (alpha) and radii (b) of the photons emitted at radius self.radius as they would appear
-		on the observer's photographic plate. Also saves the corresponding values for the impact parameters (P).
-
-		Args:
-
-		Returns:
-			tuple: Tuple containing the angles (alpha) and radii (b) for the image on the observer's photographic plate
-----------------------------------------------------------------------------------------------------------------
-*/
 	double start_angle = angular_properties_.start_angle;
 	double end_angle = angular_properties_.end_angle;
 	unsigned angular_precision = angular_properties_.angular_precision;
@@ -144,13 +144,17 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calculate_coordin
 	return std::make_pair(angles, impact_parameters);
 }
 
-std::vector<double> Isoradial::calc_redshift_factors() {
-	/*
-----------------------------------------------------------------------------------------------------------------
-Calculates the redshift factor (1 + z) over the line of the isoradial
-TO CHECK: DO WE NEED TO RETURN THE VECTOR? (already stored in member variable)
- ----------------------------------------------------------------------------------------------------------------
- */
+/**
+===================================================================================================================================
+* @brief Calculates the redshift factor (1 + z) over the line of the isoradial
+* @brief Also saves the corresponding values for the impact parameters (P).
+*
+* @param[in] None Uses private class members
+*
+*
+* @return None: feeds  a class member vector containing the redshift factor for the given coordinates
+=====================================================================================================================================*/
+void Isoradial::calc_redshift_factors() {
 	std::vector<double> redshift_factors_;
 	for (int i = 0; i < _radii_b.size(); ++i) {
 		double redshift = BHphysics::redshift_factor(radius, _angles[i], theta_0, M, _radii_b[i]);
@@ -158,30 +162,34 @@ TO CHECK: DO WE NEED TO RETURN THE VECTOR? (already stored in member variable)
 		redshift_factors_.push_back(redshift);
 	}
 	redshift_factors = redshift_factors_;
-	return redshift_factors_;
 }
-/*
-----------------------------------------------------------------------------------------------------------------
- ?
-----------------------------------------------------------------------------------------------------------------
-*/
+/**
+===================================================================================================================================
+* @brief Public function to initiate caluclation
+*
+* @param[in] bool (true if we want to calculate the ISCO)
+*
+*
+* @return None: feeds  class members
+=====================================================================================================================================*/
 void Isoradial::calculate(const bool& isc) {
 	auto result = calculate_coordinates(isc);
 	bare_isoradials = { std::get<0>(result) ,std::get<1>(result) };//angle in [0,pi/2]
 	_angles = std::get<0>(result);
 	_radii_b = std::get<1>(result);
-	/*for (int i = 0; i < angles.size(); i++) {
-		std::cout << i << "):  angle and radius = (" << angles[i] << ", " << radii_b[i] << ")" << std::endl;
-	}*/
-	std::vector<double> redshift_factors_ = calc_redshift_factors();
+	calc_redshift_factors();
 }
-/*
-----------------------------------------------------------------------------------------------------------------
-Returns angle at which the isoradial redshift equals some value z
-		Args:
-			z: The redshift value z. Do not confuse with redshift factor 1 + z
-----------------------------------------------------------------------------------------------------------------
-*/
+
+/**
+===================================================================================================================================
+* @brief Calculates the angles of the points on the isoradial at which the redshift equals some value z
+*
+* @param[in] z The redshift value z. Do not confuse with redshift factor 1 + z
+*
+*
+* @return a  vector containing the angles of the points on the isoradial at which the redshift equals some value z
+*
+=====================================================================================================================================*/
 std::vector<double> Isoradial::find_angle(double z) {
 	std::vector<int> indices;
 	for (int i = 0; i < redshift_factors.size() - 1; ++i) {
@@ -195,8 +203,6 @@ std::vector<double> Isoradial::find_angle(double z) {
 		result.push_back(_angles[index]);
 	}
 	return result;
-	//std::vector<double> a;
-	//return a;
 }
 
 /*
@@ -224,29 +230,26 @@ double Isoradial::get_b_from_angle(double angle) {
 	return -1e100;;
 }
 
-	/*
-	----------------------------------------------------------------------------------------------------------------
-	Calculates the impact parameter and redshift factor at the
-			isoradial angle between place ind and ind + 1
-
-			Args:
-				ind: the index denoting the location at which the middle point should be calculated. The impact parameter,
-				redshift factor, b (observer plane) and alpha (observer/BH coordinate system) will be calculated on the
-				isoradial between location ind and ind + 1
-
-			Returns:
-				None: Nothing. Updates the isoradial.
-	----------------------------------------------------------------------------------------------------------------
-	*/
+/**
+===================================================================================================================================
+* @brief Calculates the impact parameter and redshift factor at the isoradial angle between index and index + 1
+*
+* @param[in] ind The index denoting the location at which the middle point should be calculated. The impact parameter,
+			redshift factor, b (observer plane) and alpha (observer/BH coordinate system) will be calculated on the
+			isoradial between location ind and ind + 1
+*
+*
+* @return None Updates the isoradial.
+*
+=====================================================================================================================================*/
 void Isoradial::calc_between(int ind) {
-		double mid_angle = 0.5 * (_angles[ind] + _angles[ind + 1]);
-		double b_ = BHphysics::calc_impact_parameter(radius, theta_0, mid_angle, M, solver_params_.midpoint_iterations, solver_params_.plot_inbetween, order, M*solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
-		double z_ = BHphysics::redshift_factor(radius, mid_angle, theta_0, M, b_);
+	double mid_angle = 0.5 * (_angles[ind] + _angles[ind + 1]);
+	double b_ = BHphysics::calc_impact_parameter(radius, theta_0, mid_angle, M, solver_params_.midpoint_iterations, solver_params_.plot_inbetween, order, M * solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
+	double z_ = BHphysics::redshift_factor(radius, mid_angle, theta_0, M, b_);
 
-		_radii_b.insert(_radii_b.begin() + ind + 1, b_);
-		_angles.insert(_angles.begin() + ind + 1, mid_angle);
-		redshift_factors.insert(redshift_factors.begin() + ind + 1, z_);
-		
+	_radii_b.insert(_radii_b.begin() + ind + 1, b_);
+	_angles.insert(_angles.begin() + ind + 1, mid_angle);
+	redshift_factors.insert(redshift_factors.begin() + ind + 1, z_);
 }
 
 /*
@@ -260,7 +263,7 @@ void Isoradial::calc_between(int ind) {
 		Only works if the redshift can be found within the isoradial begin and end angle.
 ----------------------------------------------------------------------------------------------------------------
 */
-
+/*
 std::vector<double> Isoradial::force_intersection(double redshift) {
 	if (_angles.size() == 2) {
 		calc_between(0);
@@ -320,6 +323,7 @@ std::vector<double> Isoradial::force_intersection(double redshift) {
 
 	return diff;
 }
+*/
 
 /*
 ----------------------------------------------------------------------------------------------------------------
@@ -330,6 +334,7 @@ Calculates which location on the isoradial has some redshift value (not redshift
 		much more important to find an accurate location.
 ----------------------------------------------------------------------------------------------------------------
 */
+/*
 std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_location_on_ir(double redshift, bool cartesian) {
 	if (redshift_factors.size() == 0) {
 		//I should discard this Isoradial
@@ -395,5 +400,4 @@ std::pair<std::vector<double>, std::vector<double>> Isoradial::calc_redshift_loc
 	}
 
 	return std::make_pair(angle_solutions, b_solutions);
-
-}
+}*/

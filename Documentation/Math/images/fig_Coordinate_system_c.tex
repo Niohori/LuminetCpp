@@ -1,0 +1,80 @@
+\tdplotsetmaincoords{70}{120}
+
+\begin{tikzpicture}[scale=1,tdplot_main_coords]
+   
+  % VARIABLE
+  \def\R{4.0}
+  \def\thetazero{60}
+  \def\myphi{45}
+    \def\thetazero{60}
+  \def\myalpha{63.43495}
+ 
+  \def\r{\R}
+ \def\az{74}
+    \tdplotsetrotatedcoords{0}{0}{0};
+     \begin{scope}[tdplot_rotated_coords]
+ \tdplotsetcoord{O}{0}{0}{0};%origin
+  \tdplotsetcoord{xaxis}{\R*1.4}{90}{0};%origin
+   \tdplotsetcoord{yaxis}{\R*1.4}{90}{90};%origin
+    \tdplotsetcoord{zaxis}{\R}{0}{0};%origin
+    \draw[-{Latex[length=3mm, width=1mm]} ](O)--(xaxis);
+      \draw[-{Latex[length=3mm, width=1mm]} ] (O)--(yaxis);
+        \draw[-{Latex[length=3mm, width=1mm]} ] (O)--(zaxis);
+ \tdplotsetcoord{MM}{\R}{90}{\myphi};%emmiting particle
+  \tdplotsetcoord{Y}{\R}{90}{90};%y-axis
+  \tdplotsetcoord{X}{\R}{90}{0};%x-axis
+  \tdplotsetcoord{Yaccent}{\R}{\thetazero}{90};%observers axis
+  \end{scope}
+ \tdplotsetrotatedcoords{270}{90-\thetazero}{90};%The point X'.
+ \begin{scope}[tdplot_rotated_coords] 
+ \tdplotsetcoord{Xaccent}{\R}{90-\myalpha+90}{0};%the observers x-axis
+ \end{scope}
+  \tdplotsetrotatedcoords{0}{0}{0}
+  \begin{scope}[tdplot_rotated_coords]%theX-Y arc
+   \draw[tdplot_rotated_coords,thick,ultra thick](0,\R,0) arc [start angle=90,end angle=0,x radius=\R,y radius=\R];
+\end{scope}
+  \tdplotsetrotatedcoords{0}{90}{0}
+  \begin{scope}[tdplot_rotated_coords]%the Y-Y' arc
+  \draw[tdplot_rotated_coords,thick,ultra thick](0,\R,0) arc [start angle=90,end angle=90+90-\thetazero,x radius=\R,y radius=\R]node[midway,anchor = south west]{$\frac{\pi}{2}-\theta_0$};
+\end{scope}
+ \tdplotsetrotatedcoords{270}{-\thetazero}{0};
+ \begin{scope}[tdplot_rotated_coords]%the X-X' arc
+  \draw[tdplot_rotated_coords,thick,ultra thick](0,\R,0) arc [start angle=90,end angle=90+90-\myalpha,x radius=\R,y radius=\R]node[midway,anchor =north east]{$\frac{\pi}{2}-\alpha$};
+\end{scope}
+\tdplotsetrotatedcoords{-90}{90-\thetazero}{0};
+ \begin{scope}[tdplot_rotated_coords]%the X-X' arc
+  \draw[tdplot_rotated_coords,thick,ultra thick](0,\R,0) arc [start angle=90,end angle=180,x radius=\R,y radius=\R]node[midway,above=0.2cm]{$\frac{\pi}{2}$};
+\end{scope}
+  % draw geodesic
+ \tdplotsetrotatedcoords{-45}{39}{ 52.23};
+\begin{scope}[tdplot_rotated_coords]%the X'-Y' arc (the pothon path)
+ \draw[tdplot_rotated_coords,ultra thick](\R,0,0) arc [start angle=0,end angle=90,x radius=\R,y radius=\R];%node[midway,anchor = south east]{\large$\mathbf{\gamma}$};;
+\end{scope}
+
+%Final decorations
+
+ 
+\node[below,tdplot_rotated_coords,] at (MM) {$M$};
+ \draw[dashed] (O)--(MM);
+  \draw[dashed] (O)--(Yaccent);
+  \draw[fill = white,tdplot_rotated_coords,] (MM) circle (1.5pt);
+\tdplotsetrotatedcoords{0}{90}{270} % set the rotated coordinate system
+ \tdplotdrawarc[tdplot_rotated_coords,thick]{(MM)}{-1.2}{19}{48}{anchor=south  west}{$\eta$};
+ \tdplotdrawarc[tdplot_rotated_coords,thick]{(MM)}{1.2}{41}{12}{anchor=north  east}{$\eta$};;
+
+\pic[draw = black,angle radius =0.25cm, ]{right angle= Yaccent--Y--MM};
+\pic[draw = black,angle radius =0.25cm, ]{right angle=Yaccent--X--Xaccent};
+\pic[draw = black,angle radius =0.25cm, ]{right angle=Yaccent--X--Xaccent};
+\pic[draw = black,angle radius =0.25cm, ]{right angle=X--Yaccent--Y};
+\pic[draw = black,angle radius =0.15cm, ]{right angle=Yaccent--Xaccent--X};
+
+\node[above] at (X) {$X^{}$};
+\node[below] at (Xaccent) {$X^{'}$};
+\node[right] at (Y) {$Y^{}$};
+\node[above] at (Yaccent) {$Y^{'}$};
+\node[right=1.5cm] at (MM) {$\phi$};
+\node[below= 0.75cm] at (O) {$\frac{\pi}{2}-\phi$};
+\node[below left=0.8cm] at (MM) {$x^{}$};
+\node[above left=0.9cm] at (Y) {$\gamma$};
+
+\end{tikzpicture}

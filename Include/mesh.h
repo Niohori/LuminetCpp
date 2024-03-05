@@ -41,7 +41,7 @@ namespace meshes {
 	struct Point {
 		double x, y;
 		double epsilon = 0.1; // Threshold distance for equality check
-		Point(double x_, double y_) : x(x_), y(y_) {}
+		Point(double x_, double y_) : x(x_), y(y_) {};
 		// Custom comparison operators for set
 		bool operator<(const Point& other) const {
 			return x < other.x || (x == other.x && y < other.y);
@@ -100,7 +100,7 @@ namespace meshes {
 			std::set<Point> shared_vertices{ p1, p2, p3 };
 			std::set<Point> common_vertices;
 
-			for (const Point& vertex : { other.p1, other.p2, other.p3 }) {
+			for (const  Point& vertex : { other.p1, other.p2, other.p3 }) {
 				if (shared_vertices.count(vertex) > 0) {
 					common_vertices.insert(vertex);
 				}
@@ -382,14 +382,12 @@ namespace meshes {
 
 		size_t prev_halfedge(size_t e);
 		std::pair<Segment, Segment> findConvexHullSegments(const std::vector<double>&, const std::vector<double>&);
-
-		bool isOnPolygon(const Point&, const Point&, const Point&);
-		bool oneIsOnPolygon(const Point&);
 		bool is_left(const Point& a, const Point& b, const Point& c);
 		bool isOutsideConcaveHull(const Point&);
 		//void makeISCO(const std::vector<double>& , const std::vector<double>& );
 		void makeISCO();
 		void make_driehoeken();
+		bool  isPointInsideCurve( const Point&);
 
 	public://variables
 		std::vector<std::size_t> m_hash;

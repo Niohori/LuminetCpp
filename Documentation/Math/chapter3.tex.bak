@@ -5,7 +5,7 @@
 \begin{figure}[H]
  \centering
 \input{./images/fig_Coordinate_system_b.tex}
-\caption{General setting.}
+\caption{Fig.4 The coordinate system (see text).}
 \label{fig:fig_4}
 \end{figure}
 $$\blacklozenge$$\newpage
@@ -14,7 +14,7 @@ $$\blacklozenge$$\newpage
 \begin{figure}[H]
  \centering
 \input{./images/fig_Coordinate_system.tex}
-\caption{The coordinate system (see text).}
+\caption{Fig.3 The coordinate system (see text).}
 \label{fig:fig_3}
 \end{figure}
 $$\blacklozenge$$\newpage
@@ -26,7 +26,7 @@ $$\blacklozenge$$\newpage
 \begin{figure}[H]
  \centering
 \input{./images/fig_Coordinate_system_c.tex}
-\caption{Different spheric triangles used to find a relation between $\phi,\, \theta_0,\, \alpha$.}
+\caption{Fig.5 Different spheric triangles used to find a relation between $\phi,\, \theta_0,\, \alpha$.}
 \label{fig:fig_5}
 \end{figure}
 Resolving the different spherical triangles in order to have a relation between $\phi,\, \theta_0,\, \alpha$.\\
@@ -123,7 +123,7 @@ Substituting this in $(1)$:
 &=2\sqrt{\frac{P}{Q}}\left[K{\left(k\right)}-F{\left(\zeta_{\infty},k\right)}\right]-2\sqrt{\frac{P}{Q}}K{\left(k\right)}+2\sqrt{\frac{P}{Q}}F{\left(\zeta_{r},k\right)}\nonumber \\
 &= 2\sqrt{\frac{P}{Q}}\left[F{\left(\zeta_{r},k\right)} -F{\left(\zeta_{\infty},k\right)}\right]
 \end{align}
-The only term which depends explicitly on $r$ is $F{\left(\zeta_{r},k\right)}$. We rewrite $(5)$ as 
+The only term which depends on $r$ is $F{\left(\zeta_{r},k\right)}$. We rewrite $(5)$ as 
 \begin{align}
 F{\left(\zeta_{r},k\right)} &= \half \gamma\sqrt{\frac{Q}{P}}+F{\left(\zeta_{\infty},k\right)}
 \end{align}

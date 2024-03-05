@@ -103,7 +103,7 @@ double BHphysics::zeta_inf(double periastron, double bh_mass, double tol = 1e-6)
  Calculate Zeta_inf for elliptic integral F(Zeta_inf, k)
 ----------------------------------------------------------------------------------------------------------------
 */
-	double q = calc_q(periastron, bh_mass);  // Assuming calc_q is implemented elsewhere
+	double q = calc_q(periastron, bh_mass);  
 	double arg = (q - periastron + 2 * bh_mass) / (q - periastron + 6 * bh_mass);
 	double z_inf = std::asin(std::sqrt(arg));
 	return z_inf;
@@ -116,13 +116,13 @@ Calculate the elliptic integral argument Zeta_r for a given value of P and r
 ----------------------------------------------------------------------------------------------------------------
 */
 
-	double q = calc_q(periastron, bh_mass);  // Assuming calc_q is implemented elsewhere
+	double q = calc_q(periastron, bh_mass);  
 	double a = (q - periastron + 2 * bh_mass + (4 * bh_mass * periastron) / r) / (q - periastron + (6 * bh_mass));
 	double s = std::asin(std::sqrt(a));
 	return s;
 }
 
-double BHphysics::cos_gamma(double gamma, double incl, double tol = 1e-5) {
+double BHphysics::cos_gamma(double alpha, double incl, double tol = 1e-5) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculate the cos of the angle gamma
@@ -131,7 +131,7 @@ Calculate the cos of the angle gamma
 	if (std::abs(incl) < tol) {
 		return 0;
 	}
-	return std::cos(gamma) / std::sqrt(std::cos(gamma) * std::cos(gamma) + 1 / (std::tan(incl) * std::tan(incl)));  // real
+	return std::cos(alpha) / std::sqrt(std::cos(alpha) * std::cos(alpha) + 1 / (std::tan(incl) * std::tan(incl)));  // real
 }
 
 double BHphysics::cos_alpha(double phi, double incl) {
@@ -167,7 +167,20 @@ std::vector<double> BHphysics::filter_periastrons(const std::vector<double>& per
 	}
 	return result;
 }
-
+/**
+===================================================================================================================================
+* @brief Mimics equation (13):Relation between radius (where photon was emitted in accretion disk), a and P.
+*@brief	P can be converted to b, yielding the polar coordinates (b, a) on the photographic plate
+*@brief This function get called almost everytime when you need to calculate some black hole property
+*@param[in] tentative perastion
+* @param[in] polar coordinate radius in the black hole equatorial plane(there wher the accrtetion disk resides) of the emmitting particle in the accration disk
+* @param[in] ir_angle: the angle alpha (angle between the BH equatorial plane and the photo equatorial plane)
+* @param[in] bh_mass: BH mass
+* @param[in] incl : the inclination of the observer
+*
+*
+* @return the value  Eq13(P,r) (=0, if periastron is found)
+=====================================================================================================================================*/
 double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, double bh_mass, double incl, int n, double tol) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
@@ -199,9 +212,10 @@ double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, dou
 	double sn = boost::math::jacobi_sn(std::sqrt(m_), ellips_arg); //Jacobi elliptic function sn TO CHECK:arguments
 	double term1 = -(q - periastron + 2. * bh_mass) / (4. * bh_mass * periastron);
 	double term2 = ((q - periastron + 6. * bh_mass) / (4. * bh_mass * periastron)) * sn * sn;
-
+	//std::cout << "F13 = " << 1 / ir_radius - term1 - term2 << std::endl;
 	return 1. - ir_radius * (term1 + term2);
 }
+
 
 std::tuple<std::vector<double>, std::vector<double>, int>BHphysics::midpoint_method(
 	/*
@@ -259,24 +273,8 @@ int iterations
 	return new_x[index_of_sign_change_];
 }
 
-void BHphysics::get_plot(const std::vector<double>& X, const std::vector<double>& Y, const std::vector<double>& solution, const double& radius) {
-	/*
-----------------------------------------------------------------------------------------------------------------
-//TO IMPLEMENT ?:
-----------------------------------------------------------------------------------------------------------------
-*/
-/*fig = plt.figure()
-	plt.title("Eq13(P)\nr={}, a={}".format(radius, round(_alpha, 5)))
-	plt.xlabel('P')
-	plt.ylabel('Eq13(P)')
-	plt.axhline(0, color='black')
-	plt.plot(X, Y)
-	plt.scatter(solution, 0, color='red')
-	return plt*/
-}
-
 double BHphysics::calc_periastron(double _r, double incl, double _alpha, double bh_mass,
-	int midpoint_iterations , bool plot_inbetween, int order , double min_periastron, int initial_guesses)
+	int midpoint_iterations, bool plot_inbetween, int order, double min_periastron, int initial_guesses)
 {
 	/*
 	Given a value for r (BH frame) and alpha (BH/observer frame), calculate the corresponding periastron value
@@ -297,7 +295,6 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 			midpoint_iterations (int): amount of midpoint iterations to do when searching a periastron value solving eq13
 			plot_inbetween (bool): plot
 			*/
-
 	std::vector<double> periastron_range = OperatorsOrder2::linspace(min_periastron, 2.0 * _r, initial_guesses);
 	std::vector<double> y_values;
 
@@ -320,13 +317,8 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 		};
 
 		periastron_solution = BHphysics::improve_solutions_midpoint(&BHphysics::eq13, args_eq13, periastron_range, y_values, ind, midpoint_iterations);
-		//std::cout << "improved periastron solution = " << periastron_solution << std::endl;
-	}
 
-	if (plot_inbetween) {
-		// Implement plotting if necessary
 	}
-
 	return periastron_solution;
 }
 
@@ -334,15 +326,15 @@ double BHphysics::calc_impact_parameter(double _r, double incl, double _alpha, d
 	/*
 ----------------------------------------------------------------------------------------------------------------
 
-	Calls the main body: calc_periastron, return the impact parameter. 
+	Calls the main body: calc_periastron, return the impact parameter.
 
 ----------------------------------------------------------------------------------------------------------------
 */
 	double periastron_solution = BHphysics::calc_periastron(_r, incl, _alpha, bh_mass, midpoint_iterations, plot_inbetween, order, min_periastron, initial_guesses);
 	//std::cout << "periastron_solution = " << periastron_solution<<std::endl;
-	if (periastron_solution == NAN || std::isnan(periastron_solution) ){
+	if (periastron_solution == NAN || std::isnan(periastron_solution)) {
 		// No periastron was found
-		//std::cout << "No solution was found for the periastron." << std::endl; 
+		//std::cout << "No solution was found for the periastron." << std::endl;
 		return BHphysics::ellipse(_r, _alpha, incl);
 	}
 	else if (periastron_solution <= 2. * bh_mass) {
@@ -417,11 +409,24 @@ double BHphysics::flux_observed(double r, double acc, double bh_mass, double red
 	double flux_intr = BHphysics::flux_intrinsic(r, acc, bh_mass);
 	return flux_intr / pow(redshift_factor, 4);
 }
+
+/**
+===================================================================================================================================
+* @brief The redshift_factor function calculates the gravitational redshift factor (1 + z), ignoring cosmological redshift.
+* @brief Homebrewed.
+*
+* @param[in] radius The position in polar coordinates of the emitting point
+* @param[in] angle The position in polar coordinates of the emitting
+* @param[in] incl The inclination of the observer
+* @param[in] bh_mass The mass of the black hole
+* @param[in] b_ The parameter b in the observers frame
+*
+*
+* @return a double as z_factor
+=====================================================================================================================================*/
 double BHphysics::redshift_factor(double radius, double angle, double incl, double bh_mass, double b_) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
-Calculate the gravitational redshift factor (1 + z), ignoring cosmological redshift.
-
 	WARNING: the paper is absolutely incomprehensible here. Equation 18 for the redshift completely
 	 leaves out important factors. It should be:
 	1 + z = (1 - Ω*b*cos(η)) * (-g_tt -2Ω*g_tϕ - Ω²*g_ϕϕ)^(-1/2)
@@ -437,7 +442,16 @@ Calculate the gravitational redshift factor (1 + z), ignoring cosmological redsh
 	return z_factor;
 }
 
-// Function to convert wavelength to RGB
+/**
+===================================================================================================================================
+* @brief The wavelengthToRGB function implements an algorithm to convert a given temperature in Kelvin to corresponding RGB values.
+* @brief Homebrewed.
+*
+* @param[in] temperature The black body temperature in kelvin
+* @param[in] brightness The brightness (standard = 100)
+*
+* @return a rgb vector in the (0.0,1.0) range
+=====================================================================================================================================*/
 std::vector<double> BHphysics::wavelengthToRGB(const double& temperature, const double& brightness) {//wavelength in Kelvin
 	// Normalize temperature to the range [0, 1]
 	double t_normalized = static_cast<double>(temperature / 100.0 - 20) / (70 - 20);
@@ -450,18 +464,24 @@ std::vector<double> BHphysics::wavelengthToRGB(const double& temperature, const 
 	const double intensityMax = 1.0;
 	const double gamma = 0.8;
 	red = intensityMax * std::pow(red, gamma);
-	blue= intensityMax * std::pow(blue, gamma);
+	blue = intensityMax * std::pow(blue, gamma);
 
 	// Create the RGB color
-	std::vector<double> rgb = { red, 0, blue}; // No green component
+	std::vector<double> rgb = { red, 0, blue }; // No green component
 	//if (temperature >= 4500.0 && temperature <= 5500.0)rgb = { 1.0,1.0,1.0 };
 	return rgb;
 }
 
-////////////////////////////////////////////////////////////////
-//
-//  Tanner Helland formulas
-//
+/**
+===================================================================================================================================
+* @brief The convert_TH function implements an algorithm to convert a given temperature in Kelvin to corresponding RGB values.
+* @brief Follows the Tanner Helland formulas.
+*
+* @param[in] temperature The black body temperature in kelvin
+* @param[in] brightness The brightness (standard = 100)
+*
+* @return a rgb vector in the (0.0,1.0) range
+=====================================================================================================================================*/
 std::vector<double> BHphysics::convert_TH(const double& temperature, const double& brightness)
 {
 	std::vector<double> rgb = std::vector < double>(3, 0.0);
@@ -469,7 +489,7 @@ std::vector<double> BHphysics::convert_TH(const double& temperature, const doubl
 	double green = 0.0;
 	double blue = 0.0;
 	double t = temperature * 0.01;
-		if (t <= 66)
+	if (t <= 66)
 	{
 		red = 255;
 		green = (99.4708025861 * log(t)) - 161.1195681661;
@@ -490,10 +510,16 @@ std::vector<double> BHphysics::convert_TH(const double& temperature, const doubl
 	return rgb;
 }
 
-////////////////////////////////////////////////////////////////
-//
-//  Neil Bartlett formulas
-//
+/**
+===================================================================================================================================
+* @brief The convert_NB function implements an algorithm to convert a given temperature in Kelvin to corresponding RGB values.
+* @brief Follows the Neil Bartlett formulas.
+*
+* @param[in] temperature The black body temperature in kelvin
+* @param[in] brightness The brightness (standard = 100)
+*
+* @return a rgb vector in the (0.0,1.0) range
+=====================================================================================================================================*/
 std::vector<double> BHphysics::convert_NB(const double& temperature, const double& brightness)
 {
 	std::vector<double> rgb = std::vector < double>(3, 0.0);
@@ -526,12 +552,71 @@ std::vector<double> BHphysics::convert_NB(const double& temperature, const doubl
 	return rgb;
 }
 
-void BHphysics::normalizeRGB(std::vector<double>& rgb,const double& brightness)
+void BHphysics::normalizeRGB(std::vector<double>& rgb, const double& brightness)
 {
 	double f = 0.01 * brightness;
 	if (f == 0.0)f = 0.0001;
 	//  divide by 255 to get factors between 0..1
-	rgb[0] /= (255/f);
+	rgb[0] /= (255 / f);
 	rgb[1] /= (255 / f);
 	rgb[2] /= (255 / f);
+}
+
+/**
+===================================================================================================================================
+* @brief The kelvinToRGB function implements an algorithm to convert a given temperature in Kelvin to corresponding RGB values.
+* @brief The algorithm used here is based on the Planckian locus approximation, which maps temperatures to colors in the CIE 1931 color space.
+*
+* @param[in] temp_kelvin The black body temperature in kelvin
+*
+* @return a rgb vector in the (0.0,1.0) range
+=====================================================================================================================================*/
+std::vector<double> BHphysics::kelvinToRGB(double temp_kelvin) {
+	std::vector<double> rgb = { 0.0,0.0,0.0 };
+	double temperature = temp_kelvin / 100;
+
+	double red, green, blue;
+
+	// Red calculation
+	if (temperature <= 66) {
+		red = 255;
+	}
+	else {
+		red = temperature - 60;
+		red = 329.698727446 * pow(red, -0.1332047592);
+		if (red < 0) red = 0;
+		if (red > 255) red = 255;
+	}
+
+	// Green calculation
+	if (temperature <= 66) {
+		green = temperature;
+		green = 99.4708025861 * log(green) - 161.1195681661;
+	}
+	else {
+		green = temperature - 60;
+		green = 288.1221695283 * pow(green, -0.0755148492);
+	}
+	if (green < 0) green = 0;
+	if (green > 255) green = 255;
+
+	// Blue calculation
+	if (temperature >= 66) {
+		blue = 255;
+	}
+	else if (temperature <= 19) {
+		blue = 0;
+	}
+	else {
+		blue = temperature - 10;
+		blue = 138.5177312231 * log(blue) - 305.0447927307;
+		if (blue < 0) blue = 0;
+		if (blue > 255) blue = 255;
+	}
+
+	rgb[0] = red / 255;
+	rgb[1] = green / 255;
+	rgb[2] = blue / 255;
+
+	return rgb;
 }

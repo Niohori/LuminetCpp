@@ -25,6 +25,7 @@ public:
 	std::vector<double> get_redshift_factors();
 	void calculate(const bool& isc=false);
 	double get_radius();
+	double  getMaxX();
 	
 private://variables
 	double M;  // mass of the black hole containing this isoradial
@@ -49,14 +50,12 @@ private://methods
 public://methods
 
 	std::pair<std::vector<double>, std::vector<double>> calculate_coordinates(const bool& isc=false);
-	std::vector<double> calc_redshift_factors();
+	void calc_redshift_factors();
 	bool isPointInsidePolygon(const std::pair<double, double>&, const std::pair<std::vector<double>, std::vector<double> >&);
 	std::vector<double> find_angle(double z);
 	double get_b_from_angle(double angle);
 	void calc_between(int ind);
-	std::vector<double> force_intersection(double redshift);
-	std::pair<std::vector<double>, std::vector<double>> calc_redshift_location_on_ir(double redshift, bool cartesian = false);
-
+	
 public://variables ? make get method?
 
 	find_redshift_params find_redshift_params_;
@@ -64,7 +63,7 @@ public://variables ? make get method?
 	solver_params solver_params_;
 	plot_params plot_params_;
 	ir_params ir_params_;
-
+	double maxCoordinate;
 	std::vector<double> X;
 	std::vector<double> Y;
 	std::vector<double> _radii_b;
