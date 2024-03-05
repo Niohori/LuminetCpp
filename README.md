@@ -7,6 +7,7 @@ Work in progress. Do not use as a lot of  functionalities have to be implemented
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Isoradial89.PNG" width="800" />
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Isoredshift85.PNG" width="800" />
 <img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Isoredshifts3.gif" width="800" />
+<img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/BlackHole.PNG" width="800" />
 
 # TODO
 
@@ -19,7 +20,7 @@ Work in progress. Do not use as a lot of  functionalities have to be implemented
 - Improve rendering of the accretion disk 
 
 ## The aim is also to give some clarifications to the maths behind the program (in progress). 
-<img src="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/images/Coordinates_system.PNG" width="800" />
+<a href="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/Luminet.pdf>
 
 # Dependencies
 - Boost for the elliptic integrals
