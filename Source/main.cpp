@@ -8,8 +8,8 @@
 
 int main() {
 	Tests test;
-	unsigned test_choice =2;
-	const unsigned type_of_plot = 1;
+	unsigned test_choice =1;
+	const unsigned type_of_plot = 3;
 	const double inclination = 85.0;
 
 	const double bh_mass =1.;// provide black hole mass value
