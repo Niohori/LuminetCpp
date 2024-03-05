@@ -20,7 +20,7 @@ Work in progress. Do not use as a lot of  functionalities have to be implemented
 - Improve rendering of the accretion disk 
 
 ## The aim is also to give some clarifications to the maths behind the program (in progress). 
-<a href="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/Luminet.pdf">
+<a href="https://github.com/Niohori/LuminetCpp/blob/main/Documentation/Math/Luminet.pdf"/>
 
 # Dependencies
 - Boost for the elliptic integrals
