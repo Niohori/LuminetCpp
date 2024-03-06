@@ -178,7 +178,7 @@ void Tests::test_iso_radials(const double& bh_mass, const double& radius, const 
 				count = inclinations.size() - 1;
 			}
 			if (!loop) { break; };
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(250));
 			//escape = _getch();
 			//if (escape == 27) { std::cout << "exited: " << std::endl; };
 		}
@@ -342,7 +342,7 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 
 
 void Tests::test_accretion_disk(const double& bh_mass, const double& radius, const double& inclination, const int& order, const unsigned& my_switch) {
-	accretiondisk::AccretionDisk aDisk(bh_mass, inclination * M_PI / 180, 6* bh_mass, radius,100000);
+	accretiondisk::AccretionDisk aDisk(bh_mass, inclination * M_PI / 180, 6* bh_mass, radius,5000000);
 	double maxFluxP = aDisk.getMaxFluxPrimary();
 	double maxFluxS = aDisk.getMaxFluxSecundary();
 	double minFluxP = aDisk.getMinFluxPrimary();

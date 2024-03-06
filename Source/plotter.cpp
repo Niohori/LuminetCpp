@@ -342,8 +342,8 @@ void Plotter::plot_BlackHole (double inclination, std::vector<double>& xx_, std:
 	{
 		if (x_max < xx[i]) { x_max = xx[i]; }
 	}
-
-	x_max *= 1.;
+	double magnifier = 1.5;
+	x_max /= magnifier;
 	x_min = -x_max;
 	y_max = x_max;
 	y_min = x_min;
