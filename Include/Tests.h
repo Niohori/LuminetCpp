@@ -31,5 +31,6 @@ static void test_BH_rendering(const double&, const double&);
 static void test_iso_radials(const double&, const double&, const double&, const unsigned&);
 static void test_iso_redshifts(const double&, const double&, const double&, const int &,const unsigned&);
 static void test_accretion_disk(const double&, const double&, const double&, const int&, const unsigned&);
+static void test_display_eq13(const double&, const double&, const double&, const int&, const unsigned&);
 };
 #endif

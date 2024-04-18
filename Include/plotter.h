@@ -33,6 +33,7 @@ public:
 	void plot_isoradials(double, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, const double&, bool = false);//isoradials with redshift
 	void plot_iso_redshifts(const double&, const double&, const std::multimap<double, std::vector<meshes::Point> >&, const double&, const double&, const double&, const double&, const std::pair<std::vector<double>, std::vector<double>>&, const std::pair<std::vector<double>, std::vector<double>>&, const bool&);
 	void plot_BlackHole(double inclination, std::vector<double>& xx_, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, std::vector<double>&, const bool&);
+	void plot_Eq13(const std::vector<double> & peri, const std::vector<double> & val);
 private:// Functions to convert a value to RGB format
 	std::vector<std::tuple<double, double, double> >convertToRGB(const std::vector<double>&);
 	std::vector<std::tuple<double, double, double> >convertToRGBbis(const std::vector<double>&, const double&);

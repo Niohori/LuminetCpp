@@ -80,5 +80,8 @@
     <ClInclude Include="Include\AccretionDisk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Brent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

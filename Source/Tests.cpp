@@ -5,7 +5,7 @@
 TEMPORARY MAIN: USED FOR TESTINGS.
 ************************************************************************************************************************************/
 
-void print_ISCO(const std::pair< std::vector<double>, const std::vector<double> > Isco_curve, const double& inclination) {
+void print_eq13(const std::vector<double> perias, const std::vector<double> vals, const double& inclination, const double& phi, const double& radius, const double& alfa) {
 	// Convert double to string with 2-digit precision
 	std::string inclination_as_string = std::to_string(inclination);
 	size_t dotPos = inclination_as_string.find('.');
@@ -13,21 +13,21 @@ void print_ISCO(const std::pair< std::vector<double>, const std::vector<double> 
 		inclination_as_string = inclination_as_string.substr(0, dotPos + 0); // keep 2 digits after the dot
 	}
 
-	std::string filename = "data_dump_of_ISCO_curve_" + inclination_as_string + ".txt";
+	std::string filename = "data_dump_of_Eq13_" + inclination_as_string + ".txt";
 
 	// Open the file for writing
 	std::ofstream outputFile(filename);
 
 	// Check if the file is opened successfully
 	if (outputFile.is_open()) {
-		outputFile << "x;y;";
-		for (int i = 0; i < Isco_curve.first.size(); i++) {
-			outputFile << std::endl << Isco_curve.first[i] << ";" << Isco_curve.second[i] << ";";
+		outputFile << "Radius=" << radius << ";Phi=" << phi << ";Alpha=" << alfa << ";Inclination=" << inclination << "; ";
+		for (int i = 0; i < vals.size(); i++) {
+			outputFile << std::endl << perias[i] << ";" << vals[i] << ";";
 		}
 		// Close the file
 		outputFile.close();
 
-		std::cout << "ISCO-curve has been written to " << filename << std::endl;
+		std::cout << "Equation has been written to " << filename << std::endl;
 	}
 	else {
 		std::cerr << "Error opening file: " << filename << std::endl;
@@ -35,7 +35,6 @@ void print_ISCO(const std::pair< std::vector<double>, const std::vector<double> 
 
 	std::cout << "end now " << std::endl;
 }
-
 
 /************************************************************************************************************************************
 TESTS OF PLOTTING SINGLE ISORADIALS
@@ -120,10 +119,16 @@ void Tests::test_iso_radials(const double& bh_mass, const double& radius, const 
 		t1 = std::chrono::high_resolution_clock::now();
 		for (double p = 1; p < 180.0; p += step) {
 			inclinations.push_back(p);
-			/*
-			IR.push_back(std::make_unique<Isoradial>(distance * bh_mass, p * M_PI / 180, bh_mass, 0));
-			IRg.push_back(std::make_unique<Isoradial>(distance * bh_mass, p * M_PI / 180, bh_mass, 1));*/
 		}
+		inclinations.clear();
+		for (double p = 0.0; p < 180.0; p += 1.0) {
+			double an = 90.0 * std::sin(p/180.0*M_PI );
+			if (p > 90) {
+				an = 180.0 - 90.0 * std::sin(p / 180.0 * M_PI);
+			}
+			inclinations.push_back(an);
+		}
+
 		IR = std::vector<std::unique_ptr<Isoradial> >(inclinations.size());
 		IRg = std::vector<std::unique_ptr<Isoradial> >(inclinations.size());
 		XmaxX = std::vector<double>(inclinations.size());
@@ -194,7 +199,6 @@ void Tests::test_iso_radials(const double& bh_mass, const double& radius, const 
 /************************************************************************************************************************************
 TESTS OF PLOTTING ISOREDSHIFTS
 ************************************************************************************************************************************/
-
 
 void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, const double& inclination, const int& order, const unsigned& my_switch) {
 	//==================================================================
@@ -331,7 +335,7 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		break;
-	
+
 	default:
 		// code to be executed if
 		// expression doesn't match any constant
@@ -339,10 +343,8 @@ void Tests::test_iso_redshifts(const double& bh_mass, const double& radius, cons
 	};
 };
 
-
-
 void Tests::test_accretion_disk(const double& bh_mass, const double& radius, const double& inclination, const int& order, const unsigned& my_switch) {
-	accretiondisk::AccretionDisk aDisk(bh_mass, inclination * M_PI / 180, 6* bh_mass, radius,5000000);
+	accretiondisk::AccretionDisk aDisk(bh_mass, inclination * M_PI / 180, 6 * bh_mass, radius, 1000);;
 	double maxFluxP = aDisk.getMaxFluxPrimary();
 	double maxFluxS = aDisk.getMaxFluxSecundary();
 	double minFluxP = aDisk.getMinFluxPrimary();
@@ -350,29 +352,58 @@ void Tests::test_accretion_disk(const double& bh_mass, const double& radius, con
 	double power_scale = .9;
 	std::cout << "Accretion Disk: calculations done " << std::endl;
 	Plotter plot;
-	/*while (true)
+	while (true)
 	{
-		aDisk.updateDisk( 1.0);*/
-		std::vector<accretiondisk::Particle> primaryParticles = aDisk.getPrimaryImage();
-		std::vector<accretiondisk::Particle> secundaryParticles = aDisk.getSecundaryImage();
+		aDisk.updateDisk( 1.0);
+	std::vector<accretiondisk::Particle> primaryParticles = aDisk.getPrimaryImage();
+	std::vector<accretiondisk::Particle> secundaryParticles = aDisk.getSecundaryImage();
 
-		std::vector<double> fluxesPrimary;
-		std::vector<double> xPrimary;
-		std::vector<double> yPrimary;
-		std::vector<double> fluxesSecundary;
-		std::vector<double> xSecundary;
-		std::vector<double> ySecundary;
-		for (const auto& point : primaryParticles) {
-			fluxesPrimary.push_back(std::pow((std::abs(point.Fo) + minFluxP) / (maxFluxP + minFluxP), power_scale));//Enhances "contrast"
-			xPrimary.push_back(point.x);
-			yPrimary.push_back(point.y);
-		}
-		for (const auto& point : secundaryParticles) {
-			fluxesSecundary.push_back(std::pow((std::abs(point.Fo) + minFluxS) / (maxFluxS + minFluxS), power_scale));//Enhances "contrast"
-			xSecundary.push_back(point.x);
-			ySecundary.push_back(point.y);
-		}
-		plot.plot_BlackHole(inclination, xPrimary, yPrimary, fluxesPrimary, xSecundary, ySecundary, fluxesSecundary,false);
+	std::vector<double> fluxesPrimary;
+	std::vector<double> xPrimary;
+	std::vector<double> yPrimary;
+	std::vector<double> fluxesSecundary;
+	std::vector<double> xSecundary;
+	std::vector<double> ySecundary;
+	for (const auto& point : primaryParticles) {
+		double fl = std::pow((std::abs(point.Fo) + minFluxP) / (maxFluxP + minFluxP), power_scale);
+		fluxesPrimary.push_back(std::pow((std::abs(point.Fo) + minFluxP) / (maxFluxP + minFluxP), power_scale));//Enhances "contrast"
+		xPrimary.push_back(point.x);
+		yPrimary.push_back(point.y);
+		//std::cout << "(x,y): (" << point.x << ", " << point.y << ") with flux :" << fl << std::endl;
+	}
+	for (const auto& point : secundaryParticles) {
+		fluxesSecundary.push_back(std::pow((std::abs(point.Fo) + minFluxS) / (maxFluxS + minFluxS), power_scale));//Enhances "contrast"
+		xSecundary.push_back(point.x);
+		ySecundary.push_back(point.y);
+	}
+	plot.plot_BlackHole(inclination, xPrimary, yPrimary, fluxesPrimary, xSecundary, ySecundary, fluxesSecundary, true);
+}
+};
 
+void Tests::test_display_eq13(const double& bh_mass, const double& radius, const double& incl, const int& order, const unsigned& my_switch) {
+	std::vector<std::vector<double>> p;
+	std::vector<std::vector<double>> v;
+	double inclination = incl * M_PI / 180;
+	double phi = 5 * M_PI / 180;
+	double alpha = BHphysics::alpha(phi, inclination);
+	double lower_bound = 2.0 * bh_mass;
+	double upper_bound = 2.0 * radius;
+	
+	std::vector<double> periastrons = OperatorsOrder2::linspace(lower_bound, upper_bound, 1000);
+	std::vector<double> valEq13;;
+	for (auto p : periastrons) {
+		double val = BHphysics::eq13(p, radius, alpha, bh_mass, inclination, order);
+		valEq13.push_back(val);
+		//if (val * val < 1e-4) { std::cout << "zero encountered" << std::endl; }
+	}
 
+	std::vector<double> valsEq13;
+	for (auto p : periastrons) {
+		double val = BHphysics::eq13(p, radius, alpha, bh_mass, inclination, order);
+		valsEq13.push_back(val);
+		//if (val * val < 1e-4) { std::cout << "zero encountered" << std::endl; }
+	}
+	print_eq13(periastrons, valsEq13, incl, phi * 180 / M_PI, radius, alpha * 180 / M_PI);
+	Plotter plot;
+	plot.plot_Eq13(periastrons, valEq13);
 };

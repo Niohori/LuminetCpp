@@ -109,12 +109,15 @@ void AccretionDisk::updateDisk( const double& deltaT) {
 		double phiS = reduceAngle(secundaryParticles[p].phi + omegaS * deltaT);*/
 		double phiP = primaryParticles[p].phi + omegaP * deltaT;
 		double phiS = secundaryParticles[p].phi + omegaS * deltaT;
+		if (phiP > 2.0*M_PI) { phiP -= 2.0 * M_PI; }
+		if (phiS > 2.0*M_PI) { phiS -= 2.0 * M_PI; }
 		double alphaP = BHphysics::alpha(phiP, inclination);
 		double alphaS = BHphysics::alpha(phiP, inclination);
 		if (phiP > M_PI) { alphaP *= -1; }
 		if (phiS > M_PI) { alphaS *= -1; }
 		double bPrimary = BHphysics::calc_impact_parameter(radiusP, inclination, alphaP, M, solver_params_.midpoint_iterations,
 			solver_params_.plot_inbetween, 0, M * solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
+		
 		double bSecundary = BHphysics::calc_impact_parameter(radiusS, inclination, alphaS, M, solver_params_.midpoint_iterations,
 			solver_params_.plot_inbetween, 1, M * solver_params_.min_periastron, solver_params_.initial_guesses, solver_params_.use_ellipse);
 

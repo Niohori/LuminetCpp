@@ -4,6 +4,80 @@ BHphysics::BHphysics() {
 	;
 }
 
+// Find the minimum of the function within the given interval [start, end]
+double BHphysics::findMinimum(double ir_radius, double ir_angle, double bh_mass, double incl, int order, double start, double end) {
+	double y_0 = eq13(start, ir_radius, ir_angle, bh_mass, incl, order);;
+	double y_1= eq13(end, ir_radius, ir_angle, bh_mass, incl, order);;
+	if (y_0 * y_1 >= 0) { return NAN; }
+	double step = 0.01;
+	int nIterations = int((end - start) / step);
+	double begin =start;
+	double stop = end;
+	if (order == 0) {
+		stop = start;
+		begin = end;
+		step *= -1.0;
+	}
+	int sign1= int(eq13(begin, ir_radius, ir_angle, bh_mass, incl, order)* eq13(begin+step, ir_radius, ir_angle, bh_mass, incl, order)/std::abs(eq13(begin, ir_radius, ir_angle, bh_mass, incl, order) * eq13(begin + step, ir_radius, ir_angle, bh_mass, incl, order)));
+	int sign2 =sign1;
+	double x = begin;
+	int count = 0;
+	while (count < nIterations){
+		count++;
+		y_0 = eq13(x, ir_radius, ir_angle, bh_mass, incl, order);
+		y_1 =eq13(x+step, ir_radius, ir_angle, bh_mass, incl, order);
+		sign1 = int(y_0 * y_1 / std::abs(y_0*y_1));
+		//std::cout << "sign1 vs. sign2: " << sign1 << " <---> " << sign2<< std::endl;
+		if (sign1*sign2<0) {//change of sign =sign to stop
+			return (2.0 * x + step) / 2.0;
+		}
+		sign2 = sign1;
+		x = x + step;
+	}
+
+	return NAN;
+}
+
+/*
+	  Bisection method implementation.
+
+	  @ -- : parameters function for which the root is to be found.
+	  @ start : left limit of root bracketing interval.
+	  @ end : right limit of root bracketing interval.
+
+	  @ Returns a double giving the value of the free parameter generating  the root solution.
+	*/
+double BHphysics::findRoot(double ir_radius, double ir_angle, double bh_mass, double incl, int n, double start, double end) {
+	const size_t maxIter = 50;//maximum number of iterations allowed
+	const size_t scarboroughCrit = 5; //Scarborough criterion's parameter for tracking convergence of the solution
+	double  currmid, prevmid, fmid, checkLeft, checkRight;
+	for (int n = 0; n < maxIter; n++)
+	{
+		currmid = (start + end) / 2;
+		fmid = eq13(currmid, ir_radius, ir_angle, bh_mass, incl, n);
+		checkLeft = eq13(start, ir_radius, ir_angle, bh_mass, incl, n) * fmid;
+		checkRight = eq13(end, ir_radius, ir_angle, bh_mass, incl, n) * fmid;
+		if (checkLeft < 0) end = currmid;
+		else if (checkRight < 0) start = currmid;
+		else if (fmid == 0)
+		{
+			return currmid;
+		}
+		else
+		{
+			return NAN;
+
+		}
+
+		if (n >= 2 && std::abs((currmid - prevmid) / currmid) < 0.5 * pow(10, 2 - static_cast<double>(scarboroughCrit)))
+		{
+			return currmid;
+		}
+		prevmid = currmid;
+	}
+	return currmid;
+}
+
 int BHphysics::find_index_sign_change_indices(const std::vector<double>& y) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
@@ -27,7 +101,7 @@ int BHphysics::find_index_sign_change_indices(const std::vector<double>& y) {
 	return index;
 }
 
-double BHphysics::calc_q(double periastron, double bh_mass, double tol = 1e-3) {
+double BHphysics::calc_q(double periastron, double bh_mass) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
  Convert Periastron distance P to the variable Q
@@ -49,7 +123,7 @@ double BHphysics::calc_q(double periastron, double bh_mass, double tol = 1e-3) {
 	return std::sqrt((periastron - 2. * bh_mass) * (periastron + 6. * bh_mass));
 }
 
-double BHphysics::calc_b_from_periastron(double periastron, double bh_mass, double tol = 1e-5) {
+double BHphysics::calc_b_from_periastron(double periastron, double bh_mass) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
   Get impact parameter b from Periastron distance P
@@ -81,7 +155,7 @@ double BHphysics::k(double periastron, double bh_mass) {
 	return std::sqrt((q - periastron + 6 * bh_mass) / (2 * q));  // the modulus of the elliptic integral
 }
 
-double BHphysics::k2(double periastron, double bh_mass, double tol = 1e-6) {
+double BHphysics::k2(double periastron, double bh_mass) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculate the squared modulus of elliptic integral
@@ -97,13 +171,13 @@ Calculate the squared modulus of elliptic integral
 	return (q - periastron + 6 * bh_mass) / (2 * q);  // the modulus of the ellipitic integral
 }
 
-double BHphysics::zeta_inf(double periastron, double bh_mass, double tol = 1e-6) {
+double BHphysics::zeta_inf(double periastron, double bh_mass) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
  Calculate Zeta_inf for elliptic integral F(Zeta_inf, k)
 ----------------------------------------------------------------------------------------------------------------
 */
-	double q = calc_q(periastron, bh_mass);  
+	double q = calc_q(periastron, bh_mass);
 	double arg = (q - periastron + 2 * bh_mass) / (q - periastron + 6 * bh_mass);
 	double z_inf = std::asin(std::sqrt(arg));
 	return z_inf;
@@ -116,19 +190,19 @@ Calculate the elliptic integral argument Zeta_r for a given value of P and r
 ----------------------------------------------------------------------------------------------------------------
 */
 
-	double q = calc_q(periastron, bh_mass);  
+	double q = calc_q(periastron, bh_mass);
 	double a = (q - periastron + 2 * bh_mass + (4 * bh_mass * periastron) / r) / (q - periastron + (6 * bh_mass));
 	double s = std::asin(std::sqrt(a));
 	return s;
 }
 
-double BHphysics::cos_gamma(double alpha, double incl, double tol = 1e-5) {
+double BHphysics::cos_gamma(double alpha, double incl) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 Calculate the cos of the angle gamma
 ----------------------------------------------------------------------------------------------------------------
 */
-	if (std::abs(incl) < tol) {
+	if (std::abs(incl) < 1e-2) {
 		return 0;
 	}
 	return std::cos(alpha) / std::sqrt(std::cos(alpha) * std::cos(alpha) + 1 / (std::tan(incl) * std::tan(incl)));  // real
@@ -181,7 +255,7 @@ std::vector<double> BHphysics::filter_periastrons(const std::vector<double>& per
 *
 * @return the value  Eq13(P,r) (=0, if periastron is found)
 =====================================================================================================================================*/
-double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, double bh_mass, double incl, int n, double tol) {
+double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, double bh_mass, double incl, int n) {
 	/*
 ----------------------------------------------------------------------------------------------------------------
 	Relation between radius (where photon was emitted in accretion disk), a and P.
@@ -195,11 +269,11 @@ double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, dou
 ----------------------------------------------------------------------------------------------------------------
 */
 
-	double z_inf = zeta_inf(periastron, bh_mass, tol);
+	double z_inf = zeta_inf(periastron, bh_mass);
 	double q = calc_q(periastron, bh_mass);
-	double m_ = k2(periastron, bh_mass, tol);
+	double m_ = k2(periastron, bh_mass);
 	double ell_inf = std::ellint_1(std::sqrt(m_), z_inf);  //incomplete elliptic integral
-	double g = std::acos(cos_gamma(ir_angle, incl, tol));
+	double g = std::acos(cos_gamma(ir_angle, incl));
 
 	double ellips_arg;
 	if (n) {
@@ -212,10 +286,9 @@ double BHphysics::eq13(double periastron, double ir_radius, double ir_angle, dou
 	double sn = boost::math::jacobi_sn(std::sqrt(m_), ellips_arg); //Jacobi elliptic function sn TO CHECK:arguments
 	double term1 = -(q - periastron + 2. * bh_mass) / (4. * bh_mass * periastron);
 	double term2 = ((q - periastron + 6. * bh_mass) / (4. * bh_mass * periastron)) * sn * sn;
-	//std::cout << "F13 = " << 1 / ir_radius - term1 - term2 << std::endl;
+
 	return 1. - ir_radius * (term1 + term2);
 }
-
 
 std::tuple<std::vector<double>, std::vector<double>, int>BHphysics::midpoint_method(
 	/*
@@ -223,7 +296,7 @@ std::tuple<std::vector<double>, std::vector<double>, int>BHphysics::midpoint_met
 //
 ----------------------------------------------------------------------------------------------------------------
 */
-const std::function<double(double, double, double, double, double, int, double)> func,
+const std::function<double(double, double, double, double, double, int)> func,
 const std::unordered_map<std::string, double>& args,
 const std::vector<double>& x,
 const std::vector<double>& y,
@@ -239,7 +312,7 @@ int index_of_sign_change)
 
 	double y0 = new_y[index_of_sign_change];
 	double y1 = new_y[index_of_sign_change + 1];
-	double inbetween_solution = func(inbetween_x, args.at("ir_radius"), args.at("ir_angle"), args.at("bh_mass"), args.at("incl"), args.at("n"), args.at("tol"));
+	double inbetween_solution = func(inbetween_x, args.at("ir_radius"), args.at("ir_angle"), args.at("bh_mass"), args.at("incl"), args.at("n"));
 	new_y.insert(new_y.begin() + index_of_sign_change + 1, inbetween_solution);
 
 	int ind_of_sign_change_ = index_of_sign_change + (y0 * inbetween_solution < 0 ? 0 : 1);
@@ -252,7 +325,7 @@ double BHphysics::improve_solutions_midpoint(
 //
 ----------------------------------------------------------------------------------------------------------------
 */
-const std::function<double(double, double, double, double, double, int, double)>& func,
+const std::function<double(double, double, double, double, double, int)>& func,
 const std::unordered_map<std::string, double>& args,
 const std::vector<double>& x,
 const std::vector<double>& y,
@@ -295,13 +368,14 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 			midpoint_iterations (int): amount of midpoint iterations to do when searching a periastron value solving eq13
 			plot_inbetween (bool): plot
 			*/
+	//auto t1 = std::chrono::high_resolution_clock::now();
 	std::vector<double> periastron_range = OperatorsOrder2::linspace(min_periastron, 2.0 * _r, initial_guesses);
 	std::vector<double> y_values;
 
 	for (double periastron : periastron_range) {
 		//auto a = eq13(periastron, _r, _alpha, bh_mass, incl, order, 1e-6);
 		//std::cout << "Result of equation 13 = " << a << std::endl;
-		y_values.push_back(eq13(periastron, _r, _alpha, bh_mass, incl, order, 1e-6));
+		y_values.push_back(eq13(periastron, _r, _alpha, bh_mass, incl, order));
 	}
 	auto ind = find_index_sign_change_indices(y_values);
 	//std::cout << "find_index_sign_change_indices = " << ind << std::endl;
@@ -317,8 +391,29 @@ double BHphysics::calc_periastron(double _r, double incl, double _alpha, double 
 		};
 
 		periastron_solution = BHphysics::improve_solutions_midpoint(&BHphysics::eq13, args_eq13, periastron_range, y_values, ind, midpoint_iterations);
-
 	}
+	/*auto t2 = std::chrono::high_resolution_clock::now();
+	std::cout << "Time (s) for old method  " << (t2 - t1).count() / 1e6 << " ms." << " ("<< std::endl;
+	std::cout << std::endl << "=====================================================================================================================================================" << std::endl << std::endl;
+	t1 = std::chrono::high_resolution_clock::now();*/
+	double lower_bound =3.1 * bh_mass;
+	double upper_bound = 2.0*_r;
+
+
+	 double	minloc = findMinimum(_r, _alpha, bh_mass, incl, order, lower_bound, upper_bound);
+
+	
+	//return minval;
+	/*t2 = std::chrono::high_resolution_clock::now();
+	std::cout << "Time (s) for new method  " << (t2 - t1).count() / 1e6 << " ms." << " (" << std::endl;
+	std::cout << std::endl << "=====================================================================================================================================================" << std::endl << std::endl;*/
+
+	// Print optimized results
+	//if (order == 1) {
+	//std::cout <<    "ORDER " << order <<  "   Radius "<< _r << "  Periastron with old algorithm : " << periastron_solution << "  Dlib lfbgs algorithm gives : " << minloc << " Ratio : "<< minloc/ periastron_solution<<std::endl;// starting_point(0) << std::endl;
+	//}
+	 //periastron_solution = minloc;
+	 //std::cout << "Periastron versus minloc for order "<<order << ": " << periastron_solution << " <---> " << minloc << std::endl;
 	return periastron_solution;
 }
 
@@ -332,14 +427,18 @@ double BHphysics::calc_impact_parameter(double _r, double incl, double _alpha, d
 */
 	double periastron_solution = BHphysics::calc_periastron(_r, incl, _alpha, bh_mass, midpoint_iterations, plot_inbetween, order, min_periastron, initial_guesses);
 	//std::cout << "periastron_solution = " << periastron_solution<<std::endl;
+	//return BHphysics::calc_b_from_periastron(periastron_solution, bh_mass);
 	if (periastron_solution == NAN || std::isnan(periastron_solution)) {
 		// No periastron was found
 		//std::cout << "No solution was found for the periastron." << std::endl;
+		//return BHphysics::calc_b_from_periastron(periastron_solution, bh_mass);
 		return BHphysics::ellipse(_r, _alpha, incl);
 	}
 	else if (periastron_solution <= 2. * bh_mass) {
 		// Periastron found is non-physical
 		if (use_ellipse) {
+			//std::cout << "Ellipse used." << std::endl;
+			//return BHphysics::calc_b_from_periastron(periastron_solution, bh_mass);
 			return BHphysics::ellipse(_r, _alpha, incl);
 		}
 		else {
